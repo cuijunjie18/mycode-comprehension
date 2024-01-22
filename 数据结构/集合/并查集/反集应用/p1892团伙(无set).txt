@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[2010];
+int s;
+int Find(int x)
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int a,int b)
+{
+    int f1 = Find(a);
+    int f2 = Find(b);
+    if(f1 == f2) return;
+    f[f2] = f1;
+}
+int main()
+{
+    int n,m,a,b;
+    char ch;
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=2*n;i++)
+    {
+        f[i] = i;
+    }
+    while(m--)
+    {
+        scanf(" %c",&ch);
+        if(ch == 'F')
+        {
+            scanf("%d%d",&a,&b);
+            Join(a,b);
+        }
+        else
+        {
+            scanf("%d%d",&a,&b);
+            Join(b,a+n);//难点，以小的为祖先，才能在后续计算集合数的时候成功
+            Join(a,b+n);
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(Find(i) == i) s++;
+    }
+    printf("%d\n",s);
+    return 0;
+}

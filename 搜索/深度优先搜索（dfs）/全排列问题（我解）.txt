@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 100
+int visit[N];
+int number[N];
+int n;
+void DFS(int times,int a)
+{
+    if(times == n)
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            printf("%d ",number[i]);
+        }
+        printf("\n");
+        visit[a] = 0;
+        return;
+    }
+    else
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            if(!visit[i])
+            {
+                visit[i] = 1;
+                number[times+1] = i;
+                DFS(times+1,i);
+                visit[i] = 0;
+            }
+        }
+    }
+
+}
+int main()
+{
+    printf("Please input the total number:");
+    scanf("%d",&n);
+    DFS(0,n);
+    return 0;
+}

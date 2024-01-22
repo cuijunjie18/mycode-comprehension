@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//顺序存储树的数据类型，建立顺序结构(数组存储)
+{
+    int l,r;
+}TREE;
+TREE a[300];//下标值就代表当前节点的值
+int Build(char *instr,char *prestr,int length)//核心函数
+{
+    if(length == 0) return 0;//如果已经建立完了，则返回0，代表该节点无左或右子树
+    int ch = prestr[0];//当前节点值为当前子树的先序遍历的第一位
+    int pos = 0;
+    while(instr[pos]!= ch) pos++;//确定该节点在当前子树的中序遍历中的位置，便于确定左右子树大小
+    a[ch].l = Build(&instr[0],&prestr[1],pos);//建立该节点左子树的值，核心递归
+    a[ch].r = Build(&instr[pos+1],&prestr[pos+1],length - pos - 1);//建立该节点右子树的值，核心递归
+    return ch;
+}
+void post_order(int x)//后序遍历
+{
+    if(a[x].l) post_order(a[x].l);
+    if(a[x].r) post_order(a[x].r);
+    printf("%c",x);
+}
+int main()
+{
+    char instr[30];
+    char prestr[30];
+    scanf("%s",instr);//读入中序
+    scanf("%s",prestr);//读入前序
+    int n = strlen(instr);//确定节点数
+    Build(instr,prestr,n);//建立树
+    post_order(prestr[0]);//先序遍历
+    return 0;
+}

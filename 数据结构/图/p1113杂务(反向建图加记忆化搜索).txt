@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[10001];//存储反向有向图，含义为由谁可以走到该点
+int f[10001];//完成该任务及其所有准备任务的最短时间
+int t[10001];//每个任务完成所需要的时间
+int ans;//答案
+int DFS(int x,int used)//搜索
+{
+    if(g[x].size() == 0) return used;//如果该点无法由其他点到达，即为初始点，搜索结束，返回耗时
+    if(f[x]) return f[x] + used - t[x];//如果已经搜索过这点，返回f[x]并加上used减去本身时间(因为递归过程多加了1次)
+    int temp = used;//保存当前递归耗时
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        temp = max(temp,DFS(g[x][i],used + t[g[x][i]]));//取最大值
+    }
+    return temp;//返回
+}
+int main()
+{
+    int n,x,y;
+    scanf("%d",&n);//输入任务数
+    for (int i = 1;i<=n;i++)//顺序输入每个任务的信息
+    {
+        scanf("%d%d",&x,&t[i]);//x为当前任务，t[i]为当前任务完成要的时间
+        do
+        {
+            scanf("%d",&y);
+            if(y!=0) g[i].push_back(y);//该任务的准备任务，及在有向图含义中为y可以到达i
+        }while(y!=0);
+    }
+    for (int i = 1;i<=n;i++)//对每个任务求其完成本身及全部准备任务的最短时间
+    {
+        f[i] = DFS(i,t[i]);//记录
+        ans = max(ans,f[i]);//取最大值，因为在图中有的任务是没有后继的，就可能成为完成全部任务的答案，取最晚完成的
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

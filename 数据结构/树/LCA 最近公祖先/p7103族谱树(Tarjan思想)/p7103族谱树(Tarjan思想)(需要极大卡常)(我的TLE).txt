@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[5000001];//记录父亲
+int ans[5000001];//记录深度为x时的LCA(动态变化)
+int depth[5000001];//记录深度
+vector <int> g[5000001];//邻接表存图
+inline int read()//快读就不用说了吧(我还不会)
+{
+	int s=0;char c=getchar();
+	while(!isdigit(c))  c=getchar();
+	while(isdigit(c))  s=(s<<3)+(s<<1)+(c^48),c=getchar();
+	return s;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);//路径压缩
+}
+void DFS(int x,int fa,int h)//x为当前节点，fa为父亲节点(主要用于路径压缩合并)，h为当前深度
+{
+    depth[x] = h + 1;//记录当前节点深度
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历子树
+    {
+        DFS(g[x][i],x,h+1);//不用判断回头路，因为有向
+    }
+    if(ans[depth[x]] == 0)//如果当前深度的LCA还没有，设为自己
+    {
+        ans[depth[x]] = x;
+    }
+    else// Tarjan思想来了，如果该深度已经有节点访问过了
+    {
+        ans[depth[x]] = Find(ans[depth[x]]);//改变LCA为之前LCA的Find(ans[depth[x]])!!!核心难点
+    }
+    f[x] = fa;//改变父亲，用于路径压缩
+}
+int main()
+{
+    int n,q,a;
+    scanf("%d%d",&n,&q);
+    for (int i = 1;i<=n;i++)//读入父亲
+    {
+        f[i] = read();
+    }
+    for (int i = 1;i<=n;i++)//建立有向树(因为父亲已经知道)，可以确保不会回头走了
+    {
+        g[f[i]].push_back(i);
+    }
+    for (int i = 1;i<=n;i++)//用完原f[i]数据后用来搞并查集
+    {
+        f[i] = i;
+    }
+    DFS(1,1,0);//从根节点1开始DFS，父亲为自己，题目要求根节点深度为1
+    for (int i = 1;i<=q;i++)//回答答案
+    {
+        a = read();
+        printf("%d\n",ans[a]);
+    }
+    return 0;
+}

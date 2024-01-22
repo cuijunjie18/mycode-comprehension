@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[100001];
+int size[100001];
+int Find(int x)
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int x,int y)
+{
+    int f1 = Find(x);
+    int f2 = Find(y);
+    if(f1 != f2)
+    {
+        if(size[f1]<size[f2])
+        {
+            int temp = f1;
+            f1 = f2;
+            f2 = temp;
+        }
+        f[f2] = f1;
+        size[f1] += size[f2];
+    }
+}
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=n;i++)
+    {
+        f[i] = i;
+        size[i] = 1;
+    }
+    int a,x,y;
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%d",&a);
+        if(a == 1)
+        {
+            scanf("%d%d",&x,&y);
+            Join(x,y);
+        }
+        else if(a == 2)
+        {
+            scanf("%d%d",&x,&y);
+            if(Find(x) == Find(y))//注意，一定不能直接f[x] == f[y],因为可能还没改过
+            {
+                printf("Y\n");
+            }
+            else printf("N\n");
+        }
+    }
+    return 0;
+}

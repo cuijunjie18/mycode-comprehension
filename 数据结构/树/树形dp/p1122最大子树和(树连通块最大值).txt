@@ -1,0 +1,40 @@
+//理解的关键:找到树上点权之和最大的一个连通分量！！！连通，也就是连通块里面谁当根都一样,最后枚举ans = max(ans,f)
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[16001];//邻接表存图
+int b[16001];//节点的权值(花的美丽程度)
+int f[16001];//以i节点为根节点的树的最大权值和(初始化为自己的美丽值)
+int ans = -2147483647;//初始化答案
+void DFS(int x,int fa)//树形dp，DFS形式，先到达底部
+{
+    f[x] = b[x];//初始化节点最大权值和,至少为自己，哪怕负数
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        if(g[x][i] == fa) continue;//来自父节点，跳过，不走回头路
+        DFS(g[x][i],x);//往下dp
+        if(f[g[x][i]]>0) f[x] += f[g[x][i]];//如果子树为正贡献，加到根节点
+    }
+}
+int main()
+{
+    int n,a,k;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)//输入节点权值
+    {
+        scanf("%d",&b[i]);
+    }
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        scanf("%d%d",&a,&k);
+        g[a].push_back(k);
+        g[k].push_back(a);
+    }
+    DFS(1,0);//dp
+    for (int i = 1;i<=n;i++)//取最大值！！！关键理解步骤
+    {
+        ans = max(ans,f[i]);//对于每个根节点，取最大值，自己想想(在树上圈个连通块看看)
+    }
+    printf("%d\n",ans);//华丽输出
+    return 0;
+}

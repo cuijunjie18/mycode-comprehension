@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+int ans;
+int a[17];
+int b1[5][5];
+int b2[5][5];
+int b3[5][5];
+void DFS(int x)
+{
+    if(x>16)
+    {
+        ans++;
+        for (int i = 0;i<=3;i++)
+        {
+            for (int j = 1;j<=4;j++)
+            {
+                printf("%d ",a[i*4+j]);
+            }
+            printf("\n");
+        }
+        printf("\n\n\n\n");
+        return;
+    }
+    int row = (x-1)/4+1;
+    int col = (x-1)%4+1;
+    int block = (row-1)/2*2+(col-1)/2+1;
+    for (int i = 1;i<=4;i++)
+    {
+        if(b1[row][i] == 0&&b2[col][i] == 0&&b3[block][i] == 0)
+        {
+            a[x] = i;
+            b1[row][i] = 1;
+            b2[col][i] = 1;
+            b3[block][i] = 1;
+            DFS(x+1);
+            b1[row][i] = 0;
+            b2[col][i] = 0;
+            b3[block][i] = 0;
+        }
+    }
+}
+int main()
+{
+    DFS(1);
+    printf("%d",ans);
+    return 0;
+}

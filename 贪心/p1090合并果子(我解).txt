@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+using namespace std;
+int weigh[10001];
+int a[10001];
+int ans;
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&weigh[i]);
+    }
+    int number = n;
+    int temp = 0;
+    while(number>1)
+    {
+        sort(weigh+1,weigh+number+1);
+        ans += (weigh[1] + weigh[2]);
+        weigh[1] = weigh[1] + weigh[2];
+        weigh[2] = 0;
+        for (int i = 1;i<=number;i++)
+        {
+            if(weigh[i])
+            {
+                temp++;
+                a[temp] = weigh[i];
+            }
+        }
+        number = temp;
+        memcpy(weigh,a,sizeof(int)*(number+1));
+        temp = 0;
+    }
+    printf("%d\n",ans);
+    return 0;
+}

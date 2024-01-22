@@ -1,0 +1,66 @@
+//理解的关键:找到树上点权之和最大的一个连通分量！！！连通，也就是连通块里面谁当根都一样,最后枚举ans = max(ans,f)
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星
+{
+    int to,next;
+}EDGE;
+EDGE e[100001<<1];//不知道父亲，双向边
+int head[100001];//x的为起点的第一条边
+int cnt;//边的数量
+long long f[100001];//以i为根节点的连通块的最大值
+inline int read()//含负数的快读
+{
+    int s = 0,f = 1;
+    char ch = getchar();
+    while(ch < '0'||ch > '9')
+    {
+        if(ch == '-') f = -1;
+        ch = getchar();
+    }
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s*f;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//DFS先到达叶子节点
+{
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;//来自父亲，跳过
+        DFS(e[i].to,x);//递归子树
+        if(f[e[i].to]>0) f[x] += f[e[i].to];//如果子树贡献大于0，加到当前节点连通块
+    }
+}
+int main()
+{
+    int n = read();//读入节点数
+    for (int i = 1;i<=n;i++)//初始化节点的值
+    {
+        f[i] = read();
+    }
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    DFS(1,0);//无根树随便一点开始，父亲为0
+    long long ans = 0;//long long 防炸
+    for (int i = 1;i<=n;i++)//枚举连通块
+    {
+        ans = max(ans,f[i]);//去最大值
+    }
+    printf("%lld\n",ans);//输出
+    return 0;
+}

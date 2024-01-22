@@ -1,0 +1,20 @@
+#include <windows.h>//必要头文件
+#include <conio.h>
+#include <stdlib.h>
+#include <stdio.h>
+void gotoxy(int x,int y)
+{
+    COORD p;//windows里封装的结构体，记录光标的位置
+    p.X = x;//给光标设置位置
+    p.Y = y;
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);//获取当前函数句柄
+    SetConsoleCursorPosition(handle,p);//移动光标
+}
+int main()
+{
+    gotoxy(5,0);//通俗的理解x为光标前面的空格数，y为空行数
+    printf("Hello,world!\n");
+    gotoxy(0,5);
+    printf("Hello,world!\n");
+    return 0;
+}

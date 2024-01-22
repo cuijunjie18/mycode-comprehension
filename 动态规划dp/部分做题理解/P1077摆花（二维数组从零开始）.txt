@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int mod = 1e6+7;
+int f[101][101];
+int main()
+{
+    int n,m;
+    cin>>n>>m;
+    int number[n+1];
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>number[i];
+    }
+    f[0][0] = 1;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 0;j<=m;j++)//要从0开始，因为可能要继承0，即之前一盆不选，f[i][0] = 1
+        {
+            for (int k = 0;k<=min(j,number[i]);k++)
+            {
+                f[i][j] = (f[i][j] + f[i-1][j-k])%mod;
+            }
+        }
+    }
+    cout<<f[n][m]<<endl;
+    return 0;
+}

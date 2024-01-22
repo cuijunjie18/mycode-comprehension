@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[51][1001];//表示当前第几次调音，是否可以到达音量i，0不可以，1可以
+int change[51];//记录每一次调音的音量大小(可调高也可调低)
+int main()
+{
+    int n,begin,max;
+    scanf("%d%d%d",&n,&begin,&max);//输入调音次数，初始音量，最大音量
+    f[0][begin] = 1;//初始音可以达到
+    for (int i = 1;i<=n;i++)//输入每次调音的音量
+    {
+        scanf("%d",&change[i]);
+    }
+    int flag = 1;//标记是否不可避免低于0或大于最大音量
+    for (int i = 1;i<=n;i++)//dp
+    {
+        for (int j = 0;j<=max;j++)//枚举音量大小
+        {
+            if(j-change[i]>=0&&f[i-1][j-change[i]] == 1)//可来自之前音量调高到达
+            {
+                f[i][j] = 1;
+            }
+            if(j+change[i]<=max&&f[i-1][j+change[i]] == 1)//可来自之前音量降低到达
+            {
+                f[i][j] = 1;
+            }
+        }
+    }
+    for (int i = max;i>=0;i--)//从大开始枚举
+    {
+        if(f[n][i] == 1)//如果可以到达即是最大音量
+        {
+            flag = 0;//取消标记
+            printf("%d",i);//输出答案
+            break;//退出循环
+        }
+    }
+    if(flag) printf("-1");//输出-1
+    return 0;
+}

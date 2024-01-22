@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 401
+#define MAX 10000
+int n,m,bx,by;
+int ans[N][N];
+int walk[8][2] = {{2, 1}, {1, 2}, {-1, 2}, {-2, 1},{-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
+typedef struct point
+{
+    int x;
+    int y;
+}POINT;
+
+typedef struct queue
+{
+    POINT data[10000];
+    int head;
+    int rear;
+}QUEUE;
+void push(QUEUE*p,POINT data);
+void pop(QUEUE*p);
+int qempty(QUEUE*p);
+POINT gethead(QUEUE*p);
+int main()
+{
+    QUEUE queue;
+    queue.head = 0;
+    queue.rear = 0;
+    scanf("%d%d%d%d",&n,&m,&bx,&by);
+    memset(ans,-1,sizeof(ans));
+    ans[bx][by] = 0;
+    POINT begin;
+    begin.x = bx;
+    begin.y = by;
+    push(&queue,begin);
+    while(!qempty(&queue))
+    {
+        POINT temp = gethead(&queue);
+        int ux,uy;
+        ux = temp.x;
+        uy = temp.y;
+        pop(&queue);
+        for (int i = 0;i<8;i++)
+        {
+            int wx,wy;
+            int d = ans[ux][uy];
+            wx = ux + walk[i][0];
+            wy = uy + walk[i][1];
+            if(wx<1||wx>n||wy<1||wy>m||ans[wx][wy]!=-1) continue;
+            ans[wx][wy] = d+1;
+            temp.x = wx;
+            temp.y = wy;
+            push(&queue,temp);
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            printf("%-5d",ans[i][j]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+
+int qempty(QUEUE*p)
+{
+    if(p->rear == p->head) return 1;
+    else return 0;
+}
+
+void push(QUEUE*p,POINT data)
+{
+    if((p->rear+1)%MAX == p->head)
+    {
+        printf("The queue is enough!\n");
+        return;
+    }
+    p->data[p->rear] = data;
+    p->rear = (p->rear + 1)%MAX;
+}
+
+void pop(QUEUE*p)
+{
+    if(p->rear == p->head)
+    {
+        printf("The queue is empty!\n");
+        return;
+    }
+    p->head = (p->head+1)%MAX;
+}
+
+POINT gethead(QUEUE*p)
+{
+    return p->data[p->head];
+}

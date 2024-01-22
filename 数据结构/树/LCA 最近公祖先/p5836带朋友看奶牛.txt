@@ -1,0 +1,107 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+vector<int> g[100001];//邻接表存图
+int depth[100001];//记录每个点到根节点的深度，(无根树取1为根节点)
+int f[100001][22][3];/*关键数组，第一维为节点号，第二维为第2^i(不超过深度)个祖先,第三维代表状态，0时f存储的是2^i祖先的编号，1判定当前节点到第2^i祖先路上有无H，2则是有无G*/
+char mp[100001];//存储节点中的值，即奶牛种类H或G
+void DFS(int x,int fa)//核心搜索
+{
+    depth[x] = depth[fa] + 1;//深度为父亲深度加1
+    f[x][0][0] = fa;//第2^0 = 1个祖先为父亲
+    f[x][0][1] = (mp[x] == 'H'||mp[fa] == 'H');//确定当前节点到父亲的路上有无H奶牛
+    f[x][0][2] = (mp[x] == 'G'||mp[fa] == 'G');//确定当前节点到父亲的路上有无G奶牛
+    for (int i = 1;(1<<i)<=depth[x];i++)//倍增求祖先，确定最低的祖先，最低的祖先不能超过当前深度，即2^i<=depth[x]
+    {
+        f[x][i][0] = f[f[x][i-1][0]][i-1][0];//第2^i祖先 为第2^(i-1)祖先的第2^(i-1)祖先(确定已经计算过了，DFS浅到深)
+        f[x][i][1] = f[f[x][i-1][0]][i-1][1]|f[x][i-1][1];
+        f[x][i][2] = f[f[x][i-1][0]][i-1][2]|f[x][i-1][2];
+////由x到2^i祖先路径有无H为x到2^(i-1)路径及x的2^(i-1)祖先到其2^(i-1)祖先路径的并集
+    }
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历子树
+    {
+        if(g[x][i] == fa) continue;//来自父亲，跳过，防止走回头路
+        DFS(g[x][i],x);//递归子树
+    }
+}
+void Solve(int a,int b,char ch)//a,b为路径两端点,ch为朋友喜欢的奶牛
+{
+    int ans = 0;//初始化答案为0，即不喜欢
+    int k = 0;//字符数字化
+    if(ch == 'H') k = 1;//对应f数组的情况
+    else k = 2;
+    if(depth[a] < depth[b]) swap(a,b);//不妨假设depth[a]>depth[b]
+    while(depth[a]!=depth[b])//先让深度一致
+    {
+        ans |= f[a][(int)(log(depth[a]-depth[b])/log(2))][k];//先并后改变，不然a就会变，导致结果出错
+        if(ans == 1)//如果倍增路径上已经有了喜欢的，直接输出返回
+        {
+            cout<<1;
+            return;
+        }
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))][0];//改变a即a向上跳
+    }
+    if(a == b)//如果a等于b，LCA找到了,而之前路径没有喜欢的，直接输出0并返回
+    {
+        cout<<0;
+        return;
+    }
+    else//倍增算法
+    {
+        for (int i = (int)(log(depth[a])/log(2));i>=0;i--)//从最大跳跃度开始
+        {
+            if(f[a][i][0] != f[b][i][0])//如果祖先不相等，可以跳
+            {
+                ans |= f[a][i][k];//路径取并
+                ans |= f[b][i][k];//路径取并
+                if(ans == 1)//已经有喜欢的，输出并返回
+                {
+                    cout<<1;
+                    return;
+                }
+                a = f[a][i][0];//再改变a
+                b = f[b][i][0];//再改变b
+
+            }
+        }
+        ans |= f[a][0][k];//最后一次取并
+        ans |= f[b][0][k];//最后一次取并
+        if(ans == 1)//最后一次判断
+        {
+            cout<<1;
+            return;
+        }
+        cout<<0;//全都没有，输出0
+    }
+}
+int main()
+{
+    int n,m,a,b;
+    char ch;
+    scanf("%d%d",&n,&m);//输入奶牛数及朋友数
+    while(getchar()!='\n');//防止读入字符错误，使不同测评机均可AC，提高可移植性
+    for (int i = 1;i<=n;i++)//记录每个奶牛种类
+    {
+        scanf("%c",&mp[i]);
+    }
+    for (int i = 1;i<=n-1;i++)//建图
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    depth[0] = -1;//初始深度为-1，因为根节点深度为0，进DFS会加1，保证根节点还是0
+    DFS(1,0);//以1为根节点，0为1(即无父亲)的父亲，开始DFS
+    for (int i = 1;i<=m;i++)//m个朋友的情况
+    {
+        scanf("%d%d %c",&a,&b,&ch);//a,b确定一条最短路径;ch为该朋友喜欢的奶牛品种
+        if(a == b)//如果只在一个农场中，直接判断
+        {
+            if(mp[a] == ch) cout<<1;//喜欢输出1
+            else cout<<0;//不喜欢输出0
+            continue;//一定要有
+        }
+        Solve(a,b,ch);//倍增求公祖先且判断路径情况
+    }
+    return 0;
+}

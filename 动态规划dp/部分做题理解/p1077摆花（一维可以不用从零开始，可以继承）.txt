@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int mod = 1e6+7;//模数
+int f[101];//已经放了i盆花的方案数
+int main()
+{
+    int n,m;
+    cin>>n>>m;//输入花的种类及要放的盆数
+    int number[n+1];
+    for (int i = 1;i<=n;i++)//输入每种花的最多放置数
+    {
+        cin>>number[i];
+    }
+    f[0] = 1;//一盆花都不放方案数为1，初始化
+    for (int i = 1;i<=n;i++)//枚举每种花
+    {
+        for (int j = m;j>=1;j--)//逆序枚举要到达的花的状态数，确保状态来自之前，j可以不用到0，因为f[0]可以继承
+        {
+            for (int k = 1;k<=min(j,number[i]);k++)//枚举放多少盆第i种花
+            {
+                f[j] = (f[j]+f[j-k])%mod;
+            }
+        }
+    }
+    cout<<f[m]<<endl;//输出答案
+    return 0;
+}

@@ -1,0 +1,109 @@
+//本题有点特殊，因为同时作为路径起点与终点的点差分值多算了一次
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星
+{
+    int to,next;
+}EDGE;
+EDGE e[600005];//边
+int head[300001];//以i为起点的第一条边
+int cnt;//边的数量
+int number[300001];//答案，同时兼具差分功能
+int a[300001];//访问顺序
+int f[300001][30];//倍增父节点
+int depth[300001];//深度，服务于倍增
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch > '9'||ch < '0') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//建树及预处理LCA
+{
+    depth[x] = depth[fa] + 1;//深度加1
+    f[x][0] = fa;//第一个父节点
+    for (int i = 1;(1<<i)<=depth[x];i++)//倍增父节点
+    {
+        f[x][i] = f[f[x][i-1]][i-1];
+    }
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x);
+    }
+}
+void LCA(int a,int b)//求LCA兼具差分
+{
+    if(depth[a]<depth[b]) swap(a,b);//不妨a的深度大于b
+    number[a]++;//差分思想
+    number[b]++;//差分思想
+    while(depth[a]>depth[b])//向上跳至深度相同
+    {
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];//以后尽量不用用log写法，容易出错且不美观
+    }
+    if(a == b)
+    {
+        number[a]--;//祖先减1
+        number[f[a][0]]--;//祖先的父亲减1，这样保证了LCA只减了1
+        return;一定要返回
+    }
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)//以后尽量不用用log写法，容易出错且不美观
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    number[f[a][0]]--;//同上原理
+    number[f[f[a][0]][0]]--;
+}
+void Solve(int x,int fa)//计算子树和
+{
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        Solve(e[i].to,x);
+        number[x] += number[e[i].to];//及求区间和，差分思想
+    }
+}
+int main()
+{
+    int n = read();//读入节点数
+    for (int i = 1;i<=n;i++)//读入访问顺序    
+    {
+        a[i] = read();
+    }
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int x = read();
+        int y = read();
+        add(x,y);
+        add(y,x);
+    }
+    depth[0] = -1;
+    DFS(1,0);//预处理
+    for (int i = 1;i<=n-1;i++)//求LCA及差分
+    {
+        LCA(a[i],a[i+1]);
+    }
+    Solve(1,0);//计算子树和，计算区间和
+    for (int i = 2;i<=n;i++) number[a[i]]--;//同时为起点终点的多加了一次，要减1，同时最后一点为餐厅，不用糖果，减1
+    for (int i = 1;i<=n;i++)//输出
+    {
+        printf("%d\n",number[i]);
+    }
+    return 0;
+}

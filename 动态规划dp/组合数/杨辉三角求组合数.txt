@@ -1,0 +1,20 @@
+#include<iostream>
+
+using namespace std;
+int n,m;
+int f[1005][1005];//f[i][j]表示从i个数里选j个数的方案数
+
+int main()
+{
+	cin>>n>>m;
+	for(int i=0;i<=n;i++)//一定要从0开始
+	{
+		f[i][i]=1;
+		f[i][0]=1;
+	}
+	for(int i=1;i<=n;i++)
+		for(int j=1;j<i;j++)//j是不能够等于0与i(i其实可以)的，杨辉三角中第一个数与最后一个数是没有两个肩数的
+			f[i][j]=f[i-1][j]+f[i-1][j-1];//状态转移方程
+	cout<<f[n][m];
+	return 0;
+}

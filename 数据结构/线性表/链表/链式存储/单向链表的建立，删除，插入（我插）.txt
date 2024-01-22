@@ -1,0 +1,200 @@
+#include <stdio.h>
+#include <stdlib.h>
+struct link
+{
+    int data;
+    struct link* next;
+};
+struct link* Append(struct link* head)
+{
+    struct link* p = head,*pr = head;
+    p = (struct link*)malloc(sizeof(struct link));
+    if(p == NULL)
+    {
+        printf("Not enough memory!\n");
+        exit(0);
+    }
+    if(head == NULL)
+    {
+        head = p;
+    }
+    else
+    {
+        while(pr->next!=NULL)
+        {
+            pr = pr->next;
+        }
+        pr->next = p;
+    }
+    int data;
+    printf("What data do you want to append?");
+    scanf("%d",&data);
+    p->data = data;
+    p->next = NULL;
+    return head;
+}
+
+struct link* Delete(struct link* head)
+{
+    struct link* p = head,*pr = head;
+    if(head == NULL)
+    {
+        printf("The link is empty!\n");
+        return head;
+    }
+    int data;
+    printf("What data do you want to delete?");
+    scanf("%d",&data);
+    while(pr->data!=data&&pr->next!=NULL)
+    {
+        p = pr;
+        pr = pr->next;
+    }
+    if(pr->data==data)
+    {
+        if(pr == head)
+        {
+            head = pr->next;
+        }
+        else
+        {
+            p->next = pr->next;
+        }
+        free(pr);
+    }
+    else
+    {
+        printf("No found!\n");
+    }
+    return head;
+}
+
+struct link* Insert(struct link* head)
+{
+    struct link* p = NULL,*pr = head,*temp = NULL;
+    p = (struct link*)malloc(sizeof(struct link));
+    if(p == NULL)
+    {
+        printf("Not enough memory!\n");
+        exit(0);
+    }
+    int data;
+    printf("What data do you want to insert?");
+    scanf("%d",&data);
+    p->data = data;
+    p->next = NULL;
+    if(head == NULL)
+    {
+        head = p;
+    }
+    else
+    {
+        while(pr->data<data&&pr->next!=NULL)
+        {
+            temp = pr;
+            pr = pr->next;
+        }
+        if(pr->data>=data)
+        {
+            if(pr == head)
+            {
+                p->next = head;
+                head = p;
+            }
+            else
+            {
+                temp->next = p;
+                p->next = pr;
+            }
+        }
+        else
+        {
+            pr->next = p;
+        }
+    }
+    return head;
+}
+
+void Display(struct link* head)
+{
+    struct link* pr = head;
+    if(pr == NULL)
+    {
+        printf("The link is empty!\n");
+    }
+    else
+    {
+        int i = 0;
+        while(pr!=NULL)
+        {
+            i++;
+            printf("%-5d%-5d\n",i,pr->data);
+            pr = pr->next;
+        }
+    }
+}
+
+void Freememory(struct link* head)
+{
+    struct link* p = head,*pr = head;
+    if(head == NULL)
+    {
+        printf("Nothing to be free!\n");
+    }
+    else
+    {
+        int i = 0;
+        while(p!=NULL)
+        {
+            i++;
+            pr = p;
+            p = p->next;
+            free(pr);
+        }
+        printf("%d data have been freed!\n",i);
+    }
+}
+
+int main()
+{
+    struct link* head = NULL;
+    printf("Do you want to append data?(Y/N)");
+    char ch;
+    scanf("%c",&ch);
+    int count = 0;
+    while(ch == 'Y'||ch == 'y')
+    {
+        count++;
+        head = Append(head);
+        Display(head);
+        printf("Do you want to continue append?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    printf("%d data have been appended!\n",count);
+    count = 0;
+    printf("Do you want to delete some data?(Y/N)");
+    scanf(" %c",&ch);
+    while(ch == 'Y'||ch == 'y')
+    {
+        count++;
+        head = Delete(head);
+        Display(head);
+        printf("Do you want to continue delete?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    printf("%d data have been deleted!\n",count);
+    count = 0;
+    printf("Do you want to insert new data?(Y/N)");
+    scanf(" %c",&ch);
+    while(ch == 'Y'||ch == 'y')
+    {
+        count++;
+        head = Insert(head);
+        Display(head);
+        printf("Do you want to continue insert?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    printf("%d new data have been inserted!\n",count);
+    Freememory(head);
+    return 0;
+}

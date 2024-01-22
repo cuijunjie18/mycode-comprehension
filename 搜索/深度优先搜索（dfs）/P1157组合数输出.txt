@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 22
+int number[N];
+int n,r;
+void Search(int times,int begin)
+{
+    if(times == r)
+    {
+        for (int i = 1;i<=r;i++)
+        {
+            printf("%3d",number[i]);
+        }
+        printf("\n");
+        return;
+    }
+    for (int i = begin;i<=n-r+times+1;i++)
+    {
+        number[times+1] = i;
+        Search(times+1,i+1);
+    }
+}
+int main()
+{
+    scanf("%d%d",&n,&r);
+    Search(0,1);
+    return 0;
+}

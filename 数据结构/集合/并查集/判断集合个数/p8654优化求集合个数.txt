@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[1500000];//每个点的根节点
+int Find(int x)//查找及路径压缩
+{
+    if(x  == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    int n,m,k;
+    cin>>n>>m>>k;//输入n*m个点，k个关系
+    for (int i = 1;i<=n*m;i++) f[i] = i;//初始化每个点的根为自己
+    int a,b,f1,f2;
+    int sum = n*m;//初始化答案，即初始化集合的个数
+    for (int i = 1;i<=k;i++)
+    {
+        cin>>a>>b;//合并a与b
+        f1 = Find(a);
+        f2 = Find(b);
+        if(f1!=f2)//如果a与b没有在一个集合中
+        {
+            f[f2] = f1;//改变根节点
+            sum--;//集合数少1
+        }
+    }
+    cout<<sum<<endl;//输出答案
+    return 0;
+}

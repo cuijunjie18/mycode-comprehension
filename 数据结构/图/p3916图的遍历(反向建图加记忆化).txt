@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+using namespace std;
+int ans[100001];//某一点可以达到的最大值
+vector <int> g[100001];//邻接表存有向图
+void DFS(int x,int v)//搜索
+{
+    ans[x] = v;//改变这一点为v
+    for (int i = 0,s = g[x].size();i<s;i++)//枚举这一点可以由谁走来
+    {
+        if(ans[g[x][i]] == 0)//如果为0，搜索它
+        {
+            DFS(g[x][i],v);
+        }
+    }
+}
+int main()
+{
+    int n,m,a,b;
+    scanf("%d%d",&n,&m);//输入点与边的个数
+    for (int i = 1;i<=m;i++)//存边，反向建图
+    {
+        scanf("%d%d",&a,&b);//原本是由a到b有路
+        g[b].push_back(a);//反向为b该位置可以由a直接走来
+    }
+    for (int i = n;i>=1;i--)//求最大值，由最大编号开始，确定谁可以走了这一点，就改变该点的最大值
+    {
+        if(ans[i] == 0)//如果没有改变过
+        {
+            DFS(i,i);//从该点开始搜索
+        }
+        else continue;//如果已经改变过了，跳过
+    }
+    for (int i = 1;i<=n;i++)//正着输出每个点可以到达的最大编号
+    {
+        printf("%d ",ans[i]);
+    }
+    return 0;
+}

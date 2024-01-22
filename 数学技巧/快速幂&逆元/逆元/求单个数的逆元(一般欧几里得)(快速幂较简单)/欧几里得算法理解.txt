@@ -1,0 +1,7 @@
+1,必须满足a>b
+2,a在模b的条件下存在逆元的条件是：Gcd (a,n)=1；即a与b互为质数（一般可求逆元的都互为质数）
+3,全为正数算法中本质为解出了a在模b下的逆元d(可能为负数)
+   有 a * d mod b = 1;
+      若将d这样处理：d = (d mod b + b) mod b 就保证了d为正数
+      且 a*d = a*(d mod b  + b) mod b = (a*d mod b + a*b)mod b
+ 			       = a*d mod b = 1;结果依旧正确	

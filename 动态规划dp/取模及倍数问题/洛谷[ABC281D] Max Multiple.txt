@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+long long f[101][101][100];//第一维为当前处理到第几个数，第二维为余数，第三维为选了几个数
+int number[101];//数字
+int yue[101];//余数数组
+long long Max(long long a,long long b)//取大值
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int n,k,d;
+    scanf("%d%d%d",&n,&k,&d);//输入数的个数，要选几个，要求为d的倍数
+    for (int i = 1;i<=n;i++)//输入每个数字
+    {
+        scanf("%d",&number[i]);
+        yue[i] = number[i]%d;//提前取余
+    }
+    memset(f,-0x3f,sizeof(f));//要求最大值，初始化为负无穷
+    f[0][0][0] = 0;//初始化
+    /*for (int i = 0;i<=n-1;i++)
+    {
+        f[i][0][0] = 0;
+    }*/也可以这样初始化后面就不用j从0开始了
+    for (int i = 1;i<=n;i++)//枚举当前处理的数
+    {
+        for (int j = 0;j<=k&&j<=i;j++)//枚举选数的个数，且不能超过min(i,k),j一定要从零开始，因为可能存在第一个数没选，要继承0的情况
+        {
+            for (int h = 0;h<=d-1;h++)//枚举余数
+            {
+                f[i][j][h] = Max(f[i][j][h],f[i-1][j][h]);//本质用途为继承0
+                if(j)
+                    f[i][j][h] = Max(f[i][j][h],f[i-1][j-1][(h - yue[i] + d)%d] + number[i]);//状态转移方程
+            }
+        }
+    }
+    if(f[n][k][0] < 0)//如果没有答案，输出-1
+        printf("-1");
+    else
+        printf("%lld",f[n][k][0]);//输出答案
+    return 0;
+}

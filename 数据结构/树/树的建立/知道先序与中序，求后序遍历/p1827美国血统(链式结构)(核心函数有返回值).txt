@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//建立链式结构
+{
+    int data;//该节点的值(或者说是编号)
+    struct tree* l;//左子树的地址
+    struct tree* r;//右子树的地址，当地址为NULL说明该data是叶子节点
+}TREE;
+TREE * Build(char *instr,char *prestr,int length)//建立链式树的核心函数
+{
+    if(length == 0) return NULL;//如果已经建立完了，返回空指针
+    char ch = prestr[0];//该节点的值为该子树先序的第一个
+    int pos = 0;
+    while(instr[pos]!=ch) pos++;//确定该子树的头位置在该子树的中序遍历的位置(中序可以确定左右子树大小)
+    TREE *T = (TREE*)malloc(sizeof(TREE));//分配新内存给该节点，类型为TREE
+    T->data = ch;//该节点的值
+    T->l = Build(&instr[0],&prestr[1],pos);//建立该节点的左子树，核心递归
+    T->r = Build(&instr[pos+1],&prestr[1+pos],length - pos - 1);//建立该节点的右子树，核心递归
+    return T;//返回该节点的指针
+}
+void post_order(TREE *p)//后序遍历
+{
+    if(p->l != NULL) post_order(p->l);
+    if(p->r != NULL) post_order(p->r);
+    printf("%c",p->data);
+}
+int main()
+{
+    char instr[30];//中序遍历
+    char prestr[30];//前序遍历
+    scanf("%s",instr);
+    scanf("%s",prestr);
+    int n = strlen(instr);//确定所有节点数
+    TREE *head = Build(instr,prestr,n);//返回树的首地址，用一个TREE型即树型指针接收
+    post_order(head);//输出后序遍历
+    return 0;
+}

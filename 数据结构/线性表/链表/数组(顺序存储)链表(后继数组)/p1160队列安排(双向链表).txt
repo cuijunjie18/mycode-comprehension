@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+int rear[100005];//记录前驱
+int before[100005];//记录后继   //每个位置初始都被认为是终点与起点，后面一系列过程后，前面还是0的为起点，后面是0的为终点
+set <int> s;//查重
+int main()
+{
+    int n,m,a,b;
+    scanf("%d",&n);//n个同学
+    for (int i = 2;i<=n;i++)//题目要求，从第2个人开始
+    {
+        scanf("%d%d",&a,&b);
+        if(b == 0)//i号同学插入a的左边，下面代码顺序很关键
+        {
+            rear[i] = a;
+            before[i] = before[a];
+            rear[before[a]] = i;
+            before[a] = i;
+        }
+        else if(b == 1)//i号同学插入a的右边，改变前驱后继顺序关键
+        {
+            before[i] = a;
+            rear[i] = rear[a];
+            before[rear[a]] = i;
+            rear[a] = i;
+        }
+    }
+    scanf("%d",&m);
+    for (int i = 1;i<=m;i++)//去掉同学
+    {
+        scanf("%d",&a);
+        if(s.count(a) == 0)//查看是否已经去除过了，没去过则删除
+        {
+            rear[before[a]] = rear[a];
+            before[rear[a]] = before[a];
+            s.insert(a);
+        }
+    }
+    int bg = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        if(before[i] == 0)//找到起点
+        {
+            bg = i;
+            break;
+        }
+    }
+    do
+    {
+        printf("%d ",bg);
+        bg = rear[bg];
+    }while(bg!=0);//输出直到结尾
+    return 0;
+}

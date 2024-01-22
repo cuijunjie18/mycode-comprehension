@@ -1,0 +1,42 @@
+//背景:受启发于1.14 atcoder 比赛的D题
+//原理:维护从左到右及从右到左的最长上升子序列
+//时间复杂度:o(n^2)
+#include <bits/stdc++.h>
+using namespace std;
+int number[101];//每个人身高
+int l[102];//维护左到右以i结尾的最长上升子序列
+int r[102];//维护右到左以i结尾的最长上升子序列
+int main()
+{
+    int n;
+    scanf("%d",&n);//输入人数
+    for (int i = 1;i<=n;i++)//依次输入每个人的身高
+    {
+        scanf("%d",&number[i]);
+    }
+    l[1] = 1;//左端点初始化1(其实可以放循环里)
+    for (int i = 2;i<=n;i++)
+    {
+        l[i] = 1;//！！一定对每个点都要初始化
+        for (int j = 1;j<=i-1;j++)//依次由之前的转移dp
+        {
+            if(number[i]>number[j]) l[i] = max(l[j]+1,l[i]);
+        }
+    }
+    r[n] = 1;//右端点初始化为1(可放循环里)
+    for (int i = n-1;i>=1;i--)//同上模板
+    {
+        r[i] = 1;
+        for (int j = n;j>=i+1;j--)
+        {
+            if(number[i]>number[j]) r[i] = max(r[j]+1,r[i]);
+        }
+    }
+    int ans = 102;//初始化答案
+    for (int i = 1;i<=n;i++)
+    {
+        ans = min(ans,n-(l[i] + r[i] - 1));//取最小值(最少出队人数及总人数减去最长符合条件的合唱序列)
+    }
+    printf("%d\n",ans);//输出
+    return 0;
+}

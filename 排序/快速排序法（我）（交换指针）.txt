@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+void Swap(int *a,int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void Sortdata(int a[],int begin,int end)
+{
+    if(begin>end) return;
+    int point = a[begin];
+    int i = begin;
+    int j = end;
+    while(i!=j)
+    {
+        while(a[j]>=point&&j>i)
+        {
+            j--;
+        }
+        while(a[i]<=point&&i<j)
+        {
+            i++;
+        }
+        if(j>i)
+        {
+           Swap(&a[i],&a[j]);
+        }
+    }
+    a[begin] = a[i];
+    a[i] = point;
+    Sortdata(a,begin,i-1);
+    Sortdata(a,i+1,end);
+}
+
+void Print(int a[],int n)
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        printf("%d\n",a[i]);
+    }
+    return;
+}
+
+int main()
+{
+    int n;
+    printf("Please input how many number you want to save:");
+    scanf("%d",&n);
+    int number[n];
+    for (int i = 0;i<=n-1;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    Sortdata(number,0,n-1);
+    Print(number,n);
+    return 0;
+}

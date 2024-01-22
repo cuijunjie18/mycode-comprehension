@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+void Sort(double a[],int m[],int v[],int begin,int end)
+{
+    if(begin>=end) return;
+    double temp = a[begin];
+    int temp1 = m[begin];
+    int temp2 = v[begin];
+    int i = begin;
+    int j = end;
+    while(i<j)
+    {
+        while(a[j]>=temp&&j>i)
+        {
+            j--;
+        }
+        while(a[i]<=temp&&i<j)
+        {
+            i++;
+        }
+        if(i!=j)
+        {
+            double save = a[i];
+            a[i] = a[j];
+            a[j] = save;
+            int save1 = m[i];
+            m[i] = m[j];
+            m[j] = save1;
+            save1 = v[i];
+            v[i] = v[j];
+            v[j] = save1;
+        }
+    }
+    a[begin] = a[i];
+    a[i] = temp;
+    m[begin] = m[i];
+    m[i] = temp1;
+    v[begin] = v[i];
+    v[i] = temp2;
+    Sort(a,m,v,begin,i-1);
+    Sort(a,m,v,i+1,end);
+}
+int main()
+{
+    int N,T;
+    scanf("%d %d",&N,&T);
+    int m[N+1],v[N+1];
+    double bi[N+1];
+    for (int i = 1;i<=N;i++)
+    {
+        scanf("%d %d",&m[i],&v[i]);
+        bi[i] = (double)(v[i])/m[i];
+    }
+    Sort(bi,m,v,1,N);
+    int weight = T;
+    double value = 0;
+    for (int i = N;i>=1;i--)
+    {
+        if(weight>=m[i])
+        {
+            value+=v[i];
+            weight-=m[i];
+        }
+        else
+        {
+            value+=bi[i]*weight;
+            break;
+        }
+    }
+    printf("%.2lf",value);
+    return 0;
+}

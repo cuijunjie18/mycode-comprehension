@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+int n,m;
+char ground[105][105];
+int visit[105][105];
+int ans;
+int direction[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
+void DFS(int x,int y)
+{
+    if(visit[x][y]) return;
+    if(ground[x][y] == '.')
+    {
+        visit[x][y] = 1;
+        return;
+    }
+    visit[x][y] = 1;
+    for (int i = 0;i<=7;i++)
+    {
+        int wx = x+direction[i][0];
+        int wy = y+direction[i][1];
+        if(wx>=1&&wx<=n&&wy>=0&&wy<=m-1&&ground[wx][wy] == 'W')
+        {
+            DFS(x+direction[i][0],y+direction[i][1]);
+        }
+    }
+}
+int main()
+{
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",ground[i]);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            if(visit[i][j] == 1||ground[i][j] == '.') continue;
+            ans++;
+            DFS(i,j);
+        }
+    }
+    printf("%d",ans);
+    return 0;
+}

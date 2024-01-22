@@ -1,0 +1,88 @@
+//细节:一定要特判起点与终点相同
+//相比单向BFS优势:时间快了几十倍
+//缺陷:代码复杂，易出错
+#include <bits/stdc++.h>
+using namespace std;
+int ans;//答案
+int num[4][4];//地图的信息
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+unordered_map<int,int> s[3];//s[1]代表正着搜的最小步，s[2]反之
+unordered_map<int,int> visit;//visit标记，1为正，2为倒
+queue<int> que[3];//队列，1为正，2为倒
+int main()
+{
+    int x;
+    scanf("%d",&x);//输入起点
+    que[1].push(x);//起点入1队
+    que[2].push(123804765);//终点入2队
+    if(x == 123804765)//如果起点与终点相同，特判，防止后面出错
+    {
+        printf("0\n");//输出
+        return 0;//结束程序
+    }
+    visit[x] = 1;//起点标记1
+    visit[123804765] = 2;//终点标记2
+    bool flag = false;//未找到
+    int turn = 1;//初始化轮流来
+    while(!flag)//如果没找到
+    {
+        turn = (turn == 1)?2:1;//轮流替换
+        int big = que[turn].size();
+        for (int i = 1;i<=big;i++)//用完全部队列元素
+        {
+            int temp = que[turn].front();//取出队头
+            que[turn].pop();//删除
+            int x,y;//用于标记0的位置
+            int save = temp;//记录数码情况，防止temp丢失
+            for (int c = 3;c>=1;c--)//数码转为整型数字
+            {
+                for (int r = 3;r>=1;r--)
+                {
+                    num[c][r] = save%10;
+                    if(num[c][r] == 0)//如果是0
+                    {
+                        x = c;//记录
+                        y = r;
+                    }
+                    save /= 10;
+                }
+            }
+            for (int j = 0;j<=3;j++)//枚举由该点出发的不同方向
+            {
+                int wx = x + walk[j][0];
+                int wy = y + walk[j][1];
+                if(wx>=1&&wx<=3&&wy>=1&&wy<=3)//边界要求
+                {
+                    int t[4][4];//新数码信息
+                    memcpy(t,num,sizeof(num));//复制
+                    t[x][y] = t[wx][wy];//交换
+                    t[wx][wy] = 0;
+                    int k = 0;//新整型值
+                    for (int c = 1;c<=3;c++)//顺序进行数码转为整型
+                    {
+                        for (int r = 1;r<=3;r++)
+                        {
+                            k = k*10 + t[c][r];
+                        }
+                    }
+                    if(visit[k] == turn ) continue;//如果已经由统一出发点(起点或终点)到过，跳过
+                    if(visit[k] + turn == 3)//打通了
+                    {
+                        flag = true;//标记
+                        ans = s[turn][temp] + s[turn == 1?2:1][k] + 1;//记录答案
+                        break;//退出循环
+                    }
+                    visit[k] = turn;//标记
+                    s[turn][k] = s[turn][temp] + 1;//记录对应情况最小值
+                    que[turn].push(k);//入队
+                }
+            }
+            if(flag)//找到答案了
+            {
+                printf("%d\n",ans);//输出
+                return 0;//结束程序
+            }
+        }
+    }
+    return 0;
+}

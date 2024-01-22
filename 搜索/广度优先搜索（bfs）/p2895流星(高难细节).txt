@@ -1,0 +1,96 @@
+//我给未来看的自己寄语:ans[][]行不通或有错时，可以加上visit试一试
+//时间复杂度:最坏o(4*m+n*n),一般小于这个
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct position//位置结构体
+{
+    int x,y;
+}POSITION;
+int ans[501][501];//到达对应位置的最小时间，即答案
+vector<POSITION> s[1001];//动态数组存储每个时刻的流星的落下的坐标，压缩大量空间
+bool unsafe[405][405];//表示坐标最后是否不安全，true为不安全，false安全
+bool down[1001];//表示对应时刻是否已经流星落下，不用对对应流星落下时间之前的点重复处理落下流星，剪枝
+bool visit[405][405];//！！！AC关键，我原本直接ans，结果有问题，调试了1个小时，表示对应坐标是否还可以走
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+int main()
+{
+    int n = read();//读入流星个数
+    for (int i = 1;i<=n;i++)//依次处理n个流星
+    {
+        int x = read();//读入流星坐标
+        int y = read();
+        int t = read();//读入落下时间
+        unsafe[x][y] = true;//标记为不安全
+        for  (int j = 0;j<=3;j++)//摧毁周围点
+        {
+            int wx = x + walk[j][0];
+            int wy = y + walk[j][1];
+            if(wx>=0&&wy>=0)//在范围内
+            {
+                unsafe[wx][wy] = true;//摧毁，标记不安全
+            }
+        }
+        POSITION temp = {x,y};//记录
+        s[t].push_back(temp);//入vector
+    }
+    ans[0][0] = 1;//初始化起点答案为1而不是0，大有便利
+    visit[0][0] = 1;//标记到达过
+    queue<POSITION> que;
+    POSITION temp = {0,0};
+    que.push(temp);//起点入队
+    while(!que.empty())//BFS
+    {
+        temp = que.front();//取出队头
+        que.pop();//弹出
+        int time = ans[temp.x][temp.y];//拿出时间
+        if(unsafe[temp.x][temp.y] == false)//判断该点是否安全
+        {
+            printf("%d\n",time-1);//输出答案-1
+            return 0;//返回，无则死循环
+        }
+        if(down[time] == false)//如果该时间没处理过流星
+        {
+            down[time] = true;//标记处理过了
+            int big = s[time].size();
+            for (int i = 0;i<big;i++)//处理该时刻所有流星
+            {
+                POSITION k = s[time][i];
+                for (int j = 0;j<=3;j++)
+                {
+                    int wx = k.x + walk[j][0];
+                    int wy = k.y + walk[j][1];
+                    if(wx>=0&&wy>=0)
+                    {
+                        visit[wx][wy] = true;//标记
+                    }
+                }
+            }
+        }
+        for (int i = 0;i<=3;i++)//枚举可去的点
+        {
+            int wx = temp.x + walk[i][0];
+            int wy = temp.y + walk[i][1];
+            if(wx>=0&&wy>=0&&visit[wx][wy] == false)//如果在范围内且未被摧毁或到达过
+            {
+                ans[wx][wy] = time+1;//更新答案
+                visit[wx][wy] = true;//标记到达
+                POSITION save = {wx,wy};
+                que.push(save);//入队
+            }
+        }
+    }
+    printf("-1\n");//如果都没有，输出-1
+    return 0;
+}

@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+using namespace std;
+bool number[100000100];//bool型减少空间开销，0代表是素数，1代表不是素数(1表示被筛掉了)
+int prime[6000010];//记录素数
+int pos;//一定范围内的素数个数
+void Eulerprime(int n)
+{
+    number[1] = 1;//1不是素数
+    for (int i = 2;i<=n;i++)
+    {
+        if(!number[i])//如果没有被筛掉，就是素数         ！！！！注意，这里if不能套住for，否则筛不全！！
+        {
+            pos++;//素数个数加1
+            prime[pos] = i;//记录新素数
+        }
+        for (int j = 1;j<=pos&&i*prime[j]<=n;j++)//关键步骤，数论知识，最小质因数原理
+        {
+            number[i*prime[j]] = 1;//筛掉以prime[j]为最小质因数的合数
+            if(i%prime[j] == 0) break;//如果i是由prime[j]得来的，则后面i的乘全都可以通过它来筛，减少重复(后面必然会筛掉)
+        }
+    }
+}
+int main()
+{
+    int n,q,a;
+    scanf("%d%d",&n,&q);
+    Eulerprime(n);
+    while(q--)
+    {
+        scanf("%d",&a);
+        printf("%d\n",prime[a]);
+    }
+    return 0;
+}
+
+
+/*关键证明:当 i 能整除 prime[j]，那么 i*prime[j+1] 这个合数肯定被 prime[j] 乘以某个数筛掉
+首先，prime数组中的素数是递增的（这个不用说）
+因为i中含有prime[j],prime[j]比prime[j+1]小
+即i=k×prime[j]
+那么i×prime[j+1]=(k×prime[j])×prime[j+1]
+也就是k′×prime[j]，证明完毕！*/

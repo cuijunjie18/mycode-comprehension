@@ -1,0 +1,83 @@
+//此代码出现的原因:我用BFS研究了半天发现BFS是不可行的，生成的迷宫过于简单(因为BFS的洪泛性，就像水一样)，且有规律可循！
+/*此方法的出现本质上是基于BFS的思想，只是对某个点周围BFS，而其生成的点并不是采用queue按顺序存，而是用另一种动态数组随机取生成的一个点来操作*/
+//缺点:地图长宽只能是偶数
+/*生成的迷宫特点:这套方案不会出现明显的主路，迷宫相对比较自然，但迷宫的分岔路会比较多，所以迷宫可能会更复杂，即玩家需要做选择的次数可能比较多。*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>//随机种子关键头文件
+#include <windows.h>//不操作的话暂时可有可无
+#include <vector>//动态数组头文件
+using namespace std;
+typedef struct position//蓝色点的位置信息
+{
+    int x,y,direction;//x，y为坐标，direction表示这一点是通过哪个方向走来的
+}POSITION;
+int n,m;//地图的长宽
+int mp[1001][1001];//数字化地图
+bool visit[1001][1001];//标记数组
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+vector<POSITION>::iterator it;//vector的迭代器，主要用于删除
+void randomprim(int bx,int by)//随机prim算法
+{
+    vector <POSITION> g;//存储蓝色的点
+    for (int i = 0;i<=3;i++)//预处理起点周围蓝色的点
+    {
+        int wx = bx + walk[i][0];
+        int wy = by + walk[i][1];
+        if(wx>=2&&wx<=n+1&&wy>=2&&wy<=m+1)//要在地图范围内
+        {
+            POSITION temp = {wx,wy,i};//记录点坐标及来时的方向
+            g.push_back(temp);//入数组
+        }
+    }
+    int s = g.size();//计算大小
+    while(s)//当大小不为0时表示还有蓝点要处理
+    {
+        int r = rand()%s;//随机取数组中一个蓝点
+        int wx = g[r].x + walk[g[r].direction][0];//蓝点来时方向的对面的陆地坐标
+        int wy = g[r].y + walk[g[r].direction][1];
+        if(!visit[wx][wy])//如果没有访问过，访问过就把该蓝点变为墙(即不处理)
+        {
+            visit[wx][wy] = 1;//标记访问
+            mp[g[r].x][g[r].y] = 1;//并把蓝点标为陆地
+            for (int i = 0;i<=3;i++)//BFS思想去生成新访问陆地的周围蓝点
+            {
+                int kx = wx + walk[i][0];
+                int ky = wy + walk[i][1];
+                if(kx>=2&&kx<=n+1&&ky>=2&&ky<=m+1)//符合地图范围
+                {
+                    POSITION temp = {kx,ky,i};
+                    g.push_back(temp);//加入数组
+                }
+            }
+        }
+        it = g.begin() + r;//找到当前蓝点在数组中的位置
+        g.erase(it);//删除掉它(用过了)
+        s = g.size();//重新计算大小
+    }
+}
+int main()
+{
+    srand(time(NULL));//设置种子，确保每次生成的地图不同
+    printf("Please input the sphere of the map:");//提示输入
+    scanf("%d%d",&n,&m);//输出地图长宽
+    for (int i = 2;i<=n+1;i+=2)//初始化陆地
+    {
+        for (int j = 2;j<=m+1;j+=2)
+        {
+            mp[i][j] = 1;
+        }
+    }
+    visit[2][2] = true;//标记
+    randomprim(2,2);//开始随机生成
+    for (int i = 1;i<=n+2;i++)//输出生成后的迷宫
+    {
+        for (int j = 1;j<=m+2;j++)
+        {
+            if(mp[i][j]) printf(" ");
+            else printf("#");
+        }
+        printf("\n");
+    }
+    return 0;
+}

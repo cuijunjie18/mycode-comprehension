@@ -1,0 +1,65 @@
+//第一次，代码肯定不太好
+//缺点:1,输入的地图长宽只能是奇数
+//     2,通路通常会有一条明显的主路，路通常较扭曲，贯穿全图
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>//控制台头文件
+#include <time.h>//返回时间头文件，种子生成的关键
+int n;//地图的长,指的是内部第一个陆地开始到最后一个陆地的长度(一定为奇数且不包括外围的墙壁)
+int m;//同上
+int mp[100][100];//地图01式表示
+int walk[4][2] = {{2,0},{0,2},{0,-2},{-2,0}};//方向数组
+bool visit[100][100];//标记数组
+bool judge(int a[5])//判断所有方向都遍历了
+{
+    for (int i = 0;i<=3;i++)
+    {
+        if(a[i] == 0) return false;
+    }
+    return true;
+}
+void DFS(int x,int y)//DFS生成核心函数
+{
+    int check[4];//检查是否
+    memset(check,0,sizeof(check));
+    while(true)
+    {
+        int r = rand()%4;
+        check[r] = 1;
+        int wx = x + walk[r][0];
+        int wy = y + walk[r][1];
+        if(wx>=2&&wx<=n+1&&wy>=2&&wy<=m+1&&visit[wx][wy] == false)
+        {
+            visit[wx][wy] = true;
+            mp[wx][wy] = 1;
+            mp[(wx+x)>>1][(wy+y)>>1] = 1;
+            DFS(wx,wy);
+        }
+        if(judge(check)) break;
+    }
+}
+int main()
+{
+    srand(time(NULL));//设置种子!!!不要再DFS里一直设置，因为代码运行很快，每次重新设置几乎一样，导致随机数有规律(思考)
+    printf("Please input the sphere of the map(only odd number):");
+    scanf("%d%d",&n,&m);
+    for (int i = 2;i<=n+1;i+=2)//设置好陆地
+    {
+        for (int j = 2;j<=m+1;j+=2)
+        {
+            mp[i][j] = 1;
+        }
+    }
+    visit[2][2] = true;//起点标记
+    DFS(2,2);//起点开始DFS
+    for (int i = 1;i<=n+2;i++)//打印生成的地图
+    {
+        for (int j = 1;j<=m+2;j++)
+        {
+            if(mp[i][j]) printf(" ");//如果是1生成空格，即通路
+            else printf("#");//否则生成墙
+        }
+        printf("\n");
+    }
+    return 0;
+}

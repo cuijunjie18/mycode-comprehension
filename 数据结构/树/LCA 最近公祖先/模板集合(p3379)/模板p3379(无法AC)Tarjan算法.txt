@@ -1,0 +1,53 @@
+//原理出处:https://www.cnblogs.com/JVxie/p/4854719.html
+//时间复杂度:o(n+q)一次DFS 但是常数可能会很大 使得时间复杂度大于o(n),q为询问次数
+//缺点:Tarjan是一种离线做法，要预先知道全部询问(而不能边读入询问边给出答案)，且不能对询问顺序输出结果，是离散随机输出
+//基于并查集的DFS
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[500001];//邻接表存图
+vector <int> ask[500001];//邻接表存询问(DFS中增加常数的罪魁祸首)
+bool visit[500001];//标记数组
+int f[500001];//并查集的父亲
+int Find(int x)//常规并查集查询父亲
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);//路径压缩
+}
+void DFS(int x,int fa)//核心DFS
+{
+    for (int i = 0,s = g[x].size();i<s;i++)//枚举子树
+    {
+        if(fa == g[x][i]) continue;//来自父亲，跳过，不走回头路
+        DFS(g[x][i],x);//递归子树
+    }//从循环里出来了，说明子树已经查完
+    for (int i = 0,s = ask[x].size();i<s;i++)//枚举与当前节点询问有关的(正是因为这个循环增大了DFS的常数)
+    {
+        if(visit[ask[x][i]]) printf("%d\n",Find(ask[x][i]));//询问点已经访问过了，则LCA为Find(访问过的点)
+        else continue;//否则跳过
+    }
+    visit[x] = true;//标记当前点访问过了
+    f[x] = fa;//合并
+}
+int main()
+{
+    int n,q,s,a,b;
+    scanf("%d%d%d",&n,&q,&s);
+    for (int i = 1;i<=n;i++)//预处理每个节点的并查集父亲
+    {
+        f[i] = i;//都是自己
+    }
+    for (int i = 1;i<=n-1;i++)//建树的邻接表
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    for (int i = 1;i<=q;i++)//建立询问的邻接表
+    {
+        scanf("%d%d",&a,&b);
+        ask[a].push_back(b);
+        ask[b].push_back(a);
+    }
+    DFS(s,s);//s为根节点，且其父亲为自己,这一点有别于正常建树DFS
+    return 0;
+}

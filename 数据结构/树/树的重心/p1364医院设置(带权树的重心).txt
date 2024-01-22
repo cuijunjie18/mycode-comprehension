@@ -1,0 +1,57 @@
+//带权值的树可以理解为把它的值展开，全部为1后就不带权了，故找重心的时候每个点的大小还要乘上权值，及人数
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//定义二叉树类型
+{
+    int number,l,r,f;//人数，左树，右树，父亲
+}TREE;
+TREE tree[101];
+int ans,n,position;//ans为最后答案，n为节点个数，postion为重心位置
+int sum;//记录树把权值展开后的大小
+int big[101],m[101],visit[101];//big为树的大小，m为树的最大子树大小，visit为标记数组
+void DFS1(int x)//找树的重心
+{
+    if(tree[x].l) DFS1(tree[x].l);//递归左子树(前提存在)
+    if(tree[x].r) DFS1(tree[x].r);//递归右子树(前提存在)
+    m[x] = max(big[tree[x].l],big[tree[x].r]);//以该节点为根节点的最大子树大小
+    big[x] += (big[tree[x].l]+big[tree[x].r]);//求该根节点树的大小
+    int now = max(m[x],sum-big[x]);//求去掉该点后的最大树大小
+    if(now <= sum/2) position = x;//性质1求树的重心
+}
+void DFS2(int x,int h)//求路径总和
+{
+    visit[x] = 1;//标记
+    if(!visit[tree[x].f]) DFS2(tree[x].f,h+1);//找父亲
+    if(!visit[tree[x].l]) DFS2(tree[x].l,h+1);//左子树
+    if(!visit[tree[x].r]) DFS2(tree[x].r,h+1);//右子树
+    ans += h*tree[x].number;//加上当前位置带权距离
+}
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)//输入节点信息
+    {
+        scanf("%d%d%d",&tree[i].number,&tree[i].l,&tree[i].r);//该节点的人数，左子树，右子树
+        sum += tree[i].number;//总展开树大小为权值和
+        big[i] = tree[i].number;//以i为根节点的树的大小初始化为人数，即权值
+    }
+    for (int i = 1;i<=n;i++)//找每个节点的父节点(有根树且二叉树的魅力)，类反函数
+    {
+        tree[tree[i].l].f = i;
+        tree[tree[i].r].f = i;
+    }
+    for (int i = 1;i<=n;i++)//找根节点
+    {
+        if(tree[i].f == 0)//如果没有父节点，则为根节点
+        {
+            DFS1(i);//开始找重心
+            break;//退出
+        }
+    }
+    visit[0] = 1;//标记0，因为零代表不存在，等价于已经访问了
+    visit[position] = 1;//重心标记
+    DFS2(position,0);//开始求带权路径和
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

@@ -1,0 +1,50 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 80112002;//模数
+int out[5001];//记录每个点的出度
+int in[5001];//记录每个点的入度
+vector <int> g[5001];//邻接表存储图(食物链，谁指向谁)
+long long f[5001];//记录由所有入度为0的点到达该点的链数(取模值)
+queue <int> que;//队列
+int main()
+{
+    int n,m,a,b;
+    scanf("%d%d",&n,&m);//输入生物种类及关系数
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%d%d",&a,&b);//a为被吃的，b为消费者
+        in[b]++;//b的入度加1
+        out[a]++;//a的出度加1
+        g[a].push_back(b);//建立关系
+    }
+    for (int i = 1;i<=n;i++)//枚举找入度为0的点(即生产者)
+    {
+        if(in[i] == 0)//如果为生产者
+        {
+            f[i] = 1;//初始化1
+            que.push(i);//入队
+        }
+    }
+    while(!que.empty())枚举
+    {
+        int x = que.front();//取出队头
+        que.pop();//删除
+        for (int i = 0,s = g[x].size();i < s;i++)//枚举该点可以到达的点
+        {
+            int y = g[x][i];//到达的点
+            f[y] = (f[y] + f[x])%md;//更新，取模
+            in[y]--;//入度减少
+            if(in[y] == 0) que.push(y);//如果y已经没有需要计算的了，那么它的链数定了，可以用它来更新下一个点了，入队
+        }//上面为拓扑排序(计数)，防止漏掉
+    }
+    int ans = 0;
+    for (int i = 1;i<=n;i++)//枚举食物链顶端(即出度为0)，求和
+    {
+        if(out[i] == 0)
+        {
+            ans = (ans + f[i])%md;
+        }
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

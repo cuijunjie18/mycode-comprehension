@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 30
+int people[N];
+int main()
+{
+    int k;
+    scanf("%d",&k);
+    int m = 1;
+    int flag = 1;
+    int huai = 0;
+    int i = 1;
+    int wait;
+    while(flag)
+    {
+        for(int j = 1;j<=2*k;j++)
+        {
+            people[j] = 0;
+        }
+        i = 1;
+        huai = 0;
+        while(huai<k)
+        {
+            int temp = 0;
+            while(temp!=m)
+            {
+                if(people[i]==1)
+                {
+                    i++;
+                }
+                else
+                {
+                    wait = i;
+                    temp++;
+                    i++;
+                }
+                if(i>2*k)
+                {
+                    i = 1;
+                }
+            }
+            people[wait] = 1;
+            if(wait>=k+1)
+            {
+                huai++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if(huai==k)
+        {
+            flag = 0;
+        }
+        else
+        {
+            m++;
+        }
+    }
+    printf("%d",m);
+    return 0;
+}

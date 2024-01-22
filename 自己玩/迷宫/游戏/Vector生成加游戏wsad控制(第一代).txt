@@ -1,0 +1,158 @@
+#include <stdio.h>//一堆头文件
+#include <stdlib.h>
+#include <windows.h>
+#include <time.h>
+#include <conio.h>
+#include <vector>//c++才可以用的vector
+using namespace std;//命名空间用了c++
+typedef struct position//蓝色点的位置信息
+{
+    int x,y,d;//x,y为坐标,d为来时的方向
+}POSITION;
+int px,py;//玩家的位置
+int n,m;//地图大小(经验证n最多不超过27,m最大为99)
+int mp[101][101];//数字地图
+int visit[101][101];//标记数组
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+void Build();//生成迷宫函数
+void Randomprim(int bx,int by);//prim随机生成算法
+void Play();//游玩函数
+void Show();//展示地图函数
+void HideCursor();//隐藏光标函数
+void gotoxy(int y,int x);//光标移动函数
+int main()
+{
+    srand(time(NULL));//设置种子
+    Build();//生成地图
+    Play();//开始游戏
+    return 0;
+}
+
+void Build()//生成地图函数
+{
+    printf("Please input the sphere of the map(only odd):");
+    scanf("%d%d",&n,&m);
+    for (int i = 2;i<=n+1;i += 2)
+    {
+        for (int j = 2;j<=m+1;j += 2)
+        {
+            mp[i][j] = 1;
+        }
+    }
+    visit[2][2] = 1;
+    Randomprim(2,2);//核心prim算法
+    px = 2;
+    py = 1;
+    printf("Are you ready?");
+    system("PAUSE");
+    HideCursor();
+    Show();
+}
+
+void Randomprim(int bx,int by)//prim随机生成,详见生成篇
+{
+    vector <POSITION> g;
+    vector<POSITION>::iterator it;
+    for (int i = 0;i<=3;i++)
+    {
+        int wx = bx + walk[i][0];
+        int wy = by + walk[i][1];
+        if(wx<=n+1&&wx>=2&&wy>=2&&wy<=m+1)
+        {
+            POSITION temp = {wx,wy,i};
+            g.push_back(temp);
+        }
+    }
+    int s = g.size();
+    while(s)
+    {
+        int r = rand()%s;
+        POSITION temp = g[r];
+        int wx = temp.x + walk[temp.d][0];
+        int wy = temp.y + walk[temp.d][1];
+        if(!visit[wx][wy])
+        {
+            visit[wx][wy] = 1;
+            mp[temp.x][temp.y] = 1;
+            for (int i = 0;i<=3;i++)
+            {
+                int kx = wx + walk[i][0];
+                int ky = wy + walk[i][1];
+                if(kx>=2&&kx<=n+1&&ky>=2&&ky<=m+1)
+                {
+                    POSITION save = {kx,ky,i};
+                    g.push_back(save);
+                }
+            }
+        }
+        it = g.begin() + r;
+        g.erase(it);
+        s = g.size();
+    }
+    mp[2][1] = 1;
+    mp[n+1][m+2] = 1;
+}
+
+void Show()
+{
+    system("cls");
+    for (int i = 1;i<=n+2;i++)
+    {
+        for (int j = 1;j<=m+2;j++)
+        {
+            gotoxy(i-1,j-1);
+            if(mp[i][j]) printf(" ");
+            else printf("%c%c",0xa8,0x80);
+        }
+        printf("\n");
+    }
+    gotoxy(px-1,py-1);
+    printf("@");
+}
+
+void HideCursor()
+{
+    CONSOLE_CURSOR_INFO cursor_info = {1,0};
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cursor_info);
+}
+
+void gotoxy(int y,int x)
+{
+    COORD p;
+    p.X = x;
+    p.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
+}
+
+void Play()
+{
+    while(px != n+1|| py!= m+2)
+    {
+        if(kbhit())
+        {
+            char ch = getch();
+            if(ch == 'w'&&mp[px-1][py] == 1)
+            {
+                px--;
+            }
+            if(ch == 's'&&mp[px+1][py] == 1)
+            {
+                px++;
+            }
+            if(ch == 'a'&&mp[px][py-1] == 1)
+            {
+                py--;
+            }
+            if(ch == 'd'&&mp[px][py+1] == 1)
+            {
+                py++;
+            }
+            printf("\b ");
+            gotoxy(px-1,py-1);
+            printf("@");
+        }
+    }
+    gotoxy(n+2,0);
+    printf("Congratulations!\n");
+    printf("You win!\n");
+}

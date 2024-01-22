@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+void Isprime(int n)
+{
+    if(n<=1)
+    {
+        printf("%d is not a prime!",n);
+        exit(0);
+    }
+    if(n==2||n==3)
+    {
+        printf("%d is a prime!",n);
+        exit(0);
+    }
+    if(n%6!=1&&n%6!=5)
+    {
+        printf("%d is not a prime!",n);
+        exit(0);
+    }
+    else
+    {
+        int flag = 1;
+        for (int i = 5;i<=sqrt(n);i += 6)
+        {
+            if(n%i==0||n%(i+2)==0)
+            {
+                printf("%d is not a prime!",n);
+                flag = 0;
+                break;
+            }
+        }
+        if(flag)
+            printf("%d is a prime!",n);
+    }
+}
+
+int main()
+{
+    int a;
+    scanf("%d",&a);
+    Isprime(a);
+    return 0;
+}

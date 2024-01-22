@@ -1,0 +1,56 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[100005];
+int visit[1000005];
+void DFS(int x)
+{
+    printf("%d ",x);
+    for (int i = 0,k = g[x].size();i<k;i++)
+    {
+        if(visit[g[x][i]] == 0)
+        {
+            visit[g[x][i]] = 1;
+            DFS(g[x][i]);
+        }
+    }
+}
+void BFS(int x)
+{
+    queue <int> que;
+    que.push(x);
+    visit[x] = 1;
+    while(!que.empty())
+    {
+        int temp = que.front();
+        printf("%d ",temp);
+        que.pop();
+        for (int i = 0,k = g[temp].size();i<k;i++)
+        {
+            if(visit[g[temp][i]] == 0)
+            {
+                visit[g[temp][i]] = 1;
+                que.push(g[temp][i]);
+            }
+        }
+    }
+}
+int main()
+{
+    int n,m,a,b;
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        sort(g[i].begin(),g[i].end());//排序唯一难点，其实可以用set(默认排好序)
+    }
+    visit[1] = 1;
+    DFS(1);
+    printf("\n");
+    memset(visit,0,sizeof(visit));
+    BFS(1);
+    return 0;
+}

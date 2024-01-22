@@ -1,0 +1,204 @@
+#include <stdio.h>
+#include <stdlib.h>
+struct link
+{
+    int data;
+    struct link* next;
+};
+
+struct link* Append(struct link* head)
+{
+    struct link* p = NULL,*pr = head;
+    p = (struct link*)malloc(sizeof(struct link));
+    if(p == NULL)
+    {
+        printf("Not enough memory!\n");
+        exit(0);
+    }
+    else
+    {
+        if(head == NULL)
+        {
+            head = p;
+        }
+        else
+        {
+            while(pr->next!=NULL)
+            {
+                pr = pr->next;
+            }
+            pr->next = p;
+        }
+    }
+    int node;
+    printf("What data do you want to append?");
+    scanf("%d",&node);
+    p->data = node;
+    p->next = NULL;
+    return head;
+}
+
+struct link* Delete(struct link* head)
+{
+    struct link* pr = head,*p = head;
+    if(pr == NULL)
+    {
+        printf("The link is empty!\n");
+        return NULL;
+    }
+    printf("What data do you want to delete?");
+    int a;
+    scanf("%d",&a);
+    if(head->data == a)
+    {
+        head = head->next;
+        free(p);
+    }
+    else
+    {
+        while(pr->data!=a&&pr->next!=NULL)
+        {
+            p = pr;
+            pr = pr->next;
+        }
+        if(pr->data == a)
+        {
+            p->next = pr->next;
+            free(pr);
+        }
+        else
+        {
+            printf("No found the data!\n");
+        }
+    }
+    return head;
+}
+
+struct link* Insert(struct link* head)
+{
+    struct link*pr = head,*p = NULL,*temp = NULL;
+    printf("What data do you want to insert?");
+    int a;
+    scanf("%d",&a);
+    p = (struct link*)malloc(sizeof(struct link));
+    if(p == NULL)
+    {
+        printf("Not enough memory!\n");
+        exit(0);
+    }
+    p->data = a;
+    p->next = NULL;
+    if(head == NULL)
+    {
+        head = p;
+    }
+    else
+    {
+        if(a<=head->data)
+        {
+            p->next = head;
+            head = p;
+        }
+        else
+        {
+            while(pr->data<=a&&pr->next!=NULL)
+            {
+                temp = pr;
+                pr = pr->next;
+            }
+            if(pr->data>a)
+            {
+                temp->next = p;
+                p->next = pr;
+            }
+            else
+            {
+                pr->next = p;
+            }
+        }
+    }
+    return head;
+}
+
+ void Display(struct link* head)
+ {
+     struct link* pr = head;
+     if(pr == NULL)
+     {
+         printf("The link is empty!\n");
+     }
+     else
+     {
+         int i = 0;
+         while(pr!=NULL)
+         {
+             i++;
+             printf("%-5d%-5d\n",i,pr->data);
+             pr = pr->next;
+         }
+     }
+ }
+
+ void Freememory(struct link* head)
+ {
+     struct link* pr = head,*p = NULL;
+     if(pr == NULL)
+     {
+         printf("Nothing to be free!\n");
+     }
+     else
+     {
+         while(pr!=NULL)
+         {
+             p = pr;
+             pr = pr->next;
+             free(p);
+         }
+     }
+ }
+
+int main()
+{
+    struct link* head = NULL;
+    int i = 0;
+    char ch;
+    printf("Do you want to append a data?(Y/N)");
+    scanf("%c",&ch);
+    while(ch == 'Y'||ch == 'y')
+    {
+        i++;
+        head = Append(head);
+        Display(head);
+        printf("Do you want to append another data?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    getchar();
+    printf("%d data have been appended!\n",i);
+    printf("Do you want to delete some data?(Y/N)");
+    scanf("%c",&ch);
+    i = 0;
+    while(ch == 'Y'||ch == 'y')
+    {
+        i++;
+        head = Delete(head);
+        Display(head);
+        printf("Do you want to delete again?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    getchar();
+    printf("%d data have been deleted!\n",i);
+    printf("Do you want to insert a new data?(Y/N)");
+    scanf("%c",&ch);
+    i = 0;
+    while(ch == 'Y'||ch == 'y')
+    {
+        i++;
+        head = Insert(head);
+        Display(head);
+        printf("Do you want to insert again?(Y/N)");
+        scanf(" %c",&ch);
+    }
+    printf("%d new data have been inserted!\n",i);
+    Freememory(head);
+    return 0;
+}

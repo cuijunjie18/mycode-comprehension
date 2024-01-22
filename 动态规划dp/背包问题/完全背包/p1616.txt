@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+long long f[10000001];
+int main()
+{
+    long long t,m;
+    scanf("%lld %lld",&t,&m);
+    long long time[m+1],value[m+1];
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%lld %lld",&time[i],&value[i]);
+    }
+    for (int i = 1;i<=m;i++)
+    {
+        for (int j = time[i];j<=t;j++)
+        {
+            if(f[j-time[i]]+value[i]>f[j])
+                f[j] = f[j-time[i]]+value[i];
+        }
+    }
+    printf("%lld",f[t]);
+    return 0;
+}

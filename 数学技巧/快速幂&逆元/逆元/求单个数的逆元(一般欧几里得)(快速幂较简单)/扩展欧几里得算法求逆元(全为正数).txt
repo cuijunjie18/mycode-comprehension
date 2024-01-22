@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+void GCD(int a,int b,int &x,int &y)
+{
+    if(b == 0)
+    {
+        x = 1;
+        y = 0;
+        return;
+    }
+    GCD(b,a%b,x,y);
+    int temp = x;
+    x = y;
+    y = temp - a/b*y;
+}
+int EXGCD(int a,int b)
+{
+    int x,y;
+    GCD(a,b,x,y);
+    return x;
+}
+int main()
+{
+    int a,b,d;//要求a模b的逆元d
+    scanf("%d%d",&a,&b);
+    d = (EXGCD(a,b)%b+b)%b;//保证逆元为正数
+    printf("%d\n",d);
+    return 0;
+}

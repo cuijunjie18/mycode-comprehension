@@ -1,0 +1,25 @@
+#include <bits/stdc++.h>
+#include <unordered_set>
+using namespace std;
+unordered_set <int> s;
+int main()
+{
+    int t,n,a;
+    scanf("%d",&t);
+    for (int i = 1;i<=t;i++)
+    {
+        s.clear();
+        scanf("%d",&n);
+        for (int i = 1;i<=n;i++)
+        {
+            scanf("%d",&a);
+            if(s.find(a) == s.end())
+            {
+                printf("%d ",a);
+                s.insert(a);
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}

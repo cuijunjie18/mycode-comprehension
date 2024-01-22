@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long sum[4000001];//long long 要开，前缀和
+int main()
+{
+    int n,m,x;
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&x);
+        sum[i] = sum[i-1] + x;
+    }
+    int ans = 0,ansl,ansr;
+    for (int i = 1;i<=n;i++)//枚举左端点
+    {
+        int k = 0;
+        int l = i,r = n;
+        while(l<=r)//二分模板
+        {
+            int mid = (l+r)>>1;//mid 为右端点
+            if(sum[mid] - sum[i-1]>m)
+            {
+                r = mid - 1;
+            }
+            else
+            {
+                k = sum[mid] - sum[i-1];
+                l = mid + 1;
+            }
+        }
+        if(k>ans)//如果当前左端点的情况答案更大，更新
+        {
+            ans = k;
+            ansl = i;
+            ansr = l-1;//右端点为l-1，因为上面跳出循环多加了1
+        }
+    }
+    printf("%d %d %d",ansl,ansr,ans);
+    return 0;
+}

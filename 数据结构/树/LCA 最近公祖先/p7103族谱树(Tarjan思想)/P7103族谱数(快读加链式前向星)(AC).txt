@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星的结构体
+{
+    int to,next;//to为该边的终点，next为该边同起点的边的编号
+}EDGE;
+EDGE e[5000001<<1];//双倍容量存双向边(本题是知道父节点的，可以单向边)
+int head[5000001];//以i为起点的第一条边的编号(其实该节点最后一次加入的边)
+int cnt;//边的数量
+int depth[5000001];//深度
+int ans[5000001];//代表当前深度的LCA(动态变化，Tarjan思想)
+int f[5000001];//初始用于记录父节点，建立完边后，赋予其并查集的父节点意义，便于Tarjan思想
+int Find(int x)//并查集查找，此次用于找LCA
+{
+    return x == f[x]?x:(f[x] = Find(f[x]));
+}
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边函数
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//核心DFS(Tarjan思想)
+{
+    depth[x] = depth[fa] + 1;//改变深度
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        DFS(e[i].to,x);
+    }
+    ans[depth[x]] = ans[depth[x]]?Find(ans[depth[x]]):x;//如果当前深度无LCA设置为自己，否则改变LCA为Find();
+    f[x] = fa;//记录父亲
+}
+int main()
+{
+    int n,q;
+    n = read(),q = read();//读入节点个数及询问次数
+    for (int i = 1;i<=n;i++)//读入i节点的父节点
+    {
+        f[i] = read();
+    }
+    for (int i = 1;i<=n;i++)//建树
+    {
+        add(f[i],i);
+    }
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集父节点初始化
+    DFS(1,0);//从根节点开始遍历，因为父节点已经丢失，所以要用边来重新找，故要加入形参父亲，0代表无父亲
+    for (int i = 1;i<=q;i++)
+    {
+        printf("%d\n",ans[read()]);//输出答案
+    }
+    return 0;
+}

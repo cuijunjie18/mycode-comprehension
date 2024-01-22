@@ -1,0 +1,26 @@
+#include <bits/stdc++.h>
+using namespace std;
+char word1[10000];//字符数字1
+char word2[10000];//字符数字2
+int number1[10000];//整型数字1
+int number2[10000];//整型数字2
+int ans[100001];//答案，位数可能比两数多一位
+int main()
+{
+    scanf("%s",word1);//输入字符数字1
+    scanf("%s",word2);//输入字符数字2
+    int n1 = strlen(word1);//计算数字1位数
+    int n2 = strlen(word2);//计算数字2位数
+    for (int i = 1;i<=n1;i++) number1[i] = word1[n1-i] - '0';//数字1整型化
+    for (int i = 1;i<=n2;i++) number2[i] = word2[n2-i] - '0';//数字2整型化
+    int index = max(n1,n2) + 1;//确定可能的最大位数
+    for (int i = 1;i<=index;i++)//模拟计算加法过程
+    {
+        ans[i] += number1[i] + number2[i];//！！  +=不能写成 = 因为可能有之前进位的加到了这一位
+        ans[i+1] = ans[i]/10;//进位(大于等于10才进，否则是0)
+        ans[i] %= 10;//取余(大于等于10才可能变化，否则还是自己)
+    }
+    while(ans[index] == 0&&index>1) index--;//确定最高位，同时要防止答案为0时无输出
+    for (int i = index;i>=1;i--) printf("%d",ans[i]);//高位输出
+    return 0;
+}

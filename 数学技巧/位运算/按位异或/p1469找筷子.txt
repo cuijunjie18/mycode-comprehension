@@ -1,0 +1,28 @@
+//题目限制4MB内存，用unordered_set也MLE，故想到位运算:异或
+//原理:1,k 个相同的数的异或和，当k 为奇数时，结果是这个数本身，否则结果是0
+	  2,任何数与0的异或值是它本身。
+#include <bits/stdc++.h>
+using namespace std;
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+int main()
+{
+    int n = read();//读入筷子个数
+    int ans = 0;//初始化答案
+    while(n--)
+    {
+        ans ^= read();//一直按位异或
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

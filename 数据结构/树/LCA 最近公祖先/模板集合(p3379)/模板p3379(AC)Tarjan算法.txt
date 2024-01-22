@@ -1,0 +1,96 @@
+//可喜可贺!!!:改进了Tarjan的离线缺点，增加一个标记第几次询问并记录的数组，得以按顺序输出
+//变化:时间复杂度由o(n+q) 变为 o(2n+q),空间复杂度增加近一倍，同时Tarjan常数大来源于并查集的未知复杂度(虽然近似o(1),但首次查询时压缩还是挺久)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//兼具边及询问的结构体，v是代表该次询问是哪一次，在边里用不上
+{
+    int to,next,v;
+}EDGE;
+EDGE e[500001<<1];//边数组
+int head[500001];//i编号边的起点
+int cnt;//边的数量
+EDGE ask[500001<<1];//询问数组
+int hask[500001];//i编号询问的其中一个数
+int cask;//询问数组有用的数量
+int f[500001];//并查集根节点数组
+bool visit[500001];//标记数组
+int ans[500001];//存储答案的数组，ans[i]对应第i次询问的答案
+inline int read()//快读，不用说了
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void add(int x,int y)//加边函数
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void adda(int x,int y,int a)//记录询问函数，询问两个数之间的关系类似一条边，但边有权值:询问的第几次
+{
+    ask[++cask].to = y;
+    ask[cask].v = a;//该两数边的询问是第a个
+    ask[cask].next = hask[x];
+    hask[x] = cask;
+}
+void DFS(int x,int fa)//一次DFS结合Tarjan求LCA
+{
+    for (int i = head[x];i;i = e[i].next)//常规遍历子树
+    {
+        if(e[i].to == fa) continue;//来自父节点，跳过，不走回头路
+        DFS(e[i].to,x);//先到达底部
+    }
+    for (int i = hask[x];i;i = ask[i].next)//遍历于该点有关的问题询问
+    {
+        if(ask[i].to == x)//Hack数据，如果询问是自己
+        {
+            ans[ask[i].v] = x;//不管visit直接记录答案，否则不会再次来到自己这个位置
+            continue;//继续
+        }
+        if(visit[ask[i].to])//如果于该节点连接的问题的点已经到达过
+        {
+            ans[ask[i].v] = Find(ask[i].to);//记录答案
+        }
+    }
+    visit[x] = true;//标记当前点
+    f[x] = fa;//改变父节点
+ }
+int main()
+{
+    int n = read();//读入节点个数
+    int q = read();//读入询问次数
+    int s = read();//读入根节点编号
+    for (int i = 1;i<=n;i++) f[i] = i;//!!!!一定要初始化并查集
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    for (int i = 1;i<=q;i++)//建立询问的边
+    {
+        int a = read();
+        int b = read();
+        adda(a,b,i);
+        adda(b,a,i);
+    }
+    DFS(s,0);//一次DFS加Tarjan，找到答案
+    for (int i = 1;i<=q;i++)//按顺序输出对应询问的答案
+    {
+        printf("%d\n",ans[i]);
+    }
+    return 0;
+}

@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct point
+{
+    int x;
+    int y;
+}POINT;
+int r,c,n;
+char mp[60][60];
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+char test[4][10] = {"NORTH","SOUTH","WEST","EAST"};
+int visit[1001][51][51];
+queue <POINT> que;
+int main()
+{
+    cin>>r>>c;
+    int bx,by;
+    for (int i = 1;i<=r;i++)
+    {
+        for (int j = 1;j<=c;j++)
+        {
+            scanf(" %c",&mp[i][j]);
+            if(mp[i][j] == '*')
+            {
+                mp[i][j] = '.';
+                bx = i;
+                by = j;
+            }
+        }
+    }
+    POINT bg = {bx,by};
+    que.push(bg);
+    cin>>n;
+    char temp[10];
+    int d,flag,number,a;
+    number = 1;
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",temp);
+        for (int j = 0;j<=3;j++)
+        {
+            if(strcmp(temp,test[j])==0)
+            {
+                d = j;
+                break;
+            }
+        }
+        a = 0;
+        for (int j = 1;j<=number;j++)
+        {
+            flag = 1;
+            POINT save = que.front();
+            que.pop();
+            int wx = save.x+walk[d][0];
+            int wy = save.y+walk[d][1];
+            while(flag)
+            {
+                if(wx>=1&&wx<=r&&wy>=1&&wy<=c&&mp[wx][wy]!='X'&&visit[i][wx][wy]==0)
+                {
+                    visit[i][wx][wy] = 1;//重中之重
+                    POINT b = {wx,wy};
+                    que.push(b);
+                    wx += walk[d][0];
+                    wy += walk[d][1];
+                    a++;
+                }
+                else
+                {
+                    flag = 0;
+                }
+            }
+         }
+         number = a;
+    }
+    while(!que.empty())
+    {
+        POINT save = que.front();
+        que.pop();
+        mp[save.x][save.y] = '*';
+    }
+    for (int i = 1;i<=r;i++)
+    {
+        for (int j = 1;j<=c;j++)
+        {
+            cout<<mp[i][j];
+        }
+        cout<<endl;
+    }
+    return 0;
+}

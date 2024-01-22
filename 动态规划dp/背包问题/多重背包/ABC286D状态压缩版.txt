@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[10001];//dp数组
+int value[2600];//价值数组
+int count;//压缩后的物品数量
+int Max(int a,int b)//取较大值
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int n,x;
+    scanf("%d%d",&n,&x);//输入货币种类及要到达的x
+    int count = 0;//初始化二进制压缩物品的数量为0
+    for (int i = 1,a,b;i<=n;i++)//输入加压缩
+    {
+        scanf("%d%d",&a,&b);
+        int k = 1;
+        while(k<=b)//每个物品的数量拆解成二进制的每一位
+        {
+            value[++count] = k*a;
+            b-=k;
+            k*=2;
+        }
+        if(b)//如果还有多出来的
+        {
+            value[++count] = b*a;
+        }
+    }
+    for (int i = 1;i<=count;i++)//01背包dp
+    {
+        for (int j = x;j>=value[i];j--)
+        {
+            f[j] = Max(f[j],f[j-value[i]]+value[i]);
+        }
+    }
+    if(f[x] == x)
+    {
+        printf("Yes");
+    }
+    else
+    {
+        printf("No");
+    }
+    return 0;
+}

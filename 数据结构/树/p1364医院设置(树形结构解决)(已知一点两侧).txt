@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+using namespace std;
+int number[50001];//记录i号位置的人数
+int l[50001];//记录每个点的左边
+int r[50001];//记录每个点的右边
+int f[50001];//记录每个点的上边，即父亲,神来之笔，(如果为0则无父亲)
+bool visit[50001];//记录某个点是否到底过了
+int ans = 999999999;//最小值，初始化答案为最大值
+int DFS(int x,int h)//核心搜索，h为路径长（思想有点像BFS）
+{
+    if(x == 0||visit[x] == true) return 0;//如果该店为0(不存在)或者已经搜索过了，贡献为0，返回
+    visit[x] = 1;//标记
+    return DFS(l[x],h+1) + DFS(r[x],h+1) + DFS(f[x],h+1) + number[x]*h;//核心递归，找左上右
+}
+int main()
+{
+    int n,p,a,b;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)//记录每个点的左右编号及该点人数
+    {
+        scanf("%d%d%d",&p,&a,&b);
+        number[i] = p;
+        l[i] = a;
+        r[i] = b;
+    }
+    for (int i = 1;i<=n;i++)//类反函数，记录每个点的父亲
+    {
+        f[l[i]] = i;
+        f[r[i]] = i;
+    }
+    for (int i = 1;i<=n;i++)//搜索
+    {
+        memset(visit,false,sizeof(visit));
+        ans = min(ans,DFS(i,0));
+    }
+    printf("%d\n",ans);
+    return 0;
+}

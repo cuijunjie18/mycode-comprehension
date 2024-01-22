@@ -1,0 +1,25 @@
+#include <bits/stdc++.h>
+using namespace std;
+int number[1000];//记录整型数字
+int ans[1000];//记录答案
+char word[1000];//字符数字
+int main()
+{
+    scanf("%s",word);//输入字符数字
+    int n = strlen(word);//计算位数
+    for (int i = 1;i<=n;i++)//字符按位转整型
+    {
+        number[i] = word[n-i] - '0';
+    }
+    for (int i = n;i>=1;i--)//模拟草稿纸除2
+    {
+        ans[i] = number[i]/2;//答案存储
+        number[i-1] += number[i]%2*10;//余数给后面乘10(其实对应不同进制是乘base)
+    }
+    while(ans[n] == 0&&n>1) n--;//计算答案的位数，同时要保证有输出
+    for (int i = n;i>=1;i--)//逆序输出答案
+    {
+        printf("%d",ans[i]);
+    }
+    return 0;
+}

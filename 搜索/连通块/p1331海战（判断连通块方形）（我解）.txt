@@ -1,0 +1,63 @@
+//解法:搜索连通块，判断是否为方形
+//时间复杂度:o(n^2)
+#include <bits/stdc++.h>
+using namespace std;
+char mp[1001][1005];//记录地图
+int visit[1001][1005];//标记数组
+int ans;//答案，即船的数量
+int ml,mu,md,mr;//对应搜索出的每个连通块的最左，最右，最上，最下的坐标
+int r,c;//地图的行与列大小
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+void DFS(int x,int y)//DFS判断连通块
+{
+    ml = min(ml,y);//更新最左
+    mr = max(mr,y);//更新最右
+    mu = min(mu,x);//更新最上
+    md = max(md,x);//更新最下
+    for (int i = 0;i<=3;i++)//DFS遍历连通块
+    {
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if(wx<=r&&wx>=1&&wy<=c-1&&wy>=0&&mp[wx][wy] == '#'&&visit[wx][wy] == 0)
+        {
+            visit[wx][wy] = 1;
+            DFS(wx,wy);
+        }
+    }
+}
+int main()
+{
+    cin>>r>>c;//输入行与列
+    for (int i = 1;i<=r;i++)//输入地图数据
+    {
+        scanf("%s",mp[i]);
+    }
+    for (int i = 1;i<=r;i++)//开始判断连通块
+    {
+        for (int j = 0;j<=c-1;j++)
+        {
+            if(!visit[i][j]&&mp[i][j]!='.')//如果该点没有加入到其他连通块中且是船的一部分，开始搜索
+            {
+                ml = 99999;//初始化最左
+                mr = 0;//初始化最右
+                mu = 99999;//初始化最上
+                md = 0;//初始化最下
+                ans++;//答案加1
+                DFS(i,j);//判断连通块并记录相应坐标
+                for (int i = mu;i<=md;i++)//开始判断是否为方形(假设是)
+                {
+                    for (int j = ml;j<=mr;j++)
+                    {
+                        if(mp[i][j]!='#')//如果(假设的方形)连通块中出现了不属于船的部分，则不是方形，即不合法放置
+                        {
+                            printf("Bad placement.\n");//输出不合法
+                            exit(0);//结束程序
+                        }
+                    }
+                }
+            }
+        }
+    }
+    printf("There are %d ships.\n",ans);//输出
+    return 0;
+}

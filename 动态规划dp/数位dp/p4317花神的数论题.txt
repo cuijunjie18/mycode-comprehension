@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 10000007;//模数
+int num[70];//记录二进制下的每一位数
+long long f[70][70];//1维:当前1dp到第几位 2维：前面有多少个1  f含义为当前状态时的所有数的1的个数的乘积
+int DFS(int len,int cnt,bool limit)//记忆化深搜
+{
+    if(len == 0) return max(cnt,1);//如果到底了，返回 ！！不能是0，因为题目说是1到该数，我偷换概念，所有返回至少为1
+    if(!limit&&f[len][cnt] != 0) return f[len][cnt];//如果没有限制且已经搜过了，直接返回
+    long long ret = 1;//初始化
+    int up = limit?num[len]:1;//确定当前位的上界
+    for (int i = 0;i<=up;i++)
+    {
+        ret = ret%md*DFS(len-1,cnt + (i == 1),limit&&(i == num[len]))%md;//搜索取模
+    }
+    if(!limit) f[len][cnt] = ret;//如果没有限制，符合状态定义，记录
+    return ret%md;
+}
+int Solve(long long up)
+{
+    int len = 0;
+    while(up)
+    {
+        num[++len] = up%2;
+        up /= 2;
+    }
+    return DFS(len,0,true)%md;
+}
+int main()
+{
+    long long n;
+    scanf("%lld",&n);
+    printf("%d\n",Solve(n));
+    return 0;
+}

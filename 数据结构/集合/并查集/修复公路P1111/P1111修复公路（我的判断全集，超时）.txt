@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct data//道路信息的结构体
+{
+    int x;//道路的端点1
+    int y;//道路的端点2
+    int times;//修完这条道路要到的时间
+}DATA;
+int f[1001];//并查集根节点数组
+void Sort(DATA a[],int begin,int end);//快速排序法
+int Finish(int n);//判断是否全村通车
+int Find(int x);//并查集查找根节点
+void Join(int x,int y);//并查集合并
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);//输入n个村庄，m条路
+    DATA data[m+1];
+    for (int i = 1;i<=n;i++)//初始化并查集的根
+    {
+        f[i] = i;
+    }
+    for (int i = 1;i<=m;i++)//输入每天道路的数据
+    {
+        scanf("%d%d%d",&data[i].x,&data[i].y,&data[i].times);
+    }
+    Sort(data,1,m);//每天道路按时间升序排序
+    for (int i = 1;i<=m;i++)//依次修每条公路
+    {
+        if(Finish(n))//修之前判断之前是否全村通车，即集合个数为1
+        {
+            printf("%d\n",data[i-1].times);//输出时间
+            return 0;//返回
+        }
+        else//否则，继续合并
+        {
+            Join(data[i].x,data[i].y);//合并
+        }
+    }
+    if(Finish(n))//最后一次判断
+    {
+		printf("%d\n",data[m].times);
+		return 0;
+    }
+    printf("-1\n")//如果都没修好，输出-1;
+    return 0;
+}
+
+void Sort(DATA a[],int begin,int end)//快速排序法
+{
+    if(begin>=end) return;
+    DATA temp = a[begin];
+    int i = begin;
+    int j = end;
+    while(i<j)
+    {
+        while(a[j].times>=temp.times&&j>i) j--;
+        while(a[i].times<=temp.times&&i<j) i++;
+        if(i!=j)
+        {
+            DATA save = a[i];
+            a[i] = a[j];
+            a[j] = save;
+        }
+    }
+    a[begin] = a[i];
+    a[i] = temp;
+    Sort(a,begin,i-1);
+    Sort(a,i+1,end);
+}
+
+int Finish(int n)//判断集合个数
+{
+    int flag = 1;
+    for (int i = 1;i<=n-1;i++)
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            if(Find(i) != Find(j))
+            {
+                flag = 0;
+                goto EXIT;
+            }
+        }
+    }
+    EXIT:
+        return flag;
+}
+
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return Find(f[x]);
+}
+
+void Join(int x,int y)//并查集合并
+{
+    int f1 = Find(x);
+    int f2 = Find(y);
+    if(f1 != f2)
+    {
+        f[f2] = f1;
+    }
+}

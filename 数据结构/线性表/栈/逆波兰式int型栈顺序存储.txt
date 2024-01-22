@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#define N 50
+#define M 10
+int flag;  //决定double 还是int
+typedef struct node
+{
+    int ival;
+}Nodetype;
+typedef struct stack
+{
+    Nodetype data[N];
+    int top;
+}STACK;
+
+Nodetype Opint(int d1,int d2,int op)
+{
+    Nodetype res;
+    switch(op)
+    {
+    case '+':
+        res.ival = d1+d2;
+        break;
+    case '-':
+        res.ival = d1-d2;
+        break;
+    case '*':
+        res.ival = d1*d2;
+        break;
+    case '/':
+        res.ival = d1/d2;
+        break;
+    }
+    return res;
+}
+
+
+
+
+void Push(STACK* stack,Nodetype data)
+{
+    memcpy(&stack->data[stack->top],&data,sizeof(Nodetype));
+    stack->top = stack->top + 1;
+}
+
+Nodetype Pop(STACK* stack)
+{
+    stack->top = stack->top - 1;
+    return stack->data[stack->top];
+}
+
+Nodetype Opdata(Nodetype* d1,Nodetype* d2,int op)
+{
+    Nodetype res;
+    res = Opint(d1->ival,d2->ival,op);
+    return res;
+}
+
+int main()
+{
+    char word[M];
+    Nodetype d1,d2,d3;
+    STACK stack;
+    stack.top = 0;
+    while(scanf("%s",word) == 1&&word[0]!='#')
+    {
+        if(isdigit(word[0]))
+        {
+            d1.ival = atoi(word);
+            Push(&stack,d1);
+        }
+        else
+        {
+            d1 = Pop(&stack);
+            d2 = Pop(&stack);
+            d3 = Opdata(&d1,&d2,word[0]);
+            Push(&stack,d3);
+        }
+    }
+    d1 = Pop(&stack);
+    printf("%d\n",d1.ival);
+    return 0;
+}

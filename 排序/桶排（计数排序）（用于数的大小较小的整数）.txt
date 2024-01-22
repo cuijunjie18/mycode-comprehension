@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 1000
+int pai[N];
+int main()
+{
+    int n,m;
+    scanf("%d %d",&n,&m);
+    int a;
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%d",&a);
+        pai[a]++;
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(pai[i]!=0)
+        {
+            for (int j = 1;j<=pai[i];j++)
+            {
+                printf("%d ",i);
+            }
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;
+int ans;
+char mp[505][505];
+int visit[505][505];
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+void DFS(int x,int y)
+{
+    for (int i = 0;i<=3;i++)
+    {
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if(wx>=0&&wx<=n+1&&wy>=0&&wy<=m+1&&visit[wx][wy] == 0)
+        {
+            visit[wx][wy] = 1;
+            DFS(wx,wy);
+        }
+    }
+}
+int main()
+{
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>mp[i][j];
+            if(mp[i][j] == '*')
+            {
+                visit[i][j] = 1;
+            }
+        }
+    }
+    DFS(0,0);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            if(!visit[i][j])
+                ans++;
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}

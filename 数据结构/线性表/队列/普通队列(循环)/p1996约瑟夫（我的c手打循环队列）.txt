@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 105
+int MAX,n,m;
+typedef struct queue
+{
+    int data[N];//注意这个位置，理解关键，比如要存n个数据，数组要开n+1，虽然下标最大为n，因为取模运算可以成立
+    int head;
+    int rear;
+}QUEUE;
+void push(QUEUE*p,int data);
+void pop(QUEUE*p);
+int gethead(QUEUE*p);
+int queuesize(QUEUE*p);
+int main()
+{
+    QUEUE queue;
+    queue.head = 0;
+    queue.rear = 0;
+    scanf("%d%d",&n,&m);
+    MAX = n+2;
+    for (int i = 1;i<=n;i++)
+    {
+        push(&queue,i);
+    }
+    while(queuesize(&queue)!=1)
+    {
+        for (int i = 1;i<m;i++)
+        {
+            push(&queue,gethead(&queue));
+            pop(&queue);
+        }
+        printf("%d ",gethead(&queue));
+        pop(&queue);
+    }
+    printf("%d",gethead(&queue));
+    return 0;
+}
+
+void push(QUEUE* p,int data)
+{
+    if((p->rear+1)%MAX == p->head)
+    {
+        printf("The queue is enough!\n");
+        return;
+    }
+    p->data[p->rear] = data;
+    p->rear = (p->rear+1)%MAX;
+}
+
+void pop(QUEUE*p)
+{
+    if(p->head == p->rear)
+    {
+        printf("The queue is empty!\n");
+        return;
+    }
+    p->head = (p->head+1)%MAX;
+}
+
+int gethead(QUEUE*p)
+{
+    if(p->head == p->rear)
+    {
+        printf("The queue is empty!\n");
+        return -0x3f;
+    }
+    return p->data[p->head];
+}
+
+int queuesize(QUEUE*p)
+{
+    if(p->rear-p->head>=0) return p->rear-p->head;
+    else return p->rear-p->head + MAX;
+}

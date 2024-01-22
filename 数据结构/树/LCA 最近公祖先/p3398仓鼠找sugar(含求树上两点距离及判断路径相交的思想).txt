@@ -1,0 +1,82 @@
+/*判断路径相交的原理: 在一棵树上，对于路径 (x,y) 和路径 (u,v)，判断它们相交，等价于判断是否满足： LCA(u,v) 在路径 (x,y) 上或者 LCA(x,y) 在路径 (u,v) 上。*/
+/*判断点在路径上的原理:点到路径两端点的距离的和等于路径的长度(及路径端点的距离)*/
+//求树上任意两点距离的方法:对于任意两点a,b,距离为depth[a] + depth[b] - 2*depth[LCA(a,b)]  前提根节点depth设置为0
+//本题时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int depth[100001];//深度
+int f[100001][30];//每个点的倍增父节点
+vector <int> g[100001];//邻接表存图
+void DFS(int x,int fa)//常规初始化
+{
+    depth[x] = depth[fa] + 1;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++)//求倍增父节点
+    {
+        f[x][i] = f[f[x][i-1]][i-1];
+    }
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历子树
+    {
+        if(g[x][i] == fa) continue;
+        DFS(g[x][i],x);
+    }
+}
+int Solve(int a,int b)//返回LCA
+{
+    if(depth[a]<depth[b]) swap(a,b);
+    while(depth[a]>depth[b])
+    {
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    }
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        if(f[a][i]!=f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    int n,q,a,b,c,d;
+    scanf("%d%d",&n,&q);
+    for (int i = 1;i<=n-1;i++)//建图
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    depth[0] = -1;//初始化深度
+    DFS(1,0);//以1为根节点开始预处理
+    for (int i = 1;i<=q;i++)//回答q次询问
+    {
+        scanf("%d%d%d%d",&a,&b,&c,&d);
+        int x = Solve(a,b);//求LCA(a,b)
+        int y = Solve(c,d);//求LCA(c,d)
+        int d1 = (depth[a] + depth[b] - 2*depth[x]);//计算a到b距离
+        int d2 = (depth[c] + depth[d] - 2*depth[y]);//计算c到d距离
+        int xc = Solve(x,c);//后面即前言中的原理部分
+        int xd = Solve(x,d);
+        int dxc = (depth[x] + depth[c] - 2*depth[xc]);
+        int dxd = (depth[x] + depth[d] - 2*depth[xd]);
+        if(dxc + dxd == d2)//如果LCA(a,b)在cd路径上，相交
+        {
+            printf("Y\n");
+            continue;
+        }
+        int ya = Solve(y,a);
+        int yb = Solve(y,b);
+        int dya = (depth[y] + depth[a] - 2*depth[ya]);
+        int dyb = (depth[y] + depth[b] - 2*depth[yb]);
+        if(dya + dyb == d1)//或者LCA(c,d)在ab路径上，相交
+        {
+            printf("Y\n");
+            continue;
+        }
+        printf("N\n");//否则不相交
+    }
+    return 0;
+}

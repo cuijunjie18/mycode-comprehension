@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[10001];//表示角度是否能到达，0不行，1行
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);//输入初始角个数与目标角个数
+    int a[n+1];
+    int b[m+1];
+    for (int i = 1;i<=n;i++)//输入初始角
+    {
+        scanf("%d",&a[i]);
+    }
+    for (int i = 1;i<=m;i++)//输入目标角
+    {
+        scanf("%d",&b[i]);
+    }
+    f[0] = 1;//0可以达到，初始化
+    for (int i = 1;i<=n;i++)//枚举初始角
+    {
+        for (int j = 0;j<=10001;j++)//用初始角进行加减操作
+        {
+            if(j>=a[i])
+            {
+                f[j%360] = f[j%360]|f[(j-a[i])%360];
+            }
+            f[j%360] = f[j%360]|f[(j+a[i])%360];
+        }
+    }
+    for (int i = 1;i<=m;i++)//按顺序输出目标角是否可以达到
+    {
+        if(f[b[i]])
+            printf("YES\n");
+        else
+            printf("NO\n");
+    }
+    return 0;
+}

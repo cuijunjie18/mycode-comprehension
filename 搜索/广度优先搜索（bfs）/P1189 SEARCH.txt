@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct point
+{
+    int x;
+    int y;
+}POINT;//坐标结构体
+int r,c,n;
+char mp[60][60];//记录地图
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+char test[4][10] = {"NORTH","SOUTH","WEST","EAST"};//指令对应方向
+int visit[1001][51][51];//标记数组
+queue <POINT> que;
+int main()
+{
+    cin>>r>>c;
+    int bx,by;
+    for (int i = 1;i<=r;i++)
+    {
+        for (int j = 1;j<=c;j++)
+        {
+            scanf(" %c",&mp[i][j]);
+            if(mp[i][j] == '*')
+            {
+                mp[i][j] = '.';
+                bx = i;
+                by = j;
+            }
+        }
+    }
+    POINT bg = {bx,by};
+    que.push(bg);//起点入队
+    cin>>n;
+    char temp[10];
+    int d,flag,number,a;
+    number = 1;
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",temp);//一个方向指令
+        for (int j = 0;j<=3;j++)
+        {
+            if(strcmp(temp,test[j])==0)//如果识别到了，取方向数组对应编号
+            {
+                d = j;
+                break;
+            }
+        }
+        a = 0;//确定这一步可以到达多少个点
+        for (int j = 1;j<=number;j++)//number为上一个指令后汽车可以开到的位置个数，初始为1
+        {
+            flag = 1;//标记是否撞墙
+            POINT save = que.front();
+            que.pop();
+            int wx = save.x+walk[d][0];//一直往一个方向
+            int wy = save.y+walk[d][1];
+            while(flag)
+            {
+                if(wx>=1&&wx<=r&&wy>=1&&wy<=c&&mp[wx][wy]!='X'&&visit[i][wx][wy]==0)//如果在范围且第i指令没去过
+                {
+                    visit[i][wx][wy] = 1;//这里的visit类似记忆化，不加的话会超时且MLE
+                    POINT b = {wx,wy};
+                    que.push(b);
+                    wx += walk[d][0];
+                    wy += walk[d][1];
+                    a++;//到底点个数加1
+                }
+                else
+                {
+                    flag = 0;
+                }
+            }
+         }
+         number = a;//确定下一次枚举个数
+    }
+    while(!que.empty())//改变地图，标记汽车全部最后可到达的位置
+    {
+        POINT save = que.front();
+        que.pop();
+        mp[save.x][save.y] = '*';
+    }
+    for (int i = 1;i<=r;i++)//输出
+    {
+        for (int j = 1;j<=c;j++)
+        {
+            cout<<mp[i][j];
+        }
+        cout<<endl;
+    }
+    return 0;
+}

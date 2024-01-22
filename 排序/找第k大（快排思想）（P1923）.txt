@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+int n,k;
+void Sort(int a[],int begin,int end)
+{
+    if(begin>=end) return;
+    int temp = a[begin];
+    int i = begin;
+    int j = end;
+    while(i<j)
+    {
+        while(a[j]>=temp&&j>i)
+        {
+            j--;
+        }
+        while(a[i]<=temp&&i<j)
+        {
+            i++;
+        }
+        if(i!=j)
+        {
+            int save = a[i];
+            a[i] = a[j];
+            a[j] = save;
+        }
+    }
+    a[begin] = a[i];
+    a[i] = temp;
+    int wei = i;
+    if(wei == k+1) return;//本质为wei == k 即可但对应题目要求
+    else if(wei>k+1)
+    {
+        Sort(a,begin,i-1);
+    }
+    else
+    {
+        Sort(a,i+1,end);
+    }
+}
+int main()
+{
+    scanf("%d %d",&n,&k);
+    int number[n+1];
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    Sort(number,1,n);
+    printf("%d",number[k+1]);
+    return 0;
+}

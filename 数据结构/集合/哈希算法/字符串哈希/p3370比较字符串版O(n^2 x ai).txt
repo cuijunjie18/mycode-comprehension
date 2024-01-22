@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+char word[10001][1501];
+int count;
+void Judge(char a[])
+{
+    for (int i = 1;i<=count;i++)
+    {
+        if(strcmp(a,word[i]) == 0)
+            return;
+    }
+    count++;
+    strcpy(word[count],a);
+}
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    char temp[1501];
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",temp);
+        Judge(temp);
+    }
+    printf("%d",count);
+    return 0;
+}

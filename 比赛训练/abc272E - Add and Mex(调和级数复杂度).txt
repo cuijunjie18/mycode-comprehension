@@ -1,0 +1,48 @@
+/*原理:某个时刻中还为负数的对结果无贡献，可以在该阶段的数组中忽略；且易有每个时刻的答案都一定在0~n范围内，同时某个时刻超过了n的数也对答案求解无贡献，可以在该阶段的数组中忽略.不妨假设初始时全部数都为正数或零，第一个数最多加n次超过n，第二个数n/2次，，，最后一个数1次(因为一次加n),也就是说哪怕全是正数，无法忽略掉负数的情况，每个阶段处理的状态和最多也是n + n/2 + n/3 +++ 1 = n(1 + 1/2 + 3/1) < nlogn */
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[200005];//用来记录每一时刻有用的数
+int number[200005];//记录初始的数
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);//输入n个数及m个时刻
+    for (int i = 1;i<=n;i++) scanf("%d",&number[i]);//读入初始数组
+    for (int i = 1;i<=n;i++)//依次处理每个位上的数可出现在的状态(即时刻)
+    {
+        int t = 0;//初始时刻为0
+        if(number[i]<0)//如果该数为负数
+        {
+            t = ((-number[i])/i);//至少要加t次才可以为正数，即有用
+            if((-number[i])%i) t++;//如果有余数还要加一次才为正数
+            for (;t*i + number[i]<=n&&t<=m;t++)//直接从t时刻开始才记录当前位置上的数的有用情况，边界:数不超过n，时刻数不超过m
+            {
+                g[t].push_back(t*i + number[i]);
+            }
+        }
+        else//如果为正数
+        {
+            for (;t*i + number[i]<=n&&t<=m;t++)//边界条件同上
+            {
+                g[t].push_back(t*i + number[i]);
+            }
+        }
+    }
+    for (int i = 1;i<=m;i++)//依次求每一时刻的答案
+    {
+        sort(g[i].begin(),g[i].end());//先排序
+        unique(g[i].begin(),g[i].end());//去重，对数组中相邻的元素(要先排好序，时间复杂度:o(n),n为g[i]的个数，比set少了个logn)
+        g[i].push_back(1000000009);//一定要在最后插上，防止无输出
+        int big = g[i].size();//计算大小
+        for (int j = 0;j<=big-1;j++)//从小枚举
+        {
+            if(g[i][j] != j)//如果不是该位置上的数
+            {
+                printf("%d\n",j);//输出
+                break;
+            }
+        }
+    }
+    return 0;
+}

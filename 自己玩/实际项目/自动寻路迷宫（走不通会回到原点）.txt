@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>
+#include <conio.h>
+#define N 50
+#define M 50
+int x,y;
+int n,m;
+int visit[N][M];
+void Show(char str[N][M]);
+void Visit(char str[N][M]);
+void DFS(char str[N][M]);
+int main()
+{
+    char str[N][M] =
+    {
+
+        "************",
+        "*          *",
+        "* **********",
+        "* *   *   **",
+        "* * * * * **",
+        "* * * * *  *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "*   *   **  ",
+        "************"
+    };
+    n = 12;
+    m = 12;
+    Visit(str);
+    printf("Please input the begin position:");
+    scanf("%d%d",&x,&y);
+    visit[x][y] = 1;
+    Show(str);
+    DFS(str);
+    for (int i = 0;i<=n-1;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            printf("%d ",visit[i][j]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+
+void Show(char str[][M])
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            if(i == x&&j == y)
+            {
+                printf("0");
+            }
+            else
+                printf("%c",str[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void Visit(char str[N][M])
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            if(str[i][j] != ' ')
+            {
+                visit[i][j] = 1;
+            }
+        }
+    }
+}
+
+void DFS(char str[N][M])
+{
+    system("cls");
+    if(x == 10&&y == 11)
+    {
+        Show(str);
+        printf("Get the way to exit!\n");
+        exit(0);
+    }
+    if(visit[x][y+1]==0)
+    {
+        y++;
+        visit[x][y] = 1;
+        Show(str);
+        Sleep(500);
+        DFS(str);
+        y--;
+    }
+    if(visit[x-1][y]==0)
+    {
+        x--;
+        visit[x][y] = 1;
+        Show(str);
+        Sleep(500);
+        DFS(str);
+        x++;
+    }
+    if(visit[x+1][y]==0)
+    {
+        x++;
+        visit[x][y] = 1;
+        Show(str);
+        Sleep(500);
+        DFS(str);
+        x--;
+    }
+    if(visit[x][y-1]==0)
+    {
+        y--;
+        visit[x][y] = 1;
+        Show(str);
+        Sleep(500);
+        DFS(str);
+        y++;
+    }
+}

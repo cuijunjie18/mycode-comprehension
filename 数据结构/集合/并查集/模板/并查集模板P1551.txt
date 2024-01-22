@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[5001];
+void join(int x,int y);
+int find(int x);
+int judge(int x,int y);
+int main()
+{
+    int n,m,p;
+    scanf("%d%d%d",&n,&m,&p);
+    for (int i = 1;i<=n;i++)
+    {
+        f[i] = i;
+    }
+    for (int i = 1;i<=m;i++)
+    {
+        int x,y;
+        scanf("%d%d",&x,&y);
+        join(x,y);
+    }
+    for (int i = 1;i<=p;i++)
+    {
+        int x,y;
+        scanf("%d%d",&x,&y);
+        if(judge(x,y))
+            printf("Yes\n");
+        else
+            printf("No\n");
+    }
+    return 0;
+}
+
+void join(int x,int y)
+{
+    int f1 = find(x);
+    int f2 = find(y);
+    if(f1 != f2)
+    {
+        f[f2] = f1;
+    }
+}
+
+int find(int x)
+{
+    if(x == f[x]) return x;
+    else
+    {
+        return find(f[x]);
+    }
+}
+
+int judge(int x,int y)
+{
+    if(find(x) == find(y))
+        return 1;
+    else return 0;
+}

@@ -1,0 +1,61 @@
+//与学长讨论出的01背包的k优解(不要求装满，要求物品清单不同且权值可以相同)
+//原理:所有背包问题其实都可以转换为是否装满，其实每种情况都会在特定的容量下装满，而之前多人背包中装满可以确保物品清单不同，故才用该思想去解决
+#include <bits/stdc++.h>
+using namespace std;
+int f[5001][51];//x容量下装满的第i优解
+int test[255052];//用于排序求答案的数组
+int a[51];//记录不拿当前物品的解
+int b[51];//记录拿当前物品的解
+bool cmp(int x,int y)//排序大到小
+{
+    return x>y;
+}
+int main()
+{
+    int k,v,n;
+    cin>>k>>v>>n;//输入k个优解，最大容量v,物品数量n
+    int weigh[n+1],value[n+1];
+    for (int i = 1;i<=n;i++)//输入每个物品的体积与价值
+    {
+        cin>>weigh[i]>>value[i];
+    }
+    memset(f,-0x3f,sizeof(f));//装满预处理，初始化为负无穷(负无穷说明没有装满或者第k优解还不存在，这策略得以有别与权值不能同的解法)
+    f[0][1] = 0;//0容量下最优解为0，即什么都不装
+    int t;//后面循环要用
+    for (int i = 1;i<=n;i++)//常规背包dp，后面套路化
+    {
+        for (int j = v;j>=weigh[i];j--)
+        {
+            for (t = 1;t<=k;t++)
+            {
+                a[t] = f[j][t];
+                b[t] = f[j-weigh[i]][t] + value[i];
+            }
+            a[t] = -1;
+            b[t] = -1;
+            int x,y,p;
+            x = 1;
+            y = 1;
+            p = 1;
+            while(p<=k&&(x<=k||y<=k))
+            {
+                if(a[x]<b[y])
+                {
+                    f[j][p] = b[y++];
+                }
+                else
+                {
+                    f[j][p] = a[x++];
+                }
+                p++;
+            }
+        }
+    }
+    memcpy(test,f,sizeof(f));//把所有情况复制给test数组
+    sort(test,test+255053,cmp);//由大到小排序
+    for (int i = 0;i<=k-1;i++)//输出结果即可，便实现了物品清单不同，权值可以相同的01背包k优解
+    {
+        cout<<test[i]<<endl;
+    }
+    return 0;
+}

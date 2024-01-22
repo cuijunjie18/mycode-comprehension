@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 100
+long long FBNQ[N];
+long long Fbnq(int n)
+{
+    if(n==1) return 1;
+    if(n==2) return 1;
+    if(n>2) return Fbnq(n-1) +Fbnq(n-2);
+}
+
+
+int main()
+{
+    int n;
+    printf("Please input the number of the FBNQ:");
+    scanf("%d",&n);
+    printf("%lld\n",Fbnq(n));
+    return 0;
+}

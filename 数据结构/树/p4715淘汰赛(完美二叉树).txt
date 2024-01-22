@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+int value[1<<8];//记录能力值
+int winner[1<<8];//记录对应位置的胜者
+int n;//代表有2^n支队伍
+void DFS(int x)
+{
+    if(x>=(1<<n)) return;//如果该位置已经是底层了，返回
+    DFS(2*x);//搜索左子树
+    DFS(2*x+1);//搜索右子树
+    if(value[2*x]>value[2*x+1])//如果左子树的能力值大于右子树
+    {
+        value[x] = value[2*x];
+        winner[x] = winner[2*x];
+    }
+    else//相反
+    {
+        value[x] = value[2*x+1];
+        winner[x] = winner[2*x+1];
+    }
+    return;
+}
+int main()
+{
+    scanf("%d",&n);
+    for (int i = 1;i<=(1<<(n));i++)//记录原始信息，即底层信息
+    {
+        scanf("%d",&value[i+(1<<n)-1]);//参赛队伍能力值
+        winner[i+(1<<n)-1] = i;//参赛队伍编号
+    }
+    DFS(1);//从顶部开始搜索
+    printf("%d\n",value[2]>value[3]?winner[3]:winner[2]);//决赛谁输了输出谁，即亚军
+    return 0;
+}

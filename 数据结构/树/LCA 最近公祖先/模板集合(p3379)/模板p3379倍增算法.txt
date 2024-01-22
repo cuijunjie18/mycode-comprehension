@@ -1,0 +1,68 @@
+//原理可以见题解
+//预处理时间复杂度：o(nlogn)
+//查找LAC时间复杂度:o(logn)
+//总时间复杂度：o(nlogn),可以过
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[500001];//邻接表存图
+int depth[500001];//每个节点到根节点的深度
+int f[500001][22];//每个节点的第2^i近的祖先
+void DFS(int x,int fa)//预处理DFS，x为当前节点，fa为父节点
+{
+    depth[x] = depth[fa] + 1;//当前节点深度为父节点深度加1
+    f[x][0] = fa;//x的2^0 = 1,即第一近祖先为父节点
+    for (int i = 1;i<=(int)(log(depth[x])/log(2));i++)//确定x最多可以到第2^i近祖先，i不超过log2 depth[x]
+    {
+        f[x][i] = f[f[x][i-1]][i-1];//x的第2^i祖先为x的第2^(i-1)的第2^(i-1)祖先，即2^i = 2^(i-1)+2^(i-1);
+    }
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历子树
+    {
+        if(g[x][i] == fa) continue;//如果来自父节点，跳过，因为不走回头路
+        DFS(g[x][i],x);//递归子树
+    }
+}
+void Solve(int a,int b)//查找LCA
+{
+    if(depth[a]<depth[b]) swap(a,b);//不妨让a的深度大于b的深度
+    while(depth[a]>depth[b])//先让它们到达同一深度
+    {
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];//核心：一次跳2^(最大差距对数),向下取整，确保成功
+    }
+    if(a == b) printf("%d\n",a);//细节：如果已经相等，即a为LCA,输出
+    else//否则继续倍增查找
+    {
+        for (int i = (int)(log(depth[a])/log(2));i>=0;i--)//从最大对数开始倍增(LCA一定在ab的公共祖先下层)
+        {
+            if(f[a][i]!=f[b][i])//如果祖先不同，可以往上跳了
+            {
+                a = f[a][i];
+                b = f[b][i];
+            }
+        }
+        printf("%d\n",f[a][0]);//最后父节点就是它们的LCA
+    }
+}
+int main()
+{
+    int n,m,s,a,b;
+    scanf("%d%d%d",&n,&m,&s);//n为节点个数，m为询问次数，s为根节点
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    depth[0] = -1;//自己想想为什么，为了保证深度即为最多能跳的个数
+    DFS(s,0);//预处理算法
+    for (int i = 1;i<=m;i++)//m次询问
+    {
+        scanf("%d%d",&a,&b);
+        if(a == b)//细节，特殊情况，自己就是LAC
+        {
+            printf("%d\n",a);
+            continue;
+        }
+        Solve(a,b);//查找LAC
+    }
+    return 0;
+}

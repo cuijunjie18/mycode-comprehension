@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct people
+{
+    int bg;
+    int en;
+}PEOPLE;
+PEOPLE people[1001];
+int n,k;
+int book[1001];
+int ansfinal;
+bool check(int ans)
+{
+    int sum = 1;
+    int all = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        if(all+book[i]<=ans)
+        {
+            all += book[i];
+        }
+        else
+        {
+            sum++;
+            all = book[i];
+        }
+    }
+    return sum<=k;
+}
+int main()
+{
+    cin>>n>>k;
+    int ab = 0;
+    int l = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>book[i];
+        ab += book[i];
+        l = max(l,book[i]);
+    }
+    if(k == 1)
+    {
+        cout<<1<<" "<<n<<endl;
+        return 0;
+    }
+    int r = ab;
+    while(l<=r)
+    {
+        int mid = (l+r)/2;
+        if(check(mid))
+        {
+            ansfinal = mid;
+            r = mid - 1;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
+    int sum = k+1;
+    int en = n;
+    int all = 0;
+    for (int i = n;i>=1;i--)
+    {
+        if(all + book[i]<=ansfinal)
+        {
+            all += book[i];
+        }
+        else
+        {
+            sum--;
+            people[sum].bg = i+1;
+            people[sum].en = en;
+            all = book[i];
+            en = i;
+        }
+    }
+    people[1].bg = 1;
+    people[1].en = people[2].bg-1;
+    for (int i = 1;i<=k;i++)
+    {
+        cout<<people[i].bg<<" "<<people[i].en<<endl;
+    }
+    return 0;
+}

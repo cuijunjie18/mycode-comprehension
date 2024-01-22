@@ -1,0 +1,53 @@
+//此题本质为带权值的并查集，即连接处有权值，每次路径压缩时要合并权值
+#include <bits/stdc++.h>
+using namespace std;
+int f[30002];//记录对应数的祖先
+int d[30002];/*记录每个点到根节点的距离（并不是全过程都是到他祖先距离，而是到其父亲距离，只不过后面递归回溯改变了父亲为
+                  祖先*/
+int big[30002];//记录集合大小
+int Find(int x)//神来之笔，查找祖先及计算距离
+{
+    if(x == f[x]) return x;//如果是根节点，返回
+    int k = Find(f[x]);//先找到根节点
+    d[x] += d[f[x]];//回溯更新对应点到根节点距离
+    return f[x] = k;//路径压缩
+}
+void Join(int a,int b)//常规并查集合并模板
+{
+    int f1 = Find(a);
+    int f2 = Find(b);
+    f[f1] = f2;
+    d[f1] = big[f2];//改变距离，关键
+    big[f2] += big[f1];
+}
+int main()
+{
+    for (int i = 1;i<=30000;i++)//初始化
+    {
+        f[i] = i;
+        big[i] = 1;
+        d[i] = 0;
+    }
+    int t,a,b;
+    char ch;
+    scanf("%d",&t);
+    while(t--)
+    {
+        scanf(" %c",&ch);
+        if(ch == 'M')
+        {
+            scanf("%d%d",&a,&b);
+            Join(a,b);//合并集合
+        }
+        else
+        {
+            scanf("%d%d",&a,&b);
+            if(Find(a)!=Find(b)) printf("-1\n");
+            else
+            {
+                printf("%d\n",abs(d[a]-d[b]) - 1);
+            }
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+int big[1500000];//每个集合的大小，用于启发式合并
+int f[1500000];//每个点的根节点
+void Join(int a,int b);//合并函数
+int Find(int x);//查找根节点的函数
+int main()
+{
+    int n,m,k;
+    cin>>n>>m>>k;//输入n行m列个植物，k个关系
+    for (int i = 1;i<=n*m;i++)//初始化
+    {
+        f[i] = i;//i的根为自己
+        big[i] = 1;//以i为根的集合大小为1
+    }
+    int a,b;
+    for (int i = 1;i<=k;i++)//输入k对关系
+    {
+        cin>>a>>b;
+        Join(a,b);//合并
+    }
+    int ans = 0;//初始化答案，其实可以在合并中，每一次成功的合并(即根节点不同的两点)都会使集合数(原集合数为n*m)少1，从而找到答案
+    for (int i = 1;i<=n*m;i++)//枚举
+    {
+        if(big[i])//如果有大小
+        {
+            ans++;//答案加1
+        }
+    }
+    cout<<ans<<endl;//输出答案
+    return 0;
+}
+
+void Join(int a,int b)//合并函数
+{
+    int f1 = Find(a);
+    int f2 = Find(b);
+    if(f1 == f2) return;//如果已经同根，不需要合并，返回
+    if(big[f2]>big[f1])//不妨假设big[f1]>big[f2]
+    {
+        int temp = f1;
+        f1 = f2;
+        f2 = temp;
+    }
+    f[f2] = f1;//改变根节点
+    big[f1] += big[f2];//启发式合并
+    big[f2] = 0;//被合并的清零
+}
+
+int Find(int x)//查找函数
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);//路径压缩
+}

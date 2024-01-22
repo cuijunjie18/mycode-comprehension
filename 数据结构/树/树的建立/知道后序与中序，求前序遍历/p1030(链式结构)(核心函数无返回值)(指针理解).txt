@@ -1,0 +1,39 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//数的链式类型
+{
+    int data;
+    struct tree* l;
+    struct tree* r;
+}TREE;
+void Build(TREE **T,char* instr,char* poststr,int length)
+{
+    if(length == 0) return;
+    char ch = poststr[length-1];
+    int pos = 0;
+    while(instr[pos]!=ch) pos++;
+    *T = (TREE*)malloc(sizeof(TREE));//对指针的地址进行操作，否则最后原头指针还是空的
+    (*T)->data = ch;
+    (*T)->l = NULL;
+    (*T)->r = NULL;
+    Build(&((*T)->l),&instr[0],&poststr[0],pos);
+    Build(&((*T)->r),&instr[pos+1],&poststr[pos],length - pos - 1);
+}
+void pre_order(TREE* p)
+{
+    printf("%c",p->data);
+    if(p->l != NULL) pre_order(p->l);
+    if(p->r != NULL) pre_order(p->r);
+}
+int main()
+{
+    char instr[30];
+    char poststr[30];
+    scanf("%s",instr);
+    scanf("%s",poststr);
+    int n = strlen(instr);
+    TREE *T = NULL;
+    Build(&T,instr,poststr,n);//传入指针的地址
+    pre_order(T);
+    return 0;
+}

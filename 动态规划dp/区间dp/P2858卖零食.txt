@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[2001][2001];//表示i到j这个区间的零食的最大价值
+int value[2001];//每个零食的价值
+int main()
+{
+    int n;
+    cin>>n;//输入零食的个数
+    for (int i = 1;i<=n;i++)//初始化最只剩下一个零食的最大价值
+    {
+        cin>>value[i];
+        f[i][i] = value[i]*n;
+    }
+    for (int i = 2;i<=n;i++)//枚举区间长度
+    {
+        for (int l = 1;l<=n-i+1;l++)//枚举起点，且终点不可以超过n
+        {
+            int r = l + i - 1;//终点位置
+            f[l][r] = max(f[l+1][r] + value[l]*(n-i+1),f[l][r-1] + value[r]*(n-i+1));//左右取最大值
+        }
+    }
+    cout<<f[1][n]<<endl;
+    return 0;
+}

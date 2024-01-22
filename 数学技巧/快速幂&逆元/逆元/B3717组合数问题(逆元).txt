@@ -1,0 +1,29 @@
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 998244353;//模数
+long long f[5000001];//预处理阶乘
+long long inv[5000001];//先用于预处理每个数的逆元，后用于求每个阶乘的逆元
+int main()
+{
+    f[0] = f[1] = inv[1] = inv[0] = 1;//初始化，！！！inv[0] 一定要为1
+    for (int i = 2;i<=5000000;i++)//预处理
+    {
+        f[i] = f[i-1]*i%md;
+        inv[i] = (md - md/i)*inv[md%i]%md;//线性求逆元
+    }
+    for (int i = 2;i<=5000000;i++)//求阶乘的逆元，原理为乘积的逆元等于逆元的乘积
+    {
+        inv[i] = inv[i-1]*inv[i]%md;//处理阶乘值的逆元，若无阶乘逆元处理，就会MLE，因为(n-m)!*m%md的逆元范围上界是md
+    }
+    int t,n,a,b;
+    scanf("%d%d",&t,&n);
+    int sum = 0;
+    while(t--)
+    {
+        scanf("%d%d",&a,&b);
+        sum ^= f[a]*inv[b]%md*inv[a-b]%md;//求按位异或和
+    }
+    printf("%d\n",sum);
+    return 0;
+}

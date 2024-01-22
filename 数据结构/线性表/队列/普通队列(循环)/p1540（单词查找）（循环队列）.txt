@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 1000
+#define MAX 1000
+typedef struct queue
+{
+    int data[N];
+    int head;
+    int rear;
+    int number;
+}QUEUE;
+int count = 1;
+void push(QUEUE*p,int data);
+void pop(QUEUE*p);
+int search(QUEUE*p,int data);
+int main()
+{
+    int m,n;
+    scanf("%d%d",&m,&n);
+    QUEUE queue;
+    queue.head = 0;
+    queue.rear = 0;
+    queue.number = 0;
+    int a;
+    scanf("%d",&a);
+    push(&queue,a);
+    for (int i = 2;i<=n;i++)
+    {
+        scanf("%d",&a);
+        if(!search(&queue,a))
+        {
+            count++;
+            if(queue.number == m)
+            {
+                pop(&queue);
+                push(&queue,a);
+            }
+            else
+            {
+                push(&queue,a);
+            }
+        }
+    }
+    printf("%d",count);
+    return 0;
+}
+
+void push(QUEUE*p,int data)
+{
+    p->data[p->rear] = data;
+    p->rear = (p->rear+1)%MAX;
+    p->number++;
+}
+
+void pop(QUEUE*p)
+{
+    p->head = (p->head+1)%MAX;
+    p->number--;
+}
+
+int search(QUEUE*p,int a)
+{
+    int i;
+    for (i = p->head;i!=p->rear;)
+    {
+        if(p->data[i] == a)
+        {
+            return 1;
+        }
+        i = (i+1)%MAX;
+    }
+    return 0;
+}

@@ -1,0 +1,61 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[50001];
+int big[50001];
+int m[50001];
+int w[3];
+int number;
+int k = 50001;
+int n,ans;
+bool visit[50001];
+int DFS(int x)
+{
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        if(!visit[g[x][i]])
+        {
+            visit[g[x][i]] = true;
+            big[x] += DFS(g[x][i]);
+            m[x] = max(m[x],big[g[x][i]]);
+        }
+    }
+    int now = max(n-big[x],m[x]);
+    if(now<=n/2)//性质1，去掉该节点后最大子树小于n/2 则一定为一个重心
+    {
+        number++;
+        w[number] = x;
+    }
+    return big[x];
+}
+void Countway(int x,int h)
+{
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        if(!visit[g[x][i]])
+        {
+            visit[g[x][i]] = true;
+            Countway(g[x][i],h+1);
+        }
+    }
+   ans += h;
+}
+int main()
+{
+    int a,b;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++) big[i] = 1;
+    for (int i = 1;i<=n-1;i++)
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    visit[1] = true;
+    DFS(1);
+    if(number == 2) w[1] = min(w[1],w[2]);
+    memset(visit,false,sizeof(visit));
+    visit[w[1]] = true;
+    Countway(w[1],0);
+    printf("%d %d",w[1],ans);
+    return 0;
+}

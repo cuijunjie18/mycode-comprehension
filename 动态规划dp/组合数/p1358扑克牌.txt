@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long f[10005][105];//组合数数组,long long保险,int 其实也行
+long long ans = 1;//答案初始化为1
+const int md = 10007;//模数
+int a[105];//每个人分到的牌数
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);//输入牌总数及人数
+    for (int i = 1;i<=m;i++)//输入每个人应得的牌数
+    {
+        scanf("%d",&a[i]);
+    }
+    for (int i = 0;i<=n;i++)//初始化组合数
+    {
+        f[i][0] = 1;
+        if(i<=100) f[i][i] = 1;//防止越界，因为最多一个人100张牌，超过的组合数也用不上，不要求
+    }
+    for (int i = 1;i<=n;i++)//组合数dp，杨辉三角求组合数
+    {
+        for (int j = 1;j<min(i,101);j++)
+        {
+            f[i][j] = (f[i-1][j] + f[i-1][j-1])%md;
+        }
+    }
+    for (int i = 1;i<=m;i++)//求解答案，乘法原理
+    {
+        ans = ans*f[n][a[i]]%md;
+        n -= a[i];//总牌数减少
+    }
+    printf("%lld\n",ans);//输出
+    return 0;
+}

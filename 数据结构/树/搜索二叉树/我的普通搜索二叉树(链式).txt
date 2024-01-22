@@ -1,0 +1,286 @@
+//功能:插入，查找，展示，删除
+//搜索二叉树的特点:任意节点的左子树上所有节点值小于该节点，右子树上所有节点值大于该节点
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//定义树的结构体(链式存储)
+{
+    int data;//该处数据(其实对于重复节点值，可以加一个number去记录个数)
+    struct tree* l;//连接左子树
+    struct tree* r;//连接右子树
+}TREE;
+void Menusearch(TREE*head);//查找的菜单
+TREE* Menubuild(TREE*head);//建树与插入的菜单，返回树指针
+void Menuwatch(TREE*head);//查看的菜单
+TREE* Menuerase(TREE*head);//删除的菜单，返回树指针
+TREE* Insert(TREE* head,int x);//建树即插入函数，返回树指针
+TREE* Searchmax(TREE*head);//查找子树(head为某子树根节点)最大值，返回最大值的位置指针
+TREE* Searchmin(TREE*head);//查找子树(head为某子树根节点)最小值，返回最小值的位置指针
+TREE* Searchgiven(TREE*head,int x);//查找子树(head为某子树根节点)中特定值，返回树指针，若为返回空指针
+TREE* Erase(TREE*head,int x);//删除子树中特定值函数(head为子树根节点，x为要删除的值)
+void pre_order(TREE*head);//先序遍历
+void in_order(TREE*head);//中序遍历
+void post_order(TREE*head);//后序遍历
+int main()//主函数
+{
+    TREE* head = NULL;//树的根节点为空(参天大树都是由小小的种子开始的)
+    int choice;//选择
+    do
+    {
+        printf("This is the menu:\n");//输出菜单选项
+        printf("Choice 1 : Build or insert\n");
+        printf("Choice 2 : Erase\n");
+        printf("Choice 3 : Watch\n");
+        printf("Choice 4 : Search\n");
+        printf("Choice 5 : Exit\n");
+        printf("The choice:");
+        scanf("%d",&choice);//输入选择
+        switch(choice)//按照选择进入对应功能的函数
+        {
+        case 1:
+            head = Menubuild(head);
+            break;
+        case 2:
+            head = Menuerase(head);
+            break;
+        case 3:
+            Menuwatch(head);
+            break;
+        case 4:
+            Menusearch(head);
+            break;
+        case 0:
+            exit(0);
+            break;
+        default://出现不合法输入，提示重新输入
+            printf("Invalid input!Please input again!\n");
+            break;
+        }
+    }while(true);
+    return 0;
+}
+
+TREE* Menubuild(TREE*head)//建树及插入菜单
+{
+    int n,x;//n为插入个数，x为插入的数
+    printf("The amount of data you want to insert:");
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)//循环插入
+    {
+        printf("The %d data:",i);
+        scanf("%d",&x);
+        head = Insert(head,x);//进入建树即插入的核心函数
+    }
+    printf("The tree was built successfully!\n");//提示成功建树及插入
+    return head;//返回树指针(已经改变的)
+}
+
+void Menuwatch(TREE*head)//查看的菜单
+{
+    int choice;//记录选择
+    printf("You have three choice to watch it\n");
+    printf("1:pre_order\n2:in_order\n3:post_order\n");
+    printf("Your choice:");
+    scanf("%d",&choice);//输入选择
+    switch(choice)//三种遍历查看方式
+    {
+    case 1:
+        pre_order(head);
+        break;
+    case 2:
+        in_order(head);
+        break;
+    case 3:
+        post_order(head);
+        break;
+    }
+    printf("\n");
+}
+void Menusearch(TREE*head)//查找的菜单
+{
+    TREE* temp = NULL;//用于接收查找到的位置，初始化为空指针
+    int choice;
+    printf("You have three choice:\n");
+    printf("1 : Search the max\n");
+    printf("2 : Search the min\n");
+    printf("3 : Search the given data\n");
+    printf("Your choice:");
+    scanf("%d",&choice);//记录选择，三种，最大值，最小值，指定值
+    if(choice == 1)//最大值
+    {
+        temp = Searchmax(head);
+        if(temp == NULL)
+        {
+            printf("The tree is empty!\n");
+        }
+        else
+        {
+            printf("The max now is:%d\n",temp->data);
+        }
+    }
+    else if(choice == 2)//最小值
+    {
+        temp = Searchmin(head);
+        if(head == NULL)
+        {
+            printf("The tree is empty!\n");
+        }
+        else
+        {
+            printf("The min now is:%d\n",temp->data);
+        }
+    }
+    else if(choice == 3)//特定值，十分关键
+    {
+        int x;
+        printf("The given data:");
+        scanf("%d",&x);
+        temp = Searchgiven(head,x);//在以head为根节点的树中查找
+        if(temp == NULL)
+        {
+            printf("Not find!\n");
+        }
+        else
+        {
+            printf("The %d is inside th tree!\n",x);
+        }
+    }
+    else//不合法输入，递归重新输入
+    {
+        printf("Invalid input!Please input again!\n");
+        Menusearch(head);
+    }
+}
+
+TREE* Menuerase(TREE*head)//删除的菜单
+{
+    if(head == NULL)//如果原本的树就是空的，提示空的并返回
+    {
+        printf("The tree is empty!\n");
+        return NULL;
+    }
+    int x;
+    printf("The erase data:");
+    scanf("%d",&x);
+    TREE* temp = Searchgiven(head,x);//先特判一下要删除的点在不在树中
+    if(temp == NULL)//如果不在，直接提示未找到
+    {
+        printf("Not find!\n");
+    }
+    else//否则接收改变后的head
+    {
+        head = Erase(head,x);//删除核心操作
+    }
+    return head;//返回
+}
+
+TREE* Erase(TREE*head,int x)//删除特定值的核心函数(已经保证了待删除节点在树中)
+{
+    if(head->data < x)//如果该节点值小于待删除值，往右子树找
+    {
+        head->r = Erase(head->r,x);//接收改变后的右子树
+    }
+    else if(head->data > x)//如果该节点值大于待删除值，往左子树找
+    {
+        head->l = Erase(head->l,x);//接收改变后的左子树
+    }
+    else//已经找到了
+    {
+        if(head->l == NULL&&head->r == NULL)//如果该节点是叶子节点，直接删除
+        {
+            free(head);//释放掉当前指针指向的内存
+            return NULL;//返回空指针(即改变了之前的左或右子树)，神来之笔
+        }
+        else if(head->l == NULL&&head->r != NULL)//如果左空右有，直接让右树的第一个节点代替该节点
+        {
+            TREE* temp = head->r;//记录下该节点右子树的地址，防止释放时丢失
+            free(head);//释放当前节点的内存
+            return temp;//返回该节点的右子树的第一个节点
+        }
+        else if(head->r == NULL&&head->l != NULL)//同上的原理
+        {
+            TREE* temp = head->l;
+            free(head);
+            return temp;
+        }
+        else//如果左右子树都存在，难点，找右子树中最小值代替该点(右子树的最小值一定无左子树，好操作)
+        {
+            TREE* temp = Searchmin(head->r);//查找并记录右子树中最小值的位置
+            head->data = temp->data;//改变该节点的值为右子树中最小值(不用释放，因为该节点位置还在，只是换了值)
+            head->r = Erase(head->r,temp->data);//然后删除掉右子树的最小值(神来之笔)
+        }
+    }
+    return head;//返回改变后的根节点
+}
+
+TREE* Insert(TREE* head,int x)//建树及插入的核心函数
+{
+    if(head == NULL)//如果到了对应位置(空的)，开始建立节点
+    {
+        head = (TREE*)malloc(sizeof(TREE));//为新节点分配内存
+        if(head == NULL)//如果分配失败，报错
+        {
+            printf("No enough memory!\n");
+            exit(1);
+        }
+        head->data = x;//记录该节点的值
+        head->l = NULL;//该节点(因为是新节点)左子树为空
+        head->r = NULL;//该节点(因为是新节点)右子树为空
+        return head;//返回新分配内存的指针，即新节点的位置
+    }
+    if(x == head->data)//如果已经有了，直接返回(忽略)
+    {
+        return head;
+    }
+    if(x<(head->data))//如果该新值小于当前节点值，往左子树找位置
+    {
+        head->l = Insert(head->l,x);//改变当前节点的左子树，接收
+    }
+    else if(x>(head->data))//如果该新值大于当前节点值，往右子树找位置
+    {
+        head->r = Insert(head->r,x);//接收新的(改变过的)右子树的信息
+    }
+    return head;//最终返回
+}
+
+void pre_order(TREE*head)//先序遍历
+{
+    printf("%d ",head->data);
+    if(head->l != NULL) pre_order(head->l);
+    if(head->r != NULL) pre_order(head->r);
+}
+
+void in_order(TREE*head)//中序遍历
+{
+    if(head->l != NULL) in_order(head->l);
+    printf("%d ",head->data);
+    if(head->r != NULL) in_order(head->r);
+}
+
+void post_order(TREE*head)//后序遍历
+{
+    if(head->l != NULL) post_order(head->l);
+    if(head->r != NULL) post_order(head->r);
+    printf("%d ",head->data);
+}
+
+TREE* Searchmax(TREE*head)//查找最大值
+{
+    if(head->r == NULL) return head;//如果右子树为空，则当前节点为最大值
+    else return Searchmax(head->r);//如果还有就一直递归，直到找到
+}
+
+TREE* Searchmin(TREE*head)//查找最小值
+{
+    if(head->l == NULL) return head;//如果左子树为空，则当前节点为最小值
+    else return Searchmin(head->l);//如果还有就递归
+}
+
+TREE* Searchgiven(TREE*head,int x)//查找特定值
+{
+    if(head == NULL) return NULL;//如果已经到底了，还没有找到，返回空指针
+    if(head->data == x) return head;//如果当前节点是查找值，则返回该位置的指针
+    if(head->data > x) return Searchgiven(head->l,x);//如果该节点过大，往左子树查找
+    if(head->data < x) return Searchgiven(head->r,x);//如果该节点过小，往右子树查找
+    return NULL;//防止报错(没什么用)
+}
+

@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+using namespace std;
+int fd[300][300];//存储最下代价和
+int fu[300][300];//存储最大代价和
+int sum[300];//前缀和数组
+int number[110];//每个数字
+int n;//数字个数
+int ansd,ansu;//答案
+int main()
+{
+    cin>>n;//输入数字个数
+    memset(fd,0x3f,sizeof(fd));//求最小值的要初始化为正无穷
+    ansd = fd[0][0];//最小值的答案初始化为正无穷
+    ansu = 0;//最大值的答案初始化为0
+    for (int i = 1;i<=n;i++)//输入每个数字
+    {
+        cin>>number[i];//输入数字
+        sum[i] = sum[i-1] + number[i];//维护前缀和
+        fd[i][i] = 0;//初始化，自己合成代价为0
+        fu[i][i] = 0;//初始化，自己合成代价为0
+    }
+    for (int i = n+1;i<=2*n;i++)//在后面接上之前的至今完整接完一个周期
+    {
+        sum[i] = sum[i-1] + number[i-n];//接上形成环状
+        fd[i][i] = 0;//初始化
+        fu[i][i] = 0;//初始化
+    }
+    for (int i = 2;i<=n;i++)//枚举区间长度
+    {
+        for (int b = 1;b+i<=2*n;b++)//哪怕有重复，是为后面服务，我原来是b<=n(自己思考)
+        {
+            int e = b + i - 1;
+            for (int k = b;k<e;k++)//枚举区间分割点
+            {
+                fd[b][e] = min(fd[b][e],fd[b][k] + fd[k+1][e] + sum[e] - sum[b-1]);//取最小值
+                fu[b][e] = max(fu[b][e],fu[b][k] + fu[k+1][e] + sum[e] - sum[b-1]);//取最大值
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//枚举长度为n时d起点位置
+    {
+        if(fd[i][i+n-1]<ansd) ansd = fd[i][i+n-1];//取最小值
+        if(fu[i][i+n-1]>ansu) ansu = fu[i][i+n-1];//取最大值
+    }
+    cout<<ansd<<endl;//输出
+    cout<<ansu<<endl;//输出
+    return 0;
+}

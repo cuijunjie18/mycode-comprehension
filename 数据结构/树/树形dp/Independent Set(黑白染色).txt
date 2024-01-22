@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星
+{
+    int to,next;
+}EDGE;
+EDGE e[100001<<1];//无父亲，无根树，双向建立边
+int head[100001];//以i为起点的第一条边的编号
+int cnt;//边的数量
+const int md = 1000000007;//模数常量
+long long f[100001][2];//i节点染白色与黑色的方案数(0为白色，1为黑色) long long 防炸
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//DFS先到达底部
+{
+    f[x][0] = 1;//初始化
+    f[x][1] = 1;//初始化
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;//来自父亲，跳过，不走回头路
+        DFS(e[i].to,x);//递归子树
+        f[x][1] = (f[x][1]*f[e[i].to][0])%md;//如果当前节点染了黑色
+        f[x][0] = (f[x][0]*(f[e[i].to][0]+f[e[i].to][1]))%md;//如果当前节点染了白色
+    }
+}
+int main()
+{
+    int n = read();//读入节点个数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    DFS(1,0);//无根树随便一点开始搜索，父亲为0
+    printf("%lld\n",(f[1][0] + f[1][1])%md);//输出答案为黑色与白色的和，别忘了取模
+    return 0;
+}

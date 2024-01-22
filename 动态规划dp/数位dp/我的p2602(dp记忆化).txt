@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+int num[20];//记录每一位
+long long f[20][20][2];//1维：当前位；2维：前面指定数字出现数；3维：指定数字0或1，因为1到9一样
+long long DFS(int len,int cnt,bool limit,bool zero,int x)//搜索
+{
+    if(len == 0) return cnt;
+    if((!limit)&&(!zero)&&f[len][cnt][x == 0] != 0) return f[len][cnt][x == 0];//难点，没有限制且没有前导零且计算过
+    int up = limit?num[len]:9;//确定当前搜索上界
+    long long ret = 0;
+    for (int i = 0;i<=up;i++)
+    {
+        ret += DFS(len-1,cnt + ((i == x&&x != 0)||(i == x&&x == 0&&zero == false)),(limit&& (i == num[len])),zero&&(i == 0),x);
+    }
+    if(!limit && !zero) f[len][cnt][x == 0] = ret;//没有限制没有前导零才存，具体原理现在我不清楚
+    return ret;
+}
+long long Solve(long long up,int x)
+{
+    int len = 0;
+    while(up)
+    {
+        num[++len] = up%10;
+        up /= 10;
+    }
+    return DFS(len,0,true,true,x);
+}
+int main()
+{
+    long long l,r;
+    scanf("%lld%lld",&l,&r);
+    for (int i = 0;i<=9;i++)
+    {
+        printf("%lld ",Solve(r,i) - Solve(l-1,i));
+    }
+    return 0;
+}

@@ -1,0 +1,33 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[100001];//存储每个点与哪些点直接连接
+int ans,d;//答案，最大距离
+bool visit[100001];//标记数组
+void DFS(int x,int h)
+{
+    if(visit[x]) return;//搜过了，返回
+    if(h == d) return;//当前已经到最远了，不能再走了，返回
+    visit[x] = 1;//标记
+    for (int i = 0;i<g[x].size();i++)//枚举与该点直接相连的点
+    {
+        if(visit[g[x][i]] == 0)//如果没有到过
+        {
+            DFS(g[x][i],h+1);//搜索
+            ans++;//可到达的点加1
+        }
+    }
+}
+int main()
+{
+    int n,a,b;
+    scanf("%d%d",&n,&d);
+    for (int i = 1;i<=n-1;i++)
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);//a与b直接连接
+        g[b].push_back(a);//b与a直接连接
+    }
+    DFS(1,0);//从1点开始，现在距离1长度为0
+    printf("%d\n",ans);
+    return 0;
+}

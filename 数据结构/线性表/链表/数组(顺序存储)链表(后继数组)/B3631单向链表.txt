@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+int a[1000001];
+int main()
+{
+    int n,c,x,y;
+    scanf("%d",&n);
+    while(n--)
+    {
+        scanf("%d",&c);
+        if(c == 1)
+        {
+            scanf("%d%d",&x,&y);
+            int temp = a[x];
+            a[x] = y;
+            a[y] = temp;
+        }
+        else if(c == 2)
+        {
+            scanf("%d",&x);
+            printf("%d\n",a[x]);
+        }
+        else
+        {
+            scanf("%d",&x);
+            a[x] = a[a[x]];
+        }
+    }
+}

@@ -1,0 +1,22 @@
+#include <bits/stdc++.h>
+using namespace std;
+void Build(char in[],char post[],int length)
+{
+    if(length == 0) return;//如果没有了，返回
+    int data = post[length-1];//当前树的根节点为后序遍历的最后一个
+    printf("%c",data);//求先序遍历，找到根节点直接先输出
+    int pos = 0;
+    while(in[pos]!=data) pos++;//找中序遍历中左右子树分割点
+    Build(in,post,pos);//先序遍历左子树
+    Build(in+pos+1,post+pos,length - pos - 1);//后遍历右子树
+}
+int main()
+{
+    char in[20];//中序顺序
+    char post[20];//后序顺序
+    scanf("%s",in);//输入中序
+    scanf("%s",post);//输入后序
+    int n = strlen(in);//计算长度即树的节点数
+    Build(in,post,n);//开始输出
+    return 0;
+}

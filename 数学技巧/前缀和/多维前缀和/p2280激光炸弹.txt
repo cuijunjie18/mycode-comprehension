@@ -1,0 +1,51 @@
+//原理:二维矩形前缀和
+//时间复杂度:o(n^2)
+//细节及我wrong原因:1,一开始为考虑多个目标同一个点；2，如果炸弹范围超过mx，my，则答案应该为全部目标价值和，而我之前判断超过边界是非法的，故答案为0，错了
+#include <bits/stdc++.h>
+using namespace std;
+int sum[5005][5005];//前缀和数组
+int value[5005][5005];//对应点的目标价值，可能有多个目标在同一个位置
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+int main()
+{
+    int n = read();//读入目标个数
+    int m = read();//读入炸弹范围(正方形边长)
+    for (int i = 1;i<=n;i++)//依次处理n个目标
+    {
+        int x = read()+1;//因为坐标可以从0开始，为了求前缀和时不用判断越界，加1处理
+        int y = read()+1;//同x的原理
+        int v = read();//读入该目标价值
+        value[x][y] += v;//细节，该位置价值加1
+    }
+    for (int i = 1;i<=5001;i++)//求二维前缀和，边界一定要是题目的范围，而不能以目标的最大边界定(易错)
+    {
+        for (int j = 1;j<=5001;j++)
+        {
+            sum[i][j] = sum[i-1][j] + sum[i][j-1] - sum[i-1][j-1] + value[i][j];
+        }
+    }
+    int ans = 0;//初始化答案
+    for (int i = 1;i+m-1<=5001;i++)//枚举正方形区域的左上角顶点，取最大值！！边界一定要是题目的范围，而不能以目标的最大边界定(易错)
+    {
+        for (int j = 1;j+m-1<=5001;j++)
+        {
+            int x = i + m - 1;//确定右下角顶点
+            int y = j + m - 1;
+            if(sum[x][y] - sum[i-1][y] - sum[x][j-1] + sum[i-1][j-1]>ans)//取最大值
+                ans = sum[x][y] - sum[i-1][y] - sum[x][j-1] + sum[i-1][j-1];
+        }
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

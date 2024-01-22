@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+int Isprime(int n)
+{
+    if(n<=1)
+        return 0;
+    if(n==2)
+        return 1;
+    if(n>2)
+    {
+        if(n%2==0) return 0;
+        else
+        {
+            for (int i = 3;i<=sqrt(n);i+=2)
+            {
+                if(n%i==0)
+                {
+                    return 0;
+                    break;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int main()
+{
+    int a,b,count = 0;
+    scanf("%d %d",&a,&b);
+    for (int i = a;i<=b;i++)
+    {
+        if(Isprime(i))
+        {
+            count++;
+            printf("%d\n",i);
+        }
+    }
+    printf("%d",count);
+    return 0;
+}

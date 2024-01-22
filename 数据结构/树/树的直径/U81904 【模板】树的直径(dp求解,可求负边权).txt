@@ -1,0 +1,46 @@
+//具体原理较难证明，可上网查询
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct way//定义边权结构体
+{
+    int p,value;
+}WAY;
+vector <WAY> g[500001];//邻接表存图
+long long d1[500001],d2[500001];//d1,d2定义见模板
+long long c;//答案
+void DFS(int x,int f)
+{
+    d1[x] = 0,d2[x] = 0;
+    for (int i = 0,k = g[x].size();i<k;i++)
+    {
+        if(g[x][i].p == f) continue;
+        DFS(g[x][i].p,x);
+        int t = d1[g[x][i].p] + g[x][i].value;
+        if(t > d1[x])//大于当前点最优解，更新最优与次优
+        {
+            d2[x] = d1[x];
+            d1[x] = t;
+        }
+        else if(t > d2[x])//仅大于次优解，更新
+        {
+            d2[x] = t;
+        }
+    }
+    c = max(c,d1[x] + d2[x]);//套公式，取最大值
+}
+int main()
+{
+    int n,v,a,b;
+    scanf("%d",&n);
+    for (int i = 1;i<=n-1;i++)
+    {
+        scanf("%d%d%d",&a,&b,&v);
+        WAY temp = {b,v};
+        g[a].push_back(temp);
+        temp.p = a,temp.value = v;
+        g[b].push_back(temp);
+    }
+    DFS(1,0);//无根树，从任意一点当作根节点出发
+    printf("%lld\n",c);
+    return 0;
+}

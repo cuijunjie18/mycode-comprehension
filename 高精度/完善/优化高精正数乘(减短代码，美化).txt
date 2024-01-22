@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+char word1[10000];//字符数字1
+char word2[10000];//字符数字2
+int number1[10000];//整型数字1
+int number2[10000];//整型数字2
+int ans[10000];//整型答案
+int main()
+{
+    scanf("%s",word1);//输入字符数字1
+    scanf("%s",word2);//输入字符数字2
+    int n1 = strlen(word1);//计算数字1位数
+    int n2 = strlen(word2);//计算数字2位数
+    for (int i = 1;i<=n1;i++) number1[i] = word1[n1-i] - '0';//字符转化为整型
+    for (int i = 1;i<=n2;i++) number2[i] = word2[n2-i] - '0';//字符化整型
+    int index = n1 + n2;//两数相乘最多位数不超过两数位数和
+    for (int i = 1;i<=n1;i++)//模拟乘法，不必在意上的少下的多的情况，位数移动原理
+    {
+        for (int j = 1;j<=n2;j++)
+        {
+            ans[j+i-1] += number1[i]*number2[j];//过程中要加，因为可能之前已经有了
+            ans[j+i] += ans[j+i-1]/10;//过程进位
+            ans[j+i-1] %= 10;//过程进位余位
+        }
+    }
+    while(ans[index] == 0&&index>1) index--;//取前导零且防止无输出
+    for (int i = index;i>=1;i--) printf("%d",ans[i]);//倒序输出
+    return 0;
+}

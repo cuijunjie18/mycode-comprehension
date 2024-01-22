@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 10001
+int flag[N];
+typedef struct stack
+{
+    char ch[N];
+    int top;
+}STACK;
+char change(char letter);
+void push(STACK* p,char letter);
+void pop(STACK* p);
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    char a[N];
+    STACK stack;
+    stack.top = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",a);
+        int count = strlen(a);
+        for (int i = 0;i<=count - 1;i++)
+        {
+            if(change(a[i]) == stack.ch[stack.top])
+            {
+                pop(&stack);
+            }
+            else
+            {
+                push(&stack,a[i]);
+            }
+        }
+        if(stack.top == 0)
+        {
+            flag[i] = 1;
+        }
+        while(stack.top>0)
+        {
+            pop(&stack);
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(flag[i]) printf("Yes\n");
+        else printf("No\n");
+    }
+    return 0;
+}
+
+char change(char a)
+{
+    if(a == ')') return '(';
+    if(a == ']') return '[';
+    if(a == '}') return '{';
+    return '!';
+}
+
+void push(STACK* p,char letter)
+{
+    p->top += 1;
+    p->ch[p->top] = letter;
+}
+
+void pop(STACK* p)
+{
+    p->top -= 1;
+}

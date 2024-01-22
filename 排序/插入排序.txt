@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+void Sortdata(int a[],int n)
+{
+    int temp;
+    for (int i = 1;i<=n-1;i++)
+    {
+        temp = a[i];
+        int j;
+        for (j = i-1;j>=0;j--)
+        {
+            if(a[j]>temp)
+            {
+                a[j+1] = a[j];
+            }
+            else
+            {
+                break;
+            }
+        }
+        a[j+1] = temp;
+    }
+}
+
+void Print(int a[],int n)
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        printf("%d\n",a[i]);
+    }
+}
+
+int main()
+{
+    int n;
+    printf("Please input how many number you want to save:");
+    scanf("%d",&n);
+    int number[n];
+    for (int i = 0;i<=n-1;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    Sortdata(number,n);
+    Print(number,n);
+    return 0;
+}

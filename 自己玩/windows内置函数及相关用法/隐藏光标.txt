@@ -1,0 +1,9 @@
+void HideCursor()
+{
+    CONSOLE_CURSOR_INFO cursor_info = {1,0};
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cursor_info);
+}
+
+上述的CONSOLE_CURSOR_INTFO 是1存储光标信息的一种结构体，有两个数据,如下举例
+curInfo.dwSize = 1;          // 光标尺寸,如果没赋值的话,隐藏光标无效，故上面赋值1
+curInfo.bVisible = FALSE;

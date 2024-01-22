@@ -1,0 +1,35 @@
+#include <bits/stdc++.h>
+using namespace std;
+bool number[100000010];//bool一个字节，故不会MLE
+int prime[7000000];
+int pos = 0;
+void Primeout(int n)
+{
+    for (int i = 2;i<=n;i++)
+    {
+        if(!number[i])
+        {
+            pos++;
+            prime[pos] = i;
+            if(i*i<=n)
+            {
+                for (int j = i*i;j<=n;j += i)//此处若改为i*2则不会re，可能是系统检测i*i过大了，i*2就会多重复计算
+                {
+                    number[j] = 1;
+                }
+            }
+        }
+    }
+}
+int main()
+{
+    int n,q,a;
+    scanf("%d%d",&n,&q);
+    Primeout(n);
+    while(q--)
+    {
+        scanf("%d",&a);
+        printf("%d\n",prime[a]);
+    }
+    return 0;
+}

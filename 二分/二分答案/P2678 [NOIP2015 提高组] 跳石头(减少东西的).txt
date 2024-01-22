@@ -1,0 +1,57 @@
+#include <bits/stdc++.h>
+using namespace std;
+int length,n,m;
+int p[50005];
+bool check(int x)
+{
+    int sum = 0;
+    int temp = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        temp = p[i];
+        while(temp<x)
+        {
+            i++;
+            temp = p[i] + temp;
+            sum++;
+        }
+        if(i+1 == n+1&&p[n+1]<x)
+        {
+            temp = p[n+1];
+            temp = temp + p[n];
+            sum++;
+        }
+    }
+    return sum<=m;
+}
+int main()
+{
+    cin>>length>>n>>m;
+    int before = 0;
+    int a;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>a;
+        p[i] = a - before;
+        before = a;
+    }
+    p[n+1] = length - before;
+    int l = 0;
+    int r = length;
+    int ans = 0;
+    while(l<=r)
+    {
+        int mid = (l+r)/2;
+        if(check(mid))
+        {
+            ans = mid;
+            l = mid + 1;
+        }
+        else
+        {
+            r = mid - 1;
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}

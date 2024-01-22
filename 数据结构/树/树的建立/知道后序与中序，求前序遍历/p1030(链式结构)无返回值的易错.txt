@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree
+{
+    int data;
+    struct tree* l;
+    struct tree* r;
+}TREE;
+void Build(TREE *T,char* instr,char* poststr,int length)
+{
+    if(length == 0) return;
+    char ch = poststr[length-1];
+    int pos = 0;
+    while(instr[pos]!=ch) pos++;
+    T = (TREE*)malloc(sizeof(TREE));
+    T->data = ch;
+    T->l = NULL;
+    T->r = NULL;
+    Build(T->l,&instr[0],&poststr[0],pos);
+    Build(T->r,&instr[pos+1],&poststr[pos],length - pos - 1);
+}
+void pre_order(TREE* p)
+{
+    printf("%c",p->data);
+    if(p->l != NULL) pre_order(p->l);
+    if(p->r != NULL) pre_order(p->r);
+}
+int main()
+{
+    char instr[30];
+    char poststr[30];
+    scanf("%s",instr);
+    scanf("%s",poststr);
+    int n = strlen(instr);
+    TREE *T = NULL;
+    Build(T,instr,poststr,n);
+    if(T == NULL) cout<<666<<endl;//检验指针值是否还是空，自己理解为什么没有改变
+    pre_order(T);
+    return 0;
+}

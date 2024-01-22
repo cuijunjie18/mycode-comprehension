@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 100
+int number[N];
+int sum[N];
+int main()
+{
+    int wei = 1;
+    int he = 1;
+    int k = 1;
+    number[1] = 1;
+    int n;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=wei;j++)
+        {
+            number[j] = number[j]*i;
+        }
+        while(k<wei)
+        {
+            if(number[k]>=10)
+            {
+                number[k+1] = number[k]/10 + number[k+1];
+                number[k] = number[k]%10;
+            }
+            k++;
+        }
+        k = 1;
+        while(number[wei]>=10)
+        {
+            number[wei+1] = number[wei]/10 + number[wei+1];
+            number[wei] = number[wei]%10;
+            wei++;
+        }
+        for (int j = 1;j<=wei;j++)
+        {
+            sum[j] = sum[j] + number[j];
+        }
+        for (int j = 100;1;j--)
+        {
+            if(sum[j]>0)
+            {
+                he = j;
+                break;
+            }
+        }
+        while(k<he)
+        {
+            if(sum[k]>=10)
+            {
+                sum[k+1] = sum[k]/10 + sum[k+1];
+                sum[k] = sum[k]%10;
+            }
+            k++;
+        }
+        k = 1;
+        while(sum[he]>=10)
+        {
+            sum[he+1] = sum[he]/10 + sum[he+1];
+            sum[he] = sum[he]%10;
+            he++;
+        }
+    }
+    for (int i = he;i>=1;i--)
+    {
+        printf("%d",sum[i]);
+    }
+    return 0;
+}

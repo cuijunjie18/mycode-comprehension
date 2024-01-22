@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int number1[5000];//存储数字1，(int换成long long 可以提高容错率与精度)
+int number2[5000];//存储数字2
+char word1[5000];//存储数字1的字符串形式
+char word2[5000];//存储数字2的字符串形式
+int ans[5000];//存储答案
+int main()
+{
+    scanf("%s",word1);//输入数字1
+    scanf("%s",word2);//输入数字2
+    int n1 = strlen(word1);//计算数字1位数
+    int n2 = strlen(word2);//计算数字2位数
+    for (int i = 1;i<=n1;i++)//数字1整型化
+    {
+        number1[i] = word1[n1-i] - '0';
+    }
+    for (int i = 1;i<=n2;i++)//数字2整型化
+    {
+        number2[i] = word2[n2-i] - '0';
+    }
+    int index = n1+n2;//两数乘积不会超过两个数位数和(数学知识)
+    for (int i = 1;i<=n1;i++)//开始模拟乘积，(不必按照习惯位数多的在上，都行的，位数移动原理)
+    {
+        for (int j = 1;j<=n2;j++)
+        {
+            ans[j+i-1] += number1[i]*number2[j];//一定要是加上，因为会有重复的位置
+        }
+    }
+    for (int i = 1;i<=index;i++)//其实可以在循环中就处理进位，防止错误，现在是全部算完后处理进位
+    {
+        if(ans[i]>=10)
+        {
+            ans[i+1] += ans[i]/10;
+            ans[i] %= 10;
+        }
+    }
+    while(ans[index] == 0&&index>1) index--; // index>1 防止0乘的情况无输出
+    for (int i = index;i>=1;i--)
+    {
+        printf("%d",ans[i]);
+    }
+    return 0;
+}

@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 101
+int people[N];
+int main()
+{
+    int n,m;
+    scanf("%d %d",&n,&m);
+    int out = 0;
+    int i = 1;
+    int wait;
+    while(out<n-1)
+    {
+        int temp = 0;
+        while(temp!=m)
+        {
+            if(people[i]==1)
+            {
+                i++;
+            }
+            else
+            {
+                wait = i;
+                temp++;
+                i++;
+            }
+            if(i>n)
+            {
+                i = 1;
+            }
+        }
+        people[wait] = 1;
+        printf("%d ",wait);
+        out++;
+    }
+    for (int j = 1;j<=n;j++)
+    {
+        if(people[j] == 0)
+        {
+            printf("%d",j);
+            break;
+        }
+    }
+    return 0;
+}

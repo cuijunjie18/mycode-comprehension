@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <stdlib.h>
+int V,n;
+int bag[20001];
+int main()
+{
+    scanf("%d %d",&V,&n);
+    int number[n+1];
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = V;j>=number[i];j--)
+        {
+            if(bag[j-number[i]]+number[i]>bag[j])
+            {
+                bag[j] = bag[j-number[i]]+number[i];
+            }
+            else
+            {
+                bag[j] = bag[j];
+            }
+        }
+    }
+    printf("%d",V-bag[V]);
+    return 0;
+}

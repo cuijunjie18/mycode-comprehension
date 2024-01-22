@@ -1,0 +1,99 @@
+//原理:把摧毁点判断连通块(集合)逆向为建立点，把每次建立点后的联通块个数存起来，最后把答案逆向输出一遍
+//时间复杂度:平均o(n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[200001<<1];
+int head[400005];
+int cnt;
+int f[400005];//并查集父亲
+int ans[400005];//每次摧毁的答案
+int destroy[400005];//第i次摧毁的编号
+unordered_set<int> s;//查找关键
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    int n = read();//读入初始星球个数
+    int m = read();//读入边的条数
+    for (int i = 0;i<=n-1;i++)//因为编号0到n-1，初始化并查集父亲
+    {
+        f[i] = i;
+    }
+    for (int i = 1;i<=m;i++)//依次建立边
+    {
+        int x = read();
+        int y = read();
+        add(x,y);
+        add(y,x);
+    }
+    int k = read();//读入摧毁个数
+    for (int i = 1;i<=k;i++)//依次存储每次摧毁的星球的编号
+    {
+        destroy[i] = read();//记录
+        s.insert(destroy[i]);//加入到集合
+    }
+    int num = n - k;//k次摧毁后最多n-k个星球，即连通块数量初始化
+    for (int i = 0;i<=n-1;i++)//特殊处理全部摧毁后的连通块个数
+    {
+        if(s.count(i) != 0) continue;//如果该点被摧毁了，不考虑与它有关的边
+        for (int j = head[i];j;j = e[j].next)//枚举没被摧毁的边，建立关系
+        {
+            if(s.count(e[j].to) != 0) continue;//如果该边的终点无了，该边无法建立，跳过
+            int f1 = Find(i);//并查集查找
+            int f2 = Find(e[j].to);//并查集查找
+            if(f1 != f2)//如果不在一个集合中
+            {
+                f[f1] = f2;//合并集合
+                num--;//集合即连通块数量减1
+            }
+        }
+    }
+    ans[k] = num;//存储全部摧毁后的答案
+    for (int i = k;i>=1;i--)//倒着建立星球
+    {
+        s.erase(destroy[i]);//删掉被摧毁点，即建立
+        num++;//建立初始化连通块数加1
+        for (int j = head[destroy[i]];j;j = e[j].next)//枚举与新建立点有关的边
+        {
+            if(s.count(e[j].to) != 0) continue;//如果终点还未建立，无效，跳过
+            int f1 = Find(destroy[i]);//查找父亲
+            int f2 = Find(e[j].to);//查找父亲
+            if(f1 != f2)//来自不同集合
+            {
+                f[f1] = f2;//合并
+                num--;//连通块数减1
+            }
+        }
+        ans[i-1] = num;//记录答案
+    }
+    for (int i = 0;i<=k;i++)//正着输出
+    {
+        printf("%d\n",ans[i]);
+    }
+    return 0;
+}

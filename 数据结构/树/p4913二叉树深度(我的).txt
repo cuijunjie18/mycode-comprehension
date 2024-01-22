@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+int l[1000001];//l[i]代表i号节点的左节点，若为0则该节点无左子树
+int r[1000001];//r[i]代表i号节点的右节点,若为0则该节点无右子树
+int n;
+int ans;
+void DFS(int i,int depth)
+{
+    if(i == 0)//如果为0说明该左或右子树到底了，深度上一次多加了1，要减去
+    {
+        ans = max(ans,depth-1);//取最大值为答案
+	return;//一定要返回，否则死循环
+    }
+    DFS(l[i],depth+1);//搜索左子树
+    DFS(r[i],depth+1);//搜索右子树
+}
+int main()
+{
+    scanf("%d",&n);//输入节点数
+    for (int i = 1;i<=n;i++)//记录第i节点的左右节点
+    {
+        scanf("%d%d",&l[i],&r[i]);
+    }
+    DFS(1,1);//从1节点开始搜索，深度为1；
+    printf("%d\n",ans);
+    return 0;
+}

@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>
+#include <conio.h>
+#define N 50//定义地图的最大长
+#define M 50//定义地图的最大宽
+int x,y;//x为老鼠当前横坐标，y为老鼠当前纵坐标
+int n,m;
+int visit[N][M];//标记数组，用来表示该点是否到过，防止重复搜索
+void Show(char str[N][M]);//展示地图及老鼠的实时位置
+void Visit(char str[N][M]);//将障碍物标记
+void DFS(char str[N][M]);//核心搜索，深度优先搜索
+int walk[4][2] = {{-1,0},{0,1},{1,0},{0,-1}};//方向数组，决定老鼠移动的方向
+int main()//主函数
+{
+    char str[N][M] =
+    {
+
+        "************",
+        "*          *",
+        "* **********",
+        "* *   *   **",
+        "* * * * * **",
+        "* * * * *  *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "* * * * ** *",
+        "*   *   **  ",
+        "************"
+    };//初始化地图(可以改为文件读取，即可任意生成模拟二维地图)
+    n = 12;//长
+    m = 12;//宽
+    Visit(str);//标记障碍物及边界
+    printf("请输入初始坐标(中间用空格隔开):");//请输入老鼠的初始位置(不能在障碍物上)
+    scanf("%d%d",&x,&y);//输入坐标
+    visit[x][y] = 1;//标记
+    Show(str);//展示老鼠的位置
+    DFS(str);//开始搜索
+}
+
+void Show(char str[][M])//展示函数
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            if(i == x&&j == y)
+            {
+                printf("0");
+            }
+            else
+                printf("%c",str[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void Visit(char str[N][M])//标记障碍及边界的函数
+{
+    for (int i = 0;i<=n-1;i++)
+    {
+        for (int j = 0;j<=m-1;j++)
+        {
+            if(str[i][j] != ' ')
+            {
+                visit[i][j] = 1;
+            }
+        }
+    }
+}
+
+void DFS(char str[N][M])//深度优先搜索
+{
+    if(x == 10&&y == 11)//判断是否到达终点
+    {
+        system("cls");//清屏
+        Show(str);//展示
+        printf("Get the way to exit!\n");
+        exit(0);//结束程序
+    }
+    for (int i = 0;i<=3;i++)//往四个方向搜索
+    {
+        if(!visit[x+walk[i][0]][y+walk[i][1]])//判断没有障碍且未到达过
+        {
+            x += walk[i][0];//改变坐标
+            y += walk[i][1];
+            visit[x][y] = 1;//标记
+            system("cls");//清屏
+            Show(str);//展示
+            Sleep(500);//延时
+            DFS(str);//继续搜索
+            visit[x][y] = 0;//回溯，取消标记
+            x -= walk[i][0];//变回原来坐标
+            y -= walk[i][1];
+            system("cls");//清屏
+            Show(str);//展示
+            Sleep(500);//延时
+        }
+    }
+}

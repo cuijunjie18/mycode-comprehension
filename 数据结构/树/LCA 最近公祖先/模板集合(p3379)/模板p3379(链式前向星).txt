@@ -1,0 +1,87 @@
+//链式前向星的引入(不需要动态数组)，该存储方法有点像孩子兄弟法,效率高于邻接表,通常来说空间开销大(因为要预先知道大小)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//定义边结构体(有时候还要有边权)
+{
+    int to,next;//to为终点，next为下一条边
+}EDGE;
+EDGE e[500001<<1];//要开两倍的数组，因为是双边
+int head[500001];//表示以i为起点的第一天边的编号(实际上是最后加入的一条边，详见代码)
+int number;//双边总数
+int depth[500001];//每个点的深度
+int f[500001][30];//2^i祖先
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch<'0'||ch>'9')
+    {
+        ch = getchar();
+    }
+    while(ch>='0'&&ch<='9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//建立边
+{
+    e[++number].to = y;//边的数量加一，且该边的终点是y
+    e[number].next = head[x];//连接该边的第一条同起点(以x为起点)的边的编号，为0说明没有下一条
+    head[x] = number;//改变以x为起点的第一条边的编号(由此可知实际上是最后一条边)
+}
+void DFS(int x,int fa)//常规DFS，预处理LCA算法
+{
+    depth[x] = depth[fa] + 1;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++)
+    {
+        f[x][i] = f[f[x][i-1]][i-1];
+    }
+    for (int i = head[x];i;i = e[i].next)//核心链式前向星的遍历边
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x);
+    }
+}
+int Solve(int a,int b)//倍增LCA
+{
+    if(a == b) return a;
+    if(depth[a]<depth[b]) swap(a,b);
+    while(depth[a]>depth[b])
+    {
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    }
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        {
+            if(f[a][i] != f[b][i])
+            {
+                a = f[a][i];
+                b = f[b][i];
+            }
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    int n,m,s,a,b;
+    n = read(),m = read(),s = read();
+    for (int i = 1;i<=n-1;i++)
+    {
+        a = read();
+        b = read();
+        add(a,b);
+        add(b,a);
+    }
+    depth[0] = -1;//初始化深度为-1
+    DFS(s,0);//从根节点开始搜索
+    for (int i = 1;i<=m;i++)
+    {
+        printf("%d\n",Solve(read(),read()));
+    }
+    return 0;
+}

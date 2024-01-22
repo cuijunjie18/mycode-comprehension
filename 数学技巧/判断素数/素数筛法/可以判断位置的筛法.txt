@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+bool number[10000000];
+int prime[1000000];
+int pos = 0;
+void Primeout(int n)
+{
+    for (int i = 2;i<=n;i++)//如果改成i*i<=n,则只能记录到n^0.5 范围内的素数
+    {
+        if(!number[i])//之前没被筛掉，说明这个数为素数
+        {
+            pos++;//素数加一
+            prime[pos] = i;
+            for (int j = i*i;j<=n;j += i)
+            {
+                number[j] = 1;
+            }
+        }
+    }
+}
+int main()
+{
+    int n,q,a;
+    scanf("%d%d",&n,&q);
+    Primeout(n);
+    while(q--)
+    {
+        scanf("%d",&a);
+        printf("%d\n",prime[a]);
+    }
+    return 0;
+}

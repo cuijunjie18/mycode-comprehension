@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef unsigned long long ull;
+struct data//字符串的两个哈希值结构体
+{
+    ull x;
+    ull y;
+}a[10001];
+ull base1 = 131;//进制1
+ull base2 = 397;//进制2
+const int mod1 = 1e8+7;//模1
+const int mod2 = 19260817;//模2
+char s[10001];//临时存储字符串
+
+ull Hash1(char s[])//Hash1
+{
+    ull ans = 0;
+    for (int i = 0;s[i];i++)
+        ans = (ans*base1 + s[i])%mod1;
+    return ans;
+}
+
+ull Hash2(char word[])//Hash2
+{
+    ull ans = 0;
+    for (int i = 0;s[i];i++)
+        ans = (ans*base2 + s[i])%mod2;
+    return ans;
+}
+
+bool cmp(data a,data b)//结构体按第一个哈希值大小排序
+{
+    return a.x<b.x;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%s",s);
+        a[i].x = Hash1(s);
+        a[i].y = Hash2(s);
+    }
+    sort(a+1,a+n+1,cmp);
+    int ans = 1;
+    for (int i = 2;i<=n;i++)
+    {
+        if(a[i].x!=a[i-1].x||a[i].y!=a[i-1].y)//两个哈希值都相同才认为两个字符串相同
+            ans++;
+    }
+    cout<<ans<<endl;
+    return 0;
+}

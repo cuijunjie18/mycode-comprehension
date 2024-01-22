@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+#include <set>
+using namespace std;
+set <int> s;
+set<int>::iterator it;
+set<int>::iterator x;
+int main()
+{
+    int n,a,b;
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&a);
+        if(a == 1)
+        {
+            scanf("%d",&b);
+            if(s.find(b) == s.end())
+            {
+                s.insert(b);
+            }
+            else
+            {
+                printf("Already Exist\n");
+            }
+        }
+        else
+        {
+            scanf("%d",&b);
+            if(s.empty())
+            {
+                printf("Empty\n");
+            }
+            else
+            {
+                if(s.find(b) != s.end())
+                {
+                    printf("%d\n",b);
+                    s.erase(b);
+                }
+                else
+                {
+                    it = s.lower_bound(b);
+                    x = s.lower_bound(b);
+                    if(it == s.begin())
+                    {
+                        printf("%d\n",*it);
+                        s.erase(it);
+                    }
+                    else
+                    {
+                        x--;
+                        if(abs((*x)-b)<=abs(*(it)-b))
+                        {
+                            printf("%d\n",*x);
+                            s.erase(x);
+                        }
+                        else
+                        {
+                            printf("%d\n",*it);
+                            s.erase(it);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}

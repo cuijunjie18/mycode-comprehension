@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+int ansx[100001];//记录答案路径坐标
+int ansy[100001];//同上
+bool visit[140][80];//标记数组
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int number;//记录路径步数，用于输出所有答案
+char mp[140][80];//地图
+int r,c;//长宽
+void DFS(int x,int y)//搜索
+{
+    if(number>1000000) return;//超过步数，剪枝
+    if(x == r&&y == c)//如果到了终点
+    {
+         for (int i = 1;i<=number;i++)//输出
+         {
+             printf("%d %d\n",ansx[i],ansy[i]);
+         }
+         exit(0);//结束程序
+    }
+    for (int i = 0;i<=3;i++)//DFS遍历方向
+    {
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if(wx>=1&&wx<=r&&wy>=1&&wy<=c&&visit[wx][wy] == false&&mp[wx][wy] == '.')//如果满足条件
+        {
+            number++;//步数加1
+            visit[wx][wy] = true;//标记(不用取消，因为是求路径)
+            ansx[number] = wx;//记录
+            ansy[number] = wy;
+            DFS(wx,wy);//继续搜
+            number--;//如果回来了说明之前行不通，答案少1
+        }
+    }
+}
+int main()
+{
+    scanf("%d%d",&r,&c);
+    for (int i = 1;i<=r;i++)//输入地图数据
+    {
+        for (int j = 1;j<=c;j++)
+        {
+            scanf(" %c",&mp[i][j]);
+        }
+    }
+    visit[1][1] = true;
+    ansx[1] = 1;
+    ansy[1] = 1;
+    number = 1;
+    DFS(1,1);//起点开始搜索
+    return 0;
+}

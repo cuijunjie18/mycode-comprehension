@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+double a[21][21];//第i个人完成第j个任务的成功率
+double f[1<<20];//不同任务完成状态的最大成功率
+int main()
+{
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+           scanf("%lf",&a[i][j]);
+           a[i][j] *= 0.01;//加百分号
+        }
+    }
+    f[0] = 1;//初始一个任务的不用完成的成功率是1
+    for (int t = 0;t<(1<<n);t++)//遍历任务完成状态
+    {
+        int number = __builtin_popcount(t);//计算当前状态完成的任务个数，number代表该由第几个人来做任务了
+        for (int i = 1;i<=n;i++)//枚举任务
+        {
+            if(t&(1<<(i-1)))//要在状态中才可以选
+            {
+                f[t] = max(f[t],f[t^(1<<(i-1))]*a[number][i]);//取最大值，^可以换成-
+            }
+        }
+    }
+    printf("%.6lf\n",f[(1<<n)-1]*100);//输出结果
+    return 0;
+}

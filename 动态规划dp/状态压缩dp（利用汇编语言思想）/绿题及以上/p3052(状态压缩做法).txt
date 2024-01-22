@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,w;//n为奶牛数，w为一个电梯的最大承重
+int weigh[20];//每头奶牛的重量
+int f[1<<18];//奶牛放入状态需要的最少电梯数
+int leave[1<<18];//当前状态下电梯的最大容量
+int g[20];//美化二进制数组，每个奶牛的状态
+int main()
+{
+    cin>>n>>w;//输入奶牛数及电梯最大承重
+    for (int i = 1;i<=n;i++)//输入每个奶牛的重量
+    {
+        cin>>weigh[i];
+    }
+    for (int i = 1;i<=n;i++)//每天奶牛二进制化
+    {
+        g[i] = 1<<(i-1);
+    }
+    memset(f,0x3f,sizeof(f));//求最小值，初始化为正无穷
+    f[0] = 1;//0头奶牛初始化为1台电梯
+    leave[0] = w;//该状态下最大剩余容量为w
+    for (int i = 0;i<=((1<<n)-1);i++)//枚举状态
+    {
+        for (int j = 1;j<=n;j++)//枚举要放的奶牛
+        {
+            if(g[j]&i) continue;//如果已经放过了，跳过
+            if(leave[i]>=weigh[j])//当前状态最大剩余容量可以装下该奶牛
+            {
+                f[t|g[i]] = min(f[t|g[i]],f[t]);//取最小值
+                leave[t|g[i]] = max(leave[t|g[i]],leave[t] - weigh[i]);//剩余容量取最大值
+            }
+            else//否则要新增加一台电梯
+            {
+                f[t|g[i]] = min(f[t|g[i]],f[t] + 1);//取最小值
+                leave[t|g[i]] = max(leave[t|g[i]],w - weigh[i]);//剩余容量取最大值
+            }
+        }
+    }
+    cout<<f[(1<<n)-1]<<endl;//输出
+    return 0;
+}

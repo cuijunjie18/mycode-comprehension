@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define Max 1e15
+long long f[8];//二进制下该状态下的最小消耗
+int value[1001];
+int tai[1001];
+long long Min(long long a,long long b)//取最小值
+{
+    return a<b?a:b;
+}
+int main()
+{
+    int n;
+    scanf("%d",&n);//输入饮料数
+    char ch;
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&value[i]);//每瓶饮料的消耗
+        while(scanf("%c",&ch)&&ch!='\n')//记录每瓶饮料含的维生素的状态
+        {
+            switch(ch)
+            {
+            case 'A':
+                tai[i]|= 4;
+                break;
+            case 'B':
+                tai[i]|= 2;
+                break;
+            case 'C':
+                tai[i]|= 1;
+                break;
+            }
+        }
+    }
+    f[0] = 0;//0状态不需要消耗，初始化为0
+    for (int i = 1;i<=7;i++)//初始化为正无穷
+        f[i] = Max;
+    for (int i = 1;i<=n;i++)//dp
+    {
+        for (int j = 7;j>=0;j--)//用状态取到达
+        {
+            f[j|tai[i]] = Min(f[j|tai[i]],f[j]+value[i]);
+        }
+    }
+    if(f[7] == Max)//如果还是正无穷
+        printf("-1");
+    else//否则
+        printf("%lld",f[7]);
+    return 0;
+}

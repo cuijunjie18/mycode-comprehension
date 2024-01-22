@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+int Find(int a,int b[],int n)
+{
+    int l = 0;
+    int r = n;
+    while(l<r)
+    {
+        int mid = l+(r-l)/2;
+        if(b[mid]>=a)
+        {
+            r = mid;
+        }
+        else
+        {
+            l = mid + 1;
+        }
+    }
+    if(b[l]==a) return (l+1);
+    else return -1;
+}
+int main()
+{
+    int n,m;
+    scanf("%d %d",&n,&m);
+    int number[n];
+    for (int i = 0;i<=n-1;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    int search[m];
+    for (int i = 0;i<=m-1;i++)
+    {
+        scanf("%d",&search[i]);
+    }
+    int weizi[m];
+    for (int i = 0;i<=m-1;i++)
+    {
+        weizi[i] = Find(search[i],number,n);
+        printf("%d ",weizi[i]);
+    }
+    return 0;
+}

@@ -1,0 +1,151 @@
+#include <stdio.h>//标准输入输出头文件
+#include <stdlib.h>//可以向DOS发送指令
+#include <time.h>//获取时间的头文件，随机的关键
+#include <string.h>//字符串操作头文件
+#include <windows.h>//控制台头文件
+#include <conio.h>//检测键盘等头文件
+//下面为宏定义，用于操控方向键
+/*方向键原理：1、使用getch读取字符时，读取一次就行
+			2、而读取方向键和功能键是，需要读取两次
+				（第一次的返回值为0或者224（方向键））
+			getch函数在读取一个功能键或者箭头（方向）键盘时，函数会返回两次，第一次调用返回0或者0xE0，第二次调用返回实际的键值。*/
+#define UP 72
+#define DOWN 80
+#define LEFT 75
+#define RIGHT 77
+
+int px,py;//玩家的坐标
+int n,m;//迷宫的大小
+int mp[101][101];//数字预处理迷宫
+int walk[4][2] = {{-2,0},{2,0},{0,-2},{0,2}};//方向数组，用于DFS生成
+bool visit[101][101];//标记数组，用于DFS生成
+void Build();//随机生成迷宫函数
+bool judge(int a[5]);//Build的附属函数
+void DFS(int x,int y);//Build的附属函数，随机生成的核心函数
+void Play();//游戏控制函数
+void Show();//展示地图及玩家位置函数
+void HideCursor();//光标隐藏函数(让界面美观)
+void gotoxy(int y,int x);//光标移动函数(让地图均匀及角色正确移动)
+int main()//主函数
+{
+    srand(time(NULL));//设置随机种子
+    Build();//生成迷宫
+    Play();//开始游玩
+    return 0;
+}
+
+void Build()//DFS生成迷宫，详见生成篇代码
+{
+    printf("Please input the sphere of the map(only odd):");
+    scanf("%d%d",&n,&m);
+    for (int i = 2;i<=n+1;i+=2)
+    {
+        for (int j = 2;j<=m+1;j+=2)
+        {
+           mp[i][j] = 1;
+        }
+    }
+    visit[2][2] = 1;
+    DFS(2,2);
+    mp[2][1] = 1;//起点初始化
+    mp[n+1][m+2] = 1;//终点打破屏障
+    printf("Are you ready?");
+    system("PAUSE");
+    HideCursor();
+}
+
+bool judge(int a[5])//Build配套
+{
+    for (int i = 0;i<=3;i++)
+    {
+        if(a[i] == 0) return false;
+    }
+    return true;
+}
+
+void DFS(int x,int y)//Build配套
+{
+    int check[4];
+    memset(check,0,sizeof(check));
+    while(true)
+    {
+        int r = rand()%4;
+        check[r] = 1;
+        int wx = x + walk[r][0];
+        int wy = y + walk[r][1];
+        if(wx>=2&&wx<=n+1&&wy>=2&&wy<=m+1&&visit[wx][wy] == false)
+        {
+            visit[wx][wy] = true;
+            mp[(wx+x)>>1][(wy+y)>>1] = 1;
+            DFS(wx,wy);
+        }
+        if(judge(check)) break;
+    }
+}
+
+void Play()//游玩核心函数
+{
+    px = 2;//初始化玩家坐标
+    py = 1;
+    Show();
+    while(px!=n+1||py!=m+2)//没到终点一直循环
+    {
+        if(kbhit())
+        {
+            char ch = getch();//获取键盘值
+            if(ch == UP&&mp[px-1][py] == 1)//判断是否有路，改变角色坐标
+            {
+                px--;
+            }
+            else if(ch == DOWN&&mp[px+1][py] == 1)
+            {
+                px++;
+            }
+            else if(ch == LEFT&&mp[px][py-1] == 1)
+            {
+                py--;
+            }
+            else if(ch == RIGHT&&mp[px][py+1] == 1)
+            {
+                py++;
+            }
+            printf("\b ");//退格打印，消除之前角色的痕迹，局部改变，防止屏幕闪烁
+            gotoxy(px-1,2*py-1);//移动到地图对应位置打印角色
+            printf("@");//打印，在kbhit函数内，否则角色会闪烁
+        }
+    }
+    gotoxy(n+2,0);//退出循环，说明到达终点，光标移动到地图下面
+    printf("You win!\n");//输出胜利
+    system("PAUSE");
+}
+
+void Show()//展示函数
+{
+    system("cls");//
+    for (int i = 1;i<=n+2;i++)
+    {
+        for (int j = 1;j<=m+2;j++)
+        {
+            gotoxy(i-1,2*j-1);
+            if(mp[i][j]) printf(" ");//输出路
+            else printf("■");//输出墙体
+        }
+        putchar('\n');
+    }
+    gotoxy(px-1,2*py-1);//移动光标到起点
+    printf("@");//打印角色
+}
+
+void HideCursor()//核心隐藏光标函数，详见windows篇
+{
+    CONSOLE_CURSOR_INFO cursor_info = {1,0};
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cursor_info);
+}
+
+void gotoxy(int y,int x)//细节光标移动，y与x倒过来，自己考虑，详见windows篇
+{
+    COORD p;
+    p.X = x;
+    p.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
+}

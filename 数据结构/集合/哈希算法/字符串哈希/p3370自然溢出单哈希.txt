@@ -1,0 +1,34 @@
+//时间复杂度:o(nlogn) (排序复杂度) + o(n*k) (k为字符串平均长度,哈希函数的复杂度)
+//总的时间复杂度:o(nlogn>n*k ? nlogn:n*k)
+//字符串哈希的优点:空间复杂度较直接存储多个字符串小了很大，时间复杂度少了一个常数(字符串的平均长度及字符串交换的时间)
+#include <bits/stdc++.h>
+using namespace std;
+typedef unsigned long long ull;//重新定义无符号长整型数据类型的名字
+ull base = 131;//进制
+ull a[10001];//第i个字符串的哈希值
+char s[10001];//临时存放字符串
+ull Hash(char word[])//Hash函数:采用自然溢出单哈希
+{
+    ull ans = 0;//初始化哈希值
+    for (int i = 0;word[i];i++)//哈希转换(本质上是字符串的加密过程)
+        ans = ans*base + word[i];
+    return ans;//返回
+}
+int main()
+{
+    int n;
+    cin>>n;//输入字符串个数
+    for (int i = 1;i<=n;i++)//计算每个字符串的哈希值
+    {
+        scanf("%s",s);
+        a[i] = Hash(s);//记录哈希值
+    }
+    sort(a+1,a+n+1);//排序 (如果直接对输入的全部字符串排序，时间复杂度为:o(nlogn*k))
+    int ans = 1;//初始化答案，至少与一个不重复的字符串
+    for (int i = 2;i<=n;i++)//枚举哈希值
+    {
+        if(a[i]!=a[i-1]) ans++;//如果不重复，答案加1
+    }
+    cout<<ans<<endl;//输出答案
+    return 0;
+}

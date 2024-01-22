@@ -1,0 +1,18 @@
+//原理:两数的最大公约数与最小公倍数乘积等于这两数的乘积
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int flag = 1;//判断是否有完全平方数情况，因为有的话就不对称了，答案要少1
+    int ans = 0;
+    long long x,y;//long long 防爆
+    scanf("%lld%lld",&x,&y);
+    for (long long i = 1;i<=sqrt(x*y);i++)
+    {
+        if(x*y%i == 0&&__gcd(i,x*y/i) == x) ans++;
+        if(x*y%i == 0&&i == x*y/i&&x == i) flag = 0;
+    }
+    if(flag) printf("%d",2*ans);
+    else printf("%d",2*ans - 1);
+    return 0;
+}

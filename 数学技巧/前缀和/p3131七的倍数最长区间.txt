@@ -1,0 +1,30 @@
+//失败1:前缀和加从最大长度开始倒着找，时间复杂度:o(n^2),超时
+//失败2:前缀和加二分,理解错误，二分必须单调，但该题可能短的不行反而长的行
+//最终原理:前缀和余数相同时候，两端区间相减一定是7的倍数
+//警钟:first[0] = 0，其他first[] = -1,因为余数为0可以不用相减
+#include <bits/stdc++.h>
+using namespace std;
+int first[7],last[7];//对应余数的最早的位置及
+int sum[50001];//前缀和数组
+int main()
+{
+    int n,x;
+    scanf("%d",&n);//输入n个数
+    memset(first,-1,sizeof(first));//初始化
+    first[0] = 0;//初始化
+    for (int i = 1;i<=n;i++)//依次处理每次输入
+    {
+        scanf("%d",&x);
+        sum[i] = (sum[i-1] + x)%7;
+        if(first[sum[i]] == -1) first[sum[i]] = i;//第一次出现，记录
+        last[sum[i]] = i;//更新最后一次出现位置
+    }
+    int ans = 0;//初始化答案
+    for (int i = 0;i<=6;i++)
+    {
+        if(first[i]!= -1)//若对应余数村在
+            ans = max(ans,last[i] - first[i]);//!!!!一般求长度为r-l+1，但此次要注意是前缀和！！
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

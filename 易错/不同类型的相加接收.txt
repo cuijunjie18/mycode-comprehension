@@ -1,0 +1,12 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int a = 2000000000;
+    int b = 2000000000;
+    long long x = a + b;
+    printf("%lld\n",x);
+    x = (long long)(a) + b;
+    printf("%lld\n",x);
+    return 0;
+}

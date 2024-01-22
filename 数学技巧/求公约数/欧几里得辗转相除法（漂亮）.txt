@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+int gcd (int a,int b)
+{
+    if(b>a)
+    {
+        int temp = a;
+        a = b;
+        b = temp;
+    }
+    int r = a%b;
+    while(r!=0)
+    {
+        a = b;
+        b = r;
+        r = a%b;
+    }
+    return b;
+}
+int main()
+{
+    int a,b;
+    scanf("%d%d",&a,&b);
+    printf("%d\n",gcd(a,b));
+    return 0;
+}

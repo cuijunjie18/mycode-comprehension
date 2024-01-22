@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int number1[600];
+int number2[600];
+char word1[600];
+char word2[600];
+int ans[600];
+int Max(int a,int b)
+{
+    return a>b?a:b;
+}
+int main()
+{
+    scanf("%s",word1);
+    scanf("%s",word2);
+    int n1 = strlen(word1);
+    int n2 = strlen(word2);
+    int index = Max(n1,n2);
+    for (int i = 1;i<=n1;i++)
+    {
+        number1[i] = word1[n1-i] - '0';
+    }
+    for (int i = 1;i<=n2;i++)
+    {
+        number2[i] = word2[n2-i] - '0';
+    }
+    for (int i = 1;i<=index;i++)
+    {
+        ans[i] = number1[i] + number2[i];
+    }
+    int k = 1;
+    while(k<index)
+    {
+        if(ans[k]>=10)
+        {
+            ans[k+1] = ans[k]/10 + ans[k+1];
+            ans[k] = ans[k]%10;
+        }
+        k++;
+    }
+    while(ans[index]>=10)
+    {
+        ans[index+1] = ans[index]/10 + ans[index+1];
+        ans[index] = ans[index]%10;
+        index++;
+    }
+    for (int i = index;i>=1;i--)
+    {
+        printf("%d",ans[i]);
+    }
+    return 0;
+}

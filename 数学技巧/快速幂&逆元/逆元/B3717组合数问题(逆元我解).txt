@@ -1,0 +1,52 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 998244353;//模常数
+long long mod[5000001];//预处理阶乘的模
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch > '9'||ch < '0') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+long long quickpow(long long a,long long b)//快速幂求逆元:时间复杂度度:o(logn)
+{
+    long long ans = 1;
+    while(b)
+    {
+        if(b&1) ans = ans*a%md;
+        a = a*a%md;
+        b >>= 1;
+    }
+    return ans;
+}
+int main()
+{
+    int t,d,n,m;
+    scanf("%d%d",&t,&d);//输入测试组数及最大上界
+    mod[1] = 1;//1的阶乘模md为1
+    for (int i = 2;i<=d;i++)//预处理阶乘的模，将大数化小
+    {
+        mod[i] = mod[i-1]*i%md;
+    }
+    long long sum = 0;//答案初始为0，0异或任何数等于任何数
+    while(t--)//快读入每组测试数据
+    {
+        n = read();
+        m = read();
+        if(n == m||m == 0)
+        {
+            sum ^= 1;
+            continue;
+        }
+        sum ^= mod[n]*quickpow(mod[n-m]*mod[m]%md,md-2)%md;//核心公式
+    }
+    printf("%lld\n",sum);//输出
+    return 0;
+}

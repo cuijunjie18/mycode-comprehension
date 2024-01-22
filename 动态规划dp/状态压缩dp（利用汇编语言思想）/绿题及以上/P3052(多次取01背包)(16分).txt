@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation
+{
+    int number;
+    int data[19];
+    int weigh;
+}SB;
+SB f[1400000];
+int main()
+{
+    int v,n;
+    cin>>n>>v;
+    int weigh[n+1],tempw[n+1],test[n+1];
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>weigh[i];
+    }
+    int times = 0;
+    while(n!=0)
+    {
+        times++;
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = v;j>=weigh[i];j--)
+            {
+                if(f[j-weigh[i]].weigh+weigh[i]>f[j].weigh)
+                {
+                    f[j].weigh = f[j-weigh[i]].weigh+weigh[i];
+                    f[j].number = f[j-weigh[i]].number + 1;
+                    for (int k = 1;k<=f[j-weigh[i]].number;k++)
+                    {
+                        f[j].data[k] = f[j-weigh[i]].data[k];
+                    }
+                    f[j].data[f[j].number] = i;
+                }
+            }
+        }
+        for (int i = 1;i<=f[v].number;i++)
+        {
+            test[f[v].data[i]] = 1;
+        }
+        int a = 0;
+        for (int i = 1;i<=n;i++)
+        {
+            if(!test[i])
+            {
+                a++;
+                tempw[a] = weigh[i];
+            }
+        }
+        n -= f[v].number;
+        memcpy(weigh,tempw,sizeof(int)*(a+1));
+        memset(f,0,sizeof(f));
+    }
+    cout<<times<<endl;
+    return 0;
+}

@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+using namespace std;
+const long long md = 1000000007;
+int num[20];
+int m;
+long long quickpow(long long a,int b)
+{
+    long long ans = 1;
+    while(b)
+    {
+        if(b&1) ans *= a;
+        a *= a;
+        b >>= 1;
+    }
+    return ans;
+}
+long long DFS(int len,int x)
+{
+    if(len == 0) return 0;
+    long long ret = 0,head = 0,rear = 0;
+    for (int i = m;i>=len+1;i--) head = (head*10 + num[i])%md;
+    for (int i = len-1;i>=1;i--) rear = (rear*10 + num[i])%md;
+    if(x < num[len])
+    {
+        ret = (((head + 1)*(quickpow(10,len-1)%md))%md + DFS(len-1,x))%md;
+    }
+    else if(x == num[len])
+    {
+        ret = ((head*(quickpow(10,len-1)%md))%md + (rear + 1)%md + DFS(len-1,x))%md;
+    }
+    else
+    {
+        ret = ((head*(quickpow(10,len-1)%md))%md + DFS(len-1,x))%md;
+    }
+    return ret;
+}
+long long Solve(long long up)
+{
+    long long ans = 0;
+    int len = 0;
+    while(up)
+    {
+        num[++len] = up%10;
+        up /= 10;
+    }
+    m = len;
+    for (int i = 1;i<=9;i++)
+    {
+        ans = (ans + i*DFS(len,i)%md)%md;
+    }
+    return ans;
+}
+int main()
+{
+    int T;
+    long long l,r;
+    scanf("%d",&T);
+    while(T--)
+    {
+        scanf("%lld%lld",&l,&r);
+        printf("%lld\n",(Solve(r) - Solve(l-1) + md)%md);//注意这里，可能相减后为负数，故要加上md再取模
+    }
+    return 0;
+}

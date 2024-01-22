@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//定义链式树存储(因为这题顺序结构复杂，且不适用)
+{
+    char ch;//该节点的值
+    struct tree*l;//左子树
+    struct tree*r;//右子树
+}TREE;
+char word[1050];//存01字符串
+int Judge(char str[],int n)//判断F,B,I 串, str接收字符串首地址，n接收字符串长度
+{
+    bool one = false,zero = false;
+    for (int i = 0;i<=n-1;i++)
+    {
+        if(str[i] == '1') one = true;
+        else if(str[i] == '0') zero = true;
+    }
+    if(one == true&&zero == true) return 1;//有1有0  返回1，F串
+    else if(one == false&&zero == true) return 2;//有0没1 返回2 B串
+    return 3;//其他则I串
+}
+TREE* Build(TREE*head,char str[],int n)//常规建树
+{
+    if(n == 0) return NULL;//已经不需要建立了，返回空指针
+    int a = Judge(str,n);//判断当前字符串类型
+    head = (TREE*)malloc(sizeof(TREE));//分配新空间
+    head->l = NULL;//初始化左子树指针
+    head->r = NULL;//初始化右子树指针
+    if(a == 1) head->ch = 'F';//确定当前节点的值
+    else if(a == 2) head->ch = 'B';
+    else head->ch = 'I';
+    head->l = Build(head->l,str,n/2);//递归左子树
+    head->r = Build(head->r,str+(n/2),n/2);//递归右子树
+    return head;//返回指针
+}
+void post_order(TREE*head)//后序遍历
+{
+    if(head->l != NULL) post_order(head->l);
+    if(head->r != NULL) post_order(head->r);
+    printf("%c",head->ch);
+}
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    n = pow(2,n);
+    scanf("%s",word);
+    TREE * head = NULL;//空树指针
+    head = Build(head,word,n);//建立树，并得到指针
+    post_order(head);//从根节点开始遍历
+    return 0;
+}

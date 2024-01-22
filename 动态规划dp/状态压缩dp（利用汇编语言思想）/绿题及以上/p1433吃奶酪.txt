@@ -1,0 +1,67 @@
+//采用到达该状态下枚举之前状态的方法
+//时间复杂度:o((2^n)*n*n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct point//奶酪坐标的结构体
+{
+    double x,y;
+}POINT;
+int n;//奶酪的个数
+double d[20][20];//每个奶酪间的距离
+double ans;//答案
+double f[20][1<<15];//状压数组，含义为当前状态下站在第i个奶酪上的最短路径
+int g[20];//二进制状态数组，可以美化代码
+POINT a[20];//奶酪数组
+POINT zero = {0,0};//原点初始化
+double Distance(POINT p1,POINT p2)//计算距离
+{
+    return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));//平面上两点距离公式
+}
+int main()
+{
+    cin>>n;//输入奶酪数
+    for (int i = 1;i<=n;i++)//计算每个奶酪状态的二进制
+    {
+        g[i] = 1<<(i-1);
+    }
+    for (int i = 1;i<=n;i++)//计算每个奶酪到原点的距离
+    {
+        cin>>a[i].x>>a[i].y;
+        d[0][i] = Distance(zero,a[i]);
+    }
+    for (int i = 1;i<=n;i++)//计算每个奶酪间的距离
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            d[i][j] = Distance(a[i],a[j]);
+            d[j][i] = d[i][j];//对称性，类组合
+        }
+    }
+    memset(f,127,sizeof(f));//浮点数初始化为无穷大的方法
+    ans = f[0][0];//初始化答案为无穷大
+    for (int i = 1;i<=n;i++)//初始化由原点出发到每个奶酪的路径,关键步骤
+    {
+        f[i][g[i]] = d[0][i];
+    }
+    for (int i = 1;i<=((1<<n)-1);i++)//枚举状态，因为0的状态没有，故可以从1开始
+    {
+        for (int j = 1;j<=n;j++)//枚举该状态所在点
+        {
+            if(i&g[j])//如果该状态包含该点，可以找之前的点
+            {
+                for (int k = 1;k<=n;k++)//枚举之前的点
+                {
+                    if(k==j) continue;//重复了，跳过
+                    if(!(g[k]&i)) continue;//如果该状态不包含该点，跳过
+                    f[j][i] = min(f[j][i],f[k][i-g[j]] + d[k][j]);//取最小值
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//枚举最后所在奶酪
+    {
+        ans = min(ans,f[i][(1<<n)-1]);//取最小值
+    }
+    printf("%.2lf\n",ans);//输出
+    return 0;
+}

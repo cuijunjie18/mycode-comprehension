@@ -1,0 +1,66 @@
+/*朴素算法大致原理，第一步：先预处理每个节点到根节点的距离，及节点深度(此题边权都是1，对有边权的要复杂些),第二步：对于m次询问，每次都比较两个节点的深度，先让深度大的每次往上跳一格直到深度和深度小的一样大，然后两个节点一起往上跳，最终一定会相遇，相遇点即为两个节点的最近公祖先
+预处理时间复杂度：o(n) 原理：n个不重复节点的DFS
+每次查找的时间复杂度：o(n) 原理:两个点跳的距离和不超过n，最坏情况为链状且叶子节点到根节点，故o(n)
+m次查找的时间复杂度:o(n^2) 显然超时
+具体细节见代码*/
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[500001];//邻接表存图
+int depth[500001];//距离深度
+int f[500001];//记录父亲,这是往回跳的关键，不可少
+void DFS(int x,int fa,int h)//预处理节点深度，x为当前节点，h为当前深度，fa为父亲
+{
+    depth[x] = h;//记录深度
+    f[x] = fa;//记录父亲
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历子树
+    {
+        if(g[x][i] == fa) continue;//来自父亲，跳过
+        DFS(g[x][i],x,h+1);//递归子树
+    }
+}
+void Solve(int a,int b)//查找LCA
+{
+    if(depth[a] > depth[b])//如果a深度大
+    {
+        do
+        {
+            a = f[a];
+        }while(depth[a]!=depth[b]);//b往上跳直到深度与a相同
+    }
+    else if(depth[a] < depth[b])//相反同上
+    {
+        do
+        {
+            b = f[b];
+        }while(depth[b]!=depth[a]);
+    }
+    while(a!=b)//深度相同的时候a不等于b时(即未相遇时)还要一起跳直到相遇
+    {
+        a = f[a];
+        b = f[b];
+    }
+    printf("%d\n",a);//输出
+}
+int main()
+{
+    int n,m,s,a,b;
+    scanf("%d%d%d",&n,&m,&s);//n个节点，m次询问，s为根节点
+    for (int i = 1;i<=n-1;i++)//建图(树)
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    DFS(s,0,0);//预处理算法
+    for (int i = 1;i<=m;i++)//询问
+    {
+        scanf("%d%d",&a,&b);
+        if(a == b)//特殊情况，如果相等，自己就是最近公祖先
+        {
+            printf("%d\n",a);
+            continue;
+        }
+        Solve(a,b);//查找
+    }
+    return 0;
+}

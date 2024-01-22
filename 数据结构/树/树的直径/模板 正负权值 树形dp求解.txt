@@ -1,0 +1,31 @@
+const int N = 10000 + 10;
+
+int n, d = 0;//d为答案
+int d1[N], d2[N];//d1为寻求直径路上到不同于出发点的另一端点的权值和的最优解，d2为次优解
+vector<int> E[N];//邻接表存图
+
+void dfs(int u, int fa) {
+  d1[u] = d2[u] = 0;
+  for (int v : E[u]) {
+    if (v == fa) continue;
+    dfs(v, u);
+    int t = d1[v] + 1;//此次是用最优解
+    if (t > d1[u])
+      d2[u] = d1[u], d1[u] = t;
+    else if (t > d2[u])
+      d2[u] = t;
+  }
+  d = max(d, d1[u] + d2[u]);
+}
+
+int main() {
+  scanf("%d", &n);
+  for (int i = 1; i < n; i++) {
+    int u, v;
+    scanf("%d %d", &u, &v);
+    E[u].push_back(v), E[v].push_back(u);
+  }
+  dfs(1, 0);//1次DFS就行了
+  printf("%d\n", d);
+  return 0;
+}

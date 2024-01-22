@@ -1,0 +1,59 @@
+//价值:含大量string类的用法及一些解题细节
+#include <bits/stdc++.h>
+using namespace std;
+int cnt;//规则个数
+map<string,string> rule[1001];//规则，用map来映射，注意不能只用map,如a映射b，结果后面来个a映射c，则原a映射b的规则丢失了
+map<string,string>::iterator it;//迭代器，用于取出规则里的string类字符串
+map<string,int> ans;//答案兼具visit功能(未来的崔俊杰，你应该懂)
+int main()
+{
+    string a,b,x,y;
+    cin>>a>>b;//输入初始字符串及目标字符串
+    while(cin>>x>>y)//输入每个规则直到停止输入
+    {
+        rule[++cnt][x] = y;
+    }
+    ans[a] = 1;//初始化为1而不是0(你懂的)
+    queue<string> que;
+    que.push(a);//起点入队
+    while(!que.empty())//BFS
+    {
+        string temp = que.front();//取出队头
+        que.pop();//弹出防止死循环
+        if(temp == b)//如果已经到达目标态
+        {
+            printf("%d\n",ans[b]-1);//输出答案-1(因为初始化答案为1)
+            return 0;//返回
+        }
+        if(ans[temp] > 11) break;//如果答案-1超过10，即答案超过11，退出循环
+        int d = ans[temp];//拿出答案
+        for (int i = 1;i<=cnt;i++)//遍历每个规则
+        {
+            it = rule[i].begin();//将规则提取到it迭代器
+            int k = temp.find(it->first);//查找要变化的字符串里有没有可以运用规则的情况(string.find(str,[pos])为从pos开始找str，不给pos默认为0)
+            if(k == -1) continue;//如果没有，跳过，去找下一个规则
+            int num = 1;//用于记录待变化字符串中有多少个位置可以运用规则
+            int p[100];//开个数组记录可以运用规则的起始位置
+            p[1] = k;//第一个位置为第一次找到的
+            int length = (it->first).size();//计算规则要求的字符串的长度
+            while(temp.find(it->first,k+length) != -1)//循环查找下一个可以用规则的位置
+            {
+                k = temp.find(it->first,k+length);//记录
+                p[++num] = k;//记录
+            }
+            for (int j = 1;j<=num;j++)//遍历每一个可以用规则的位置
+            {
+                string save1 = temp.substr(0,p[j]);//提取规则前半
+                string save2 = temp.substr(p[j]+length);//提取规则后半
+                string save = save1 + (it->second) + save2;//与规则拼接成新字符串
+                if(ans[save] == 0)//如果还没出现过
+                {
+                    ans[save] = d + 1;//答案加1兼具标记作用
+                    que.push(save);//入队
+                }
+            }
+        }
+    }
+    printf("NO ANSWER!\n");//输出没有答案
+    return 0;
+}

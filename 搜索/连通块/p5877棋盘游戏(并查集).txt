@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+using namespace std;
+int color[501][501];//标记颜色的,即棋子颜色
+int f[501*501];//并查集根节点数组
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int Find(int x)//并查集查询加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    int n,m,c,x,y;
+    scanf("%d%d",&n,&m);//输入地图大小及m次放置
+    for (int i = 1;i<=n*n;i++) f[i] = i;//初始化并查集
+    int ans = 0;//初始化连通块个数
+    while(m--)//依次放m次棋子
+    {
+        scanf("%d%d%d",&c,&x,&y);//输入颜色及坐标
+        color[x][y] = c + 1;//加1便于与未放置时区分，则1与2为两中棋子，0为未放置
+        ans++;//连通块数量加1
+        for (int i = 0;i<=3;i++)//枚举四个方向
+        {
+            int wx = x + walk[i][0];
+            int wy = y + walk[i][1];
+            if(color[wx][wy] != color[x][y]) continue;//颜色不同，跳过
+            if(wx>=1&&wx<=n&&wy>=1&&wy<=n)//颜色相同1且在地图范围内
+            {
+                if(Find((wx-1)*n+wy) == Find((x-1)*n+y)) continue;//如果已经合并在一起，跳过
+                else//否则
+                {
+                    f[Find((wx-1)*n+wy)] = Find((x-1)*n+y);//合并
+                    ans--;//连通块数量少1
+                }
+            }
+        }
+        printf("%d\n",ans);//输出每个阶段的联通块数
+    }
+    return 0;
+}

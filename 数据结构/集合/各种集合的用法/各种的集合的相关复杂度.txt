@@ -1,0 +1,52 @@
+1. set、multiset、map、multimap
+特点：底层实现是红黑树，键值有序，set 和 map 键不可重复，而 multiset 和 multimap 可重复；
+复杂度：插入、删除、查找都为O(logN)；
+
+2. unordered_set，unordered_map，unordered_multiset，unordered_multimap
+特点：底层实现是哈希表，键值无序，unordered_set 和 unordered_map 键不可重复，而另外两个可以重复；
+复杂度：插入、删除、查找平均为O(1)，最坏为O(N)，空间换时间；
+
+3. vector
+特点：底层实现是数组，动态成倍扩容；
+复杂度：
+插入：push_back()，O(1)；insert()，O(N)
+删除：pop_back()，O(1)；erase()，O(N)
+查找：O(1)
+
+4. list
+特点：底层实现双向链表；
+复杂度：
+插入：push_front()，O(1)；push_back()，O(1)；insert()，O(1)
+删除：pop_front()，O(1)；pop_back()，O(1)；erase()，O(1)
+查找：O(N)
+
+5. deque 双端队列
+特点：底层是分段连续的线性空间，它是一种具有队列和栈的性质的数据结构，其插入和删除操作限定在两端进行；
+复杂度：
+插入：push_front()，O(1)；push_back()，O(1)；insert()，O(N)
+删除：pop_front()，O(1)；pop_back()，O(1)；erase()，O(N)
+查找：O(1)
+
+6. stack 栈
+特点：底层实现一般用 list 或 deque，封闭头部即可，数据先进后出，不支持随机访问；
+复杂度：
+插入：push()，O(1)
+删除：pop()，O(1)
+查找（栈顶）：top()，O(1)
+
+7. queue 队列
+特点：底层实现一般用 list 或 deque，数据先进先出，不支持随机访问；
+复杂度：
+插入：push()，O(1)
+删除：pop()，O(1)
+查找（队列头）：front()，O(1)
+
+8. priority_queue 优先队列
+特点：底层用堆实现，队列中各个元素被赋予优先级；
+复杂度：
+插入：push()，O(logN)
+删除：pop()，O(logN)
+查找（取堆顶）：top()，O(1)
+————————————————
+版权声明：本文为CSDN博主「西瓜味儿的小志」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/Destiny_shine/article/details/104291888

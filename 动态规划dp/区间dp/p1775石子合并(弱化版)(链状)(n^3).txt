@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long f[310][310];
+long long sum[310];
+int n;
+int main()
+{
+    cin>>n;
+    int a;
+    memset(f,0x3f,sizeof(f));//初始化1
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>a;
+        sum[i] = sum[i-1] + a;
+        f[i][i] = 0;//初始化2
+    }
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 1;j<=n-i+1;j++)
+        {
+            int last = j + i - 1;
+            for (int k = j;k<last;k++)
+            {
+                f[j][last] = min(f[j][last],f[j][k] + f[k+1][last] + sum[last] - sum[j-1]);
+            }
+        }
+    }
+    cout<<f[1][n]<<endl;
+    return 0;
+}

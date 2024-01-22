@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+int people[101];
+int main()
+{
+    int die = 0;
+    int i = 1;
+    int wait;
+    while(die<=98)
+    {
+        int temp = 0;
+        while(temp!=5)
+        {
+            if(people[i]==1)
+            {
+                i++;
+            }
+            else
+            {
+                wait = i;
+                temp++;
+                i++;
+            }
+            if(i>100)
+            {
+                i = 1;
+            }
+        }
+        people[wait] = 1;
+        die++;
+    }
+    int last;
+    for (int i = 1;i<=100;i++)
+    {
+        if(people[i]==0)
+        {
+            last = i;
+            break;
+        }
+    }
+    printf("%d",last);
+    return 0;
+}

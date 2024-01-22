@@ -1,0 +1,83 @@
+//原理:将关闭谷仓改为倒着建立谷仓然后判断连通块个数，将每个状态的答案存进数组，然后在正着输出
+//时间复杂度:o(n+m)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边的结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[200001<<1];//并查集要双向边
+int head[200001];
+int cnt;
+int down[200001];//i时刻关闭的谷仓编号
+int ans[200001];//i时刻的答案
+int f[200001];//并查集根节点
+unordered_set<int> s;//用于查找是否关闭
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//建边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    int n = read();//读入谷仓个数
+    int m = read();//读入边的条数
+    for (int i = 1;i<=n;i++)//并查集初始化
+    {
+        f[i] = i;
+    }
+    for (int i = 1;i<=m;i++)//依次建立边
+    {
+        int x = read();
+        int y = read();
+        add(x,y);
+        add(y,x);
+    }
+    for (int i = 1;i<=n;i++)//记录关闭的顺序
+    {
+        down[i] = read();
+        s.insert(down[i]);
+    }
+    int now = 0;//初始化连通块个数为0
+    for (int i = n;i>=1;i--)//将关闭改为倒着建立
+    {
+        now++;//建立一个谷仓就连通块加1
+        s.erase(down[i]);//删除当前谷仓被关闭的记录
+        for (int j = head[down[i]];j;j = e[j].next)//枚举与该谷仓有关的边
+        {
+            if(s.count(e[j].to) == 1) continue;//如果另一端还没建立，该边无效，跳过
+            int f1 = Find(down[i]);//查找父亲
+            int f2 = Find(e[j].to);
+            if(f1 != f2)//如果还没有在一个集合中
+            {
+                f[f1] = f2;//合并
+                now--;//连通块数量少1
+            }
+        }
+        ans[i] = now;//记录该时刻连通块的个数
+    }
+    for (int i = 1;i<=n;i++)//依次输出n个时刻的答案
+    {
+        if(ans[i] == 1) printf("YES\n");//如果连通块个数为1，则全联通，输出YES
+        else printf("NO\n");//否则NO
+    }
+    return 0;
+}

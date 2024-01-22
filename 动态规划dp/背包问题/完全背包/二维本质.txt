@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[11][1001];
+int Max(int a,int b)
+{
+    return a>b?a:b;
+}
+
+int main()
+{
+    int max,m;
+    scanf("%d %d",&max,&m);
+    int time[m+1],value[m+1];
+    for (int i = 1;i<=m;i++)
+    {
+        scanf("%d %d",&time[i],&value[i]);
+    }
+    for (int i = 1;i<=m;i++)
+    {
+        for (int j = 0;j<=max;j++)
+        {
+            if(j>=time[i])
+                f[i][j] = Max(f[i][j-time[i]]+value[i],f[i-1][j]);//跟可能拿过的自己比较或者完全没有时
+								   第一次拿到下新物品之前的当行数据就是上一行继承的
+
+
+
+        }
+    }
+    printf("%d",f[m][max]);
+    return 0;
+}

@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[1001];
+int weigh[1001][1001];
+int value[1001][1001];
+int count[1001];
+int num;
+int Max(int a,int b)
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int m,n;
+    scanf("%d%d",&m,&n);
+    for (int i = 1;i<=n;i++)
+    {
+        int a,b,c;
+        scanf("%d%d%d",&a,&b,&c);
+        num = Max(c,num);
+        count[c]++;
+        weigh[c][count[c]] = a;
+        value[c][count[c]] = b;
+    }
+    for (int i = 1;i<=num;i++)
+    {
+        for (int j = m;j>=0;j--)
+        {
+            for (int k = 1;k<=count[i];k++)
+            {
+                if(j>=weigh[i][k])
+                    f[j] = Max(f[j],f[j-weigh[i][k]]+value[i][k]);
+            }
+        }
+    }
+    printf("%d",f[m]);
+    return 0;
+}

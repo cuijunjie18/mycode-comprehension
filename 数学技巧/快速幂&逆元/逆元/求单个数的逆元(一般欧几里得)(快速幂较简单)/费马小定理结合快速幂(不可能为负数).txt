@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+int Powmod(int a,int b,int mod)
+{
+    int ans = 1;
+    while(b)
+    {
+        if(b&1) ans = ans*a%mod;//注意要取模(若模数过大开long long)
+        a = a*a%mod;//注意要取模
+        b >>= 1;
+    }
+    return ans;
+}
+int main()
+{
+    int n,b;
+    scanf("%d%d",&n,&b);
+    for (int i = 1;i<=n;i++)
+    {
+        int ans = Powmod(i,b-2,b);
+        printf("%d\n",ans);
+    }
+    return 0;
+}

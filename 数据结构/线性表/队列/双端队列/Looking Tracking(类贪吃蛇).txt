@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct position//坐标位置结构体
+{
+    int x,y;
+}POSITION;
+POSITION a[1000001];
+int main()
+{
+    int n,q,c,d;
+    char ch;
+    scanf("%d%d",&n,&q);//输入蛇的长度及询问个数
+    deque<POSITION> que;//建立双端队列
+    for (int i = 1;i<=n;i++)//初始化每个点坐标
+    {
+        a[i].x = i;
+        a[i].y = 0;
+        que.push_back(a[i]);//放入队列尾部
+    }
+    while(q--)//依次回答q次操作
+    {
+        scanf("%d",&c);
+        if(c == 1)//移动操作
+        {
+            scanf(" %c",&ch);
+            if(ch == 'U')//上
+            {
+                int wx = que[0].x;
+                int wy = que[0].y + 1;
+                POSITION temp = {wx,wy};
+                que.pop_back();
+                que.push_front(temp);
+            }
+            else if(ch == 'D')//下
+            {
+                int wx = que[0].x;
+                int wy = que[0].y - 1;
+                POSITION temp = {wx,wy};
+                que.pop_back();
+                que.push_front(temp);
+            }
+            else if(ch == 'L')//左
+            {
+                int wx = que[0].x - 1;
+                int wy = que[0].y;
+                POSITION temp = {wx,wy};
+                que.pop_back();
+                que.push_front(temp);
+            }
+            else if(ch == 'R')//右
+            {
+                int wx = que[0].x + 1;
+                int wy = que[0].y;
+                POSITION temp = {wx,wy};
+                que.pop_back();
+                que.push_front(temp);
+            }
+        }
+        else if(c == 2)//询问操作
+        {
+            scanf("%d",&d);
+            printf("%d %d\n",que[d-1].x,que[d-1].y);//输出对应点的位置
+        }
+    }
+    return 0;
+}

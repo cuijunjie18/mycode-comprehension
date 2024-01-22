@@ -1,0 +1,47 @@
+//多重背包即物品个数有限的在数据较弱的情况下可以转换为01分组背包解决
+#include <stdio.h>
+#include <stdlib.h>
+int f[10001];//dp数组
+int number[51];//每种货币的数量
+int value[51][51];//价值
+int count;//数量
+int Max(int a,int b)//取较大值
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int n,x;
+    scanf("%d%d",&n,&x);//输入货币种类数及要到达的不找零的x
+    for (int i = 1;i<=n;i++)//输入每一种货币的价值及数量
+    {
+        scanf("%d%d",&value[i][1],&number[i]);
+    }
+    for (int i = 1;i<=n;i++)//对每种货币的每种数量单独作为一种情况，转换为分组背包
+    {
+        for (int j = 1;j<=number[i];j++)//记录
+        {
+            value[i][j] = value[i][1]*j;
+        }
+    }
+    for (int i = 1;i<=n;i++)//01分组背包dp
+    {
+        for (int j = x;j>=0;j--)
+        {
+            for (int k = 1;k<=number[i];k++)//对于每种货币，取其中一种数量，取最大值
+            {
+                if(j>=value[i][k])
+                    f[j] = Max(f[j],f[j-value[i][k]]+value[i][k]);
+            }
+        }
+    }
+    if(f[x] == x)//如果不用找零
+    {
+        printf("Yes");
+    }
+    else//要
+    {
+        printf("No");
+    }
+    return 0;
+}

@@ -1,0 +1,38 @@
+//两次DFS仅仅适用于不存在负边权时的情况
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct way//定义结构体
+{
+    int p,value;
+}WAY;
+vector <WAY> g[500001];//邻接表存图
+long long d[500001];//存答案
+int c;//第一次DFS的最远位置，第二次DFS的起始位置及改变后的答案
+void DFS(int x,int f)//核心函数，x为当前点，f为之前的点，0代表x为根节点
+{
+    for (int i = 0,k = g[x].size();i<k;i++)//遍历子树
+    {
+        if(g[x][i].p == f) continue;//如果来自父亲，跳过，因为不走回头路
+        d[g[x][i].p] = d[x] + g[x][i].value;//计算x可到达的下一个节点的权值
+        if(d[g[x][i].p]>d[c]) c = g[x][i].p;//比较并更新最远点
+        DFS(g[x][i].p,x);//继续搜索
+    }
+}
+int main()
+{
+    int n,v,a,b;
+    scanf("%d",&n);
+    for (int i = 1;i<=n-1;i++)
+    {
+        scanf("%d%d%d",&a,&b,&v);
+        WAY temp = {b,v};//结构体vector插入的方法
+        g[a].push_back(temp);//建立边及边权
+        temp.p = a,temp.value = v;//交换
+        g[b].push_back(temp);//建立反向边及边权
+    }
+    DFS(1,0);//随便从一个点开始DFS
+    d[c] = 0;//变回0
+    DFS(c,0);//再次DFS
+    printf("%lld\n",d[c]);//输出答案
+    return 0;
+}

@@ -1,0 +1,18 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int a,b;
+    scanf("%d%d",&a,&b);
+    int ans;
+    for (int i = min(a,b);true;i++)
+    {
+        if(i%a == 0&&i%b == 0)
+        {
+            ans = i;
+            break;
+        }
+    }
+    printf("%d\n",ans);
+    return 0;
+}

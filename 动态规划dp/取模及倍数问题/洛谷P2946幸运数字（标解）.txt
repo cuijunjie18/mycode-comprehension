@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+long long ans[2001][1000];//存答案，第一维为当前处理到第几头奶牛，第二维为余数
+int cow[2001];//奶牛的能力值
+int main()
+{
+    int n,f;
+    scanf("%d%d",&n,&f);//输入奶牛数和幸运数字f
+    for (int i = 1;i<=n;i++)//将每头奶牛的能力值取模
+    {
+        scanf("%d",&cow[i]);
+        cow[i]%=f;
+    }
+    for (int i = 1;i<=n;i++)//初始化ans数组
+    {
+        ans[i][cow[i]] = 1;
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 0;j<=f-1;j++)
+        {
+            ans[i][j] = (ans[i-1][j] + ans[i-1][(j-cow[i]+f)%f] + ans[i][j])%100000000;//状态转移方程
+        }
+    }
+    printf("%lld",ans[n][0]%100000000);//输出答案
+    return 0;
+}

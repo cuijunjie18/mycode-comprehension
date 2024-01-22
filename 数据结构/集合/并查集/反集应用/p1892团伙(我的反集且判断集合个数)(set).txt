@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[2010];//集合大小定义为人数的两倍，另一半充当虚拟敌人(比如a+n就代表a+n是敌人，谁连接了a+n就表示谁以a为敌人)
+set <int> s;//不重复数字，用于判断朋友关系数量，即团体个数（本质：有多少个祖先代表有多少个集合）
+int Find(int x)//查找祖先加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int a,int b)//合并集合
+{
+    int f1 = Find(a);
+    int f2 = Find(b);
+    if(f1 == f2) return;
+    f[f2] = f1;
+}
+int main()
+{
+    int n,m,a,b;
+    char ch;
+    scanf("%d%d",&n,&m);//输入人数及关系数
+    for (int i = 1;i<=2*n;i++)//初始化祖先，必不可少!!!
+    {
+        f[i] = i;
+    }
+    while(m--)//输入每条关系
+    {
+        scanf(" %c",&ch);
+        if(ch == 'F')//如果是朋友
+        {
+            scanf("%d%d",&a,&b);
+            Join(a,b);//直接合并
+        }
+        else
+        {
+            scanf("%d%d",&a,&b);
+            Join(a+n,b);//反集合并，，（比如，若有其他人以a+n为敌人，则可以使得b与它合并成朋友关系）
+            Join(b+n,a);//反集合并
+        }
+    }
+    for (int i = 1;i<=n;i++)//计算集合个数，即祖先数
+    {
+        s.insert(Find(i));//不重复的祖先插入，重复不算
+    }
+    printf("%d\n",s.size());//输出集合个数
+    return 0;
+}

@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+#include <map>
+using namespace std;
+map <string,int> student;
+int main()
+{
+    int n,a,score;
+    char name[1000];
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&a);
+        if(a == 1)
+        {
+            scanf("%s",name);
+            scanf("%d",&score);
+            student[name] = score;
+            printf("OK\n");
+        }
+        else if(a == 2)
+        {
+            scanf("%s",name);
+            if(student.find(name) == student.end())
+            {
+                printf("Not found\n");
+            }
+            else
+            {
+                printf("%d\n",student[name]);
+            }
+        }
+        else if(a == 3)
+        {
+            scanf("%s",name);
+            if(student.find(name) == student.end())
+            {
+                printf("Not found\n");
+            }
+            else
+            {
+                student.erase(name);
+                printf("Deleted successfully\n");
+            }
+        }
+        else
+        {
+            printf("%d\n",student.size());
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct sb
+{
+    int a;//a为长度，即以i结尾的最长不降子序列的长度
+    int way;//b为满足a长度的方案数
+}SB;
+SB f[21];//dp数组
+int main()
+{
+    int m;
+    cin>>m;//输入测试数据组数
+    for (int i = 1;i<=m;i++)//依次处理每组测试数据
+    {
+        memset(f,0,sizeof(f));//重新初始化
+        int n;
+        cin>>n;//输入该组测试数据的木桩数
+        int number[n+1];
+        for (int j = 1;j<=n;j++)//初始化
+        {
+            cin>>number[j];
+            f[j].a = 1;
+            f[j].way = 1;
+        }
+        int ans = 0;//最大长度初始化
+        int allway = 0;//方案数初始化
+        for (int j = 2;j<=n;j++)//dp
+        {
+            for (int k = 1;k<=j-1;k++)
+            {
+                if(number[j]>=number[k])//如果可以接上
+                {
+                    if(f[k].a + 1>f[j].a)//有更大的值了
+                    {
+                        f[j].a = f[k].a + 1;//更新最大值
+                        f[j].way = f[k].way;//重新计算方案数
+                    }
+                    else if(f[k].a + 1 ==  f[j].a)//如果等于
+                    {
+                        f[j].way += f[k].way;//增加方案数
+                    }
+                }
+                ans = max(ans,f[j].a);//答案取最大值
+            }
+        }
+        for (int j = 1;j<=n;j++)//找符合最大值的方案数
+        {
+            if(f[j].a == ans) allway += f[j].way;//如果等于答案，方案数累加
+        }
+        cout<<ans<<" "<<allway<<endl;//输出
+    }
+    return 0;
+}

@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation//背包的状态结构体
+{
+    int number;//当前状态选的物品的数量
+    int data[100];//存物品的编号
+    int value;//该状态下背包的总价值
+}SB;
+SB f[2000];//背包数组，容量最大为2000
+int main()
+{
+    int v,n;
+    cin>>v>>n;//输入最大容量与物品数
+    int weigh[n+1],value[n+1];
+    for (int i = 1;i<=n;i++)//输入每个物品的代价与价值
+    {
+        cin>>weigh[i]>>value[i];
+    }
+    for (int i = 1;i<=n;i++)//背包dp
+    {
+        for (int j = v;j>=weigh[i];j--)//逆序枚举容量
+        {
+            if(f[j-weigh[i]].value+value[i]>f[j].value)//如果价值更大，替换
+            {
+                f[j].value = f[j-weigh[i]].value+value[i];//更新该容量下最大价值
+                f[j].number = f[j-weigh[i]].number + 1;//数量在之前的数量上加上当前物品，即数量加1
+                for (int k = 1;k<=f[j-weigh[i]].number;k++)//更新选的物品编号
+                {
+                    f[j].data[k] = f[j-weigh[i]].data[k];
+                }
+                f[j].data[f[j].number] = i;//最后加入新选的物品
+            }
+        }
+    }
+    cout<<"The best solution:"<<f[v].value<<endl;//输出最大价值
+    for (int i = 1;i<=f[v].number;i++)//输出选的物品
+    {
+        cout<<"Have chosen:"<<f[v].data[i]<<endl;
+    }
+    return 0;
+}

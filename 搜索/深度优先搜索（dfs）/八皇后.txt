@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 14
+int ans;
+int n;
+int position[N];
+int b1[N];
+int b2[N];
+int b3[2*N];
+int b4[2*N];
+
+void DFS(int x)
+{
+    if(x>n)
+    {
+        ans++;
+        if(ans<=3)
+        {
+            for (int i = 1;i<=n;i++)
+            {
+                printf("%d ",position[i]);
+            }
+            printf("\n");
+        }
+        return;
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        int lean1 = (x + i)-1;
+        int lean2 = (n+1-i+x)-1;
+        if(b1[x] == 0&&b2[i] == 0&&b3[lean1] == 0&&b4[lean2] == 0)
+        {
+            position[x] = i;
+            b1[x] = 1;
+            b2[i] = 1;
+            b3[lean1] = 1;
+            b4[lean2] = 1;
+            DFS(x+1);
+            b1[x] = 0;
+            b2[i] = 0;
+            b3[lean1] = 0;
+            b4[lean2] = 0;
+        }
+    }
+}
+int main()
+{
+    scanf("%d",&n);
+    DFS(1);
+    printf("%d",ans);
+    return 0;
+}

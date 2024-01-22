@@ -1,0 +1,22 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[200001];//记录当输入的数字与该数重复时，加最少的数后能用的数
+int Find(int x)//查找并改变路径上的数所能用的最小数
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    for (int i = 1;i<=200001;i++) f[i] = i;//每个数一开始都能用
+    int n,a;
+    scanf("%d",&n);
+    while(n--)
+    {
+        scanf("%d",&a);
+        a = Find(a);//查找最小能用的
+        f[a] = Find(a) + 1;//用完后将该能用的数往后推1
+        printf("%d ",a);
+    }
+    return 0;
+}

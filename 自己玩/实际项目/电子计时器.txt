@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>
+#include <conio.h>
+int hour;
+int miniute;
+int second;
+void Show();
+void Updatatime();
+int Stop();
+int main()
+{
+    char ch = 'y';
+    while(ch == 'y'||ch == 'Y')
+    {
+        Updatatime();
+        system("cls");
+        if(Stop())
+        {
+            printf("\nDo you want to continue?(Y|N)");
+            scanf(" %c",&ch);
+        }
+        else
+        {
+            Show();
+            Sleep(975);
+        }
+    }
+    return 0;
+}
+
+void Updatatime()
+{
+    second++;
+    if(second>=60)
+    {
+        second = 0;
+        miniute++;
+    }
+    if(miniute>=60)
+    {
+        miniute = 0;
+        hour++;
+    }
+    if(hour>=24)
+    {
+        hour = 0;
+    }
+}
+
+int Stop()
+{
+    if(kbhit())
+    {
+        Show();
+        return 1;
+    }
+    return 0;
+}
+
+void Show()
+{
+    printf("%d:%d:%d",hour,miniute,second);
+}

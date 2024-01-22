@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+using namespace std;
+int s[13];//记录每一行土地情况，二进制下0不可种，1可种
+int f[13][1<<12];//记录对应行对应状态的方案数
+int g[1<<12];//记录状态合法情况（不能有1相邻）
+const int mod = 100000000;
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);
+    int a;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            scanf("%d",&a);
+            s[i] = (s[i]<<1) + a;//向右移动，记录土地情况
+        }
+    }
+    for (int i = 0;i<(1<<m);i++)
+    {
+        g[i] = !(i&(i<<1));//判断相邻合法性，神来之笔
+    }
+    f[0][0] = 1;//初始化
+    for (int r = 1;r<=n;r++)
+    {
+        for (int t = 0;t<(1<<m);t++)//枚举要达到的状态
+        {
+            if(g[t]&&((t&s[r]) == t))//检验合法
+            {
+                for (int i = 0;i<(1<<m);i++)
+                {
+                    if((t&i) == 0)//不能与上一行草地相邻
+                    {
+                        f[r][t] = (f[r][t] + f[r-1][i])%mod;//状态转移，取模
+                    }
+                }
+            }
+        }
+    }
+    int ans = 0;//答案
+    for (int i = 0;i<(1<<m);i++)
+    {
+        ans = (ans + f[n][i])%mod;//求和
+    }
+    printf("%d\n",ans);
+    return 0;
+}

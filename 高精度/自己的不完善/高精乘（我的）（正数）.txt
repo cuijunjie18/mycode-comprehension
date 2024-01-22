@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int number1[5000];
+int number2[5000];
+char word1[5000];
+char word2[5000];
+int ans[5000];
+int temp[5000];
+int Max(int a,int b)
+{
+    return a>=b?a:b;
+}
+int Min(int a,int b)
+{
+    return a<=b?a:b;
+}
+int main()
+{
+    scanf("%s",word1);
+    scanf("%s",word2);
+    int n1 = strlen(word1);
+    int n2 = strlen(word2);
+    if(n1>=n2)
+    {
+        int count = 0;
+        for (int i = n1-1;i>=0;i--)
+        {
+            count++;
+            number2[count] = word1[i] - '0';
+        }
+        count = 0;
+        for (int i = n2-1;i>=0;i--)
+        {
+            count++;
+            number1[count] = word2[i] - '0';
+        }
+    }
+    else
+    {
+        int count = 0;
+        for (int i = n1-1;i>=0;i--)
+        {
+            count++;
+            number1[count] = word1[i] - '0';
+        }
+        count = 0;
+        for (int i = n2-1;i>=0;i--)
+        {
+            count++;
+            number2[count] = word2[i] - '0';
+        }
+    }
+    int bedex = Min(n1,n2);
+    int index = Max(n1,n2);
+    int ansdex = 0;
+    for (int i = 1;i<=bedex;i++)
+    {
+        memset(temp,0,sizeof(temp));
+        int j;
+        for (j = 1;j<=index;j++)
+        {
+            temp[j+i-1] = number2[j]*number1[i];
+        }
+        int wei = j+i-2;//上面j多加了一次1
+        ansdex = Max(ansdex,wei);
+        for (j = 1;j<=ansdex;j++)
+        {
+            ans[j] += temp[j];
+        }
+        int k = 1;
+        while(k<ansdex)
+        {
+            if(ans[k]>=10)
+            {
+                ans[k+1] += ans[k]/10;
+                ans[k] = ans[k]%10;
+            }
+            k++;
+        }
+        while(ans[ansdex]>=10)
+        {
+            ans[ansdex+1] += ans[ansdex]/10;
+            ans[ansdex] = ans[ansdex]%10;
+            ansdex++;
+        }
+    }
+    if(ans[ansdex] == 0) printf("0\n");
+    else
+    {
+        for (int i = ansdex;i>=1;i--)
+        {
+            printf("%d",ans[i]);
+        }
+    }
+    return 0;
+}

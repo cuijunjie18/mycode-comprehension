@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define MAXN 7
+#define N 10000
+int ans[N];
+int size;
+bool visit[MAXN];
+bool adj[MAXN][MAXN] = {
+    {0, 1, 1, 0, 0, 0, 0},
+    {1, 0, 0, 1, 1, 0, 0},
+    {1, 0, 0, 0, 0, 1, 1},
+    {0, 1, 0, 0, 0, 0, 0},
+    {0, 1, 0, 0, 0, 1, 0},
+    {0, 0, 1, 0, 1, 0, 0},
+    {0, 0, 1, 0, 0, 0, 0},
+};
+void ANS(int n)
+{
+    ans[++size] = n;
+}
+void DFS(int n)
+{
+    if(visit[n]) return;
+    ANS(n);
+    visit[n] = true;
+    for (int i = 0;i<=MAXN-1;i++)
+    {
+        if(adj[n][i])
+            DFS(i);
+    }
+}
+int main()
+{
+    int begin;
+    scanf("%d",&begin);
+    DFS(begin);
+    for (int i = 1;i<=size-1;i++)
+    {
+        printf("%d->",ans[i]);
+    }
+    printf("%d",ans[size]);
+    return 0;
+}

@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//建立树的存储数据类型(链式)
+{
+    int data;
+    struct tree* l;
+    struct tree* r;
+}TREE;
+TREE* Build(char* instr,char* poststr,int length)//建立树的核心函数
+{
+    if(length == 0) return NULL;//如果已经建立完了，返回空指针
+    char ch = poststr[length-1];//该子树(也可能是主树)的根节点是其后序遍历的最后一个
+    int pos = 0;
+    while(instr[pos]!=ch) pos++;//确定根节点在子树的中序遍历中的位置，便于确定左右子树大小
+    TREE *T = (TREE*)malloc(sizeof(TREE));//分配内存
+    T->data = ch;//该节点的值
+    T->l = Build(&instr[0],&poststr[0],pos);//建立该节点的左子树，核心递归
+    T->r = Build(&instr[pos+1],&poststr[pos],length - pos - 1);//建立该节点的右子树，核心递归
+    return T;//返回指针
+}
+void pre_order(TREE* p)//先序遍历
+{
+    printf("%c",p->data);
+    if(p->l != NULL) pre_order(p->l);
+    if(p->r != NULL) pre_order(p->r);
+}
+int main()
+{
+    char instr[30];//中序遍历
+    char poststr[30];//后序遍历
+    scanf("%s",instr);
+    scanf("%s",poststr);
+    int n = strlen(instr);//确定结点数
+    TREE *head = Build(instr,poststr,n);//头节点指针
+    pre_order(head);//先序输出
+    return 0;
+}

@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+#include <queue>
+using namespace std;
+typedef struct point
+{
+    int x,y;
+}POINT;
+int n,m;
+int ans;
+char mp[505][505];
+int visit[505][505];
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+queue<POINT> que;
+int main()
+{
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>mp[i][j];
+            if(mp[i][j] == '*')
+            {
+                visit[i][j] = 1;
+            }
+        }
+    }
+    POINT temp = {0,0};
+    que.push(temp);
+    while(!que.empty())
+    {
+        temp = que.front();
+        que.pop();
+        for (int i = 0;i<=3;i++)
+        {
+            POINT save = {temp.x+walk[i][0],temp.y+walk[i][1]};
+            if(save.x>=0&&save.x<=n+1&&save.y>=0&&save.y<=m+1&&visit[save.x][save.y]==0)
+            {
+                visit[save.x][save.y] = 1;
+                que.push(save);
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            if(!visit[i][j])
+                ans++;
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}

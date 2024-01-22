@@ -1,0 +1,23 @@
+//前序遍历:从根节点开始，先遍历左子树，后遍历右子树(常规DFS过程,一经历就输出)
+void pre_order(int x)
+{
+    printf("%d\n",x);
+    if(t[x].left) pre_order(t[x].left);
+    if(t[x].right) pre_order(t[x].right);
+}
+
+//中序遍历:先遍历左子树(从左子树底部开始输出),中间过程经过根节点，最后遍历右子树(从右子树底部开始输出)
+void in_order(int x)
+{
+    if(t[x].left) in_order(t[x].left);
+    printf("%d\n",x);
+    if(t[x].right) in_order(t[x].right);
+}
+
+//后序遍历:先遍历左右子树,最后再根节点
+void post_order(int x)
+{
+    if(t[x].left) post_order(t[x].left);
+    if(t[x].right) post_order(t[x].right);
+    printf("%d\n",x);
+}

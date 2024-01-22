@@ -1,0 +1,37 @@
+//原理:并查集查找能用的最小位置
+//时间复杂度:o(q+n)
+#include <bits/stdc++.h>
+using namespace std;
+int n = 1<<20;//数组大小及模数
+long long number[1<<20];//数组，要开long long
+int f[1<<20];//并查集代表i位置的最近的一个number = -1的位置
+int Find(int x)//并查集查找
+{
+    return x == f[x]?x:f[x] = Find(f[x]);
+}
+int main()
+{
+    memset(number,-1,sizeof(number));//初始化数组为-1
+    for (int i = 0;i<(1<<20);i++)//并查集初始化
+    {
+        f[i] = i;
+    }
+    int q,t;
+    long long x;
+    scanf("%d",&q);//输入操作次数
+    while(q--)//依次处理q次操作
+    {
+        scanf("%d%lld",&t,&x);//输入操作类型及对应数字
+        if(t == 1)//如果是替换操作
+        {
+            int p = Find(x%n);//找到number不为-1的最近能用的位置
+            number[p] = x;//存储
+            f[p] = (p+1)%n;//改变能用的位置，加1取模
+        }
+        else if(t == 2)//如果是询问
+        {
+            printf("%lld\n",number[x%n]);//输出
+        }
+    }
+    return 0;
+}

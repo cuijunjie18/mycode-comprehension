@@ -1,0 +1,51 @@
+//与之前多人背包的差异是不需要初始化为负无穷，但是需要判断权值是否重复
+#include <bits/stdc++.h>
+using namespace std;
+int a[51];
+int b[51];
+int f[5001][51];
+int main()
+{
+    int k,v,n;
+    cin>>k>>v>>n;
+    int weigh[n+1],value[n+1];
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>weigh[i]>>value[i];
+    }
+    int t;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = v;j>=weigh[i];j--)
+        {
+            for (t = 1;t<=k;t++)
+            {
+                a[t] = f[j][t];
+                b[t] = f[j-weigh[i]][t] + value[i];
+            }
+            a[t] = -1;
+            b[t] = -1;
+            int p = 1,q = 1,r = 1;
+            while(p <= k &&(q <= k || r <= k))
+            {
+                if(a[q]<b[r])
+                {
+                    f[j][p] = b[r++];
+                }
+                else
+                {
+                    f[j][p] = a[q++];
+                }
+                if(f[j][p]!=f[j][p-1])//判断重复
+                {
+                    p++;
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=k;i++)
+    {
+        cout<<f[v][i]<<endl;
+    }
+    return 0;
+}

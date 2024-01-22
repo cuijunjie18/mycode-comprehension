@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,w;//n为奶牛数，w为每个电梯最大承受重量
+int weigh[19];//每天奶牛的体重
+int f[19];//每个电梯已经装的重量
+void DFS(int x,int number)//x为当前奶牛的编号，number为假设答案的电梯数，DFS判断是否可以装下全部奶牛
+{
+    if(x == n+1)//如果已经全部装完了，说明答案合法
+    {
+        printf("%d\n",number);//输出
+        exit(0);//结束程序运行
+    }
+    for (int i = 1;i<=number&&i<=x;i++)//遍历电梯号，为x号奶牛找到可以进入的电梯，注意，x号奶牛进入大于x的电梯没有意义(大剪枝，没有就TLE)
+    {
+        if(f[i]+weigh[x]<=w)//如果i电梯可以装下
+        {
+            f[i] += weigh[x];//装
+            DFS(x+1,number);//为x+1号奶牛找位置
+            f[i] -= weigh[x];//后面都不行了，回溯，为x号奶牛换个电梯，原本电梯减去x号奶牛重量
+        }
+    }
+    return;//返回
+}
+int main()
+{
+    scanf("%d%d",&n,&w);//输入奶牛数及每个电梯的最大承重
+    for (int i = 1;i<=n;i++)//输入每个奶牛的重量
+    {
+        scanf("%d",&weigh[i]);
+    }
+    for (int i = 1;i<=n;i++)//迭代加深搜索(IDDFS)
+    {
+        memset(f,0,sizeof(f));//全部电梯清零
+        DFS(1,i);//开始DFS
+    }
+    return 0;
+}

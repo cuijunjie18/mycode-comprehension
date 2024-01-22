@@ -1,0 +1,77 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+string word[21];
+char ch;
+int v[21][21];
+int visit[21];
+int ans;
+int Solve(int head,int rear)
+{
+    bool check = true;
+    for (int i = word[head].size()-1;i>=0;i--)
+    {
+        for (int j = i,k = 0;j<=(word[head].size()-1);j++,k++)
+        {
+            if(word[head][j]!=word[rear][k])
+            {
+                check = false;
+                break;
+            }
+        }
+        if(check)
+        {
+            return (word[head].size() - i);
+        }
+        check = true;
+    }
+    return 0;
+}
+
+void DFS(int x,int length)
+{
+    int check = false;
+    for (int i = 1;i<=n;i++)
+    {
+        if(v[x][i] == word[x].size()||v[x][i] == word[i].size()) continue;
+        if(v[x][i]&&visit[i]<2)
+        {
+            check = true;
+            visit[i]++;
+            DFS(i,length+word[i].size()-v[x][i]);
+            visit[i]--;
+        }
+    }
+    if(!check)
+    {
+        ans = max(ans,length);
+        return;
+    }
+}
+int main()
+{
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>word[i];
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            v[i][j] = Solve(i,j);
+        }
+    }
+    scanf(" %c",&ch);
+    for (int i = 1;i<=n;i++)
+    {
+        if(word[i][0] == ch)
+        {
+            visit[i]++;
+            DFS(i,word[i].size());
+            visit[i]--;
+        }
+    }
+    printf("%d",ans);
+    return 0;
+}

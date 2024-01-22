@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <stdlib.h>
+int f[101][1001];
+int Max(int a,int b)
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int T,M;
+    scanf("%d %d",&T,&M);
+    int time[M+1];
+    int value[M+1];
+    for (int i = 1;i<=M;i++)
+    {
+        scanf("%d %d",&time[i],&value[i]);
+    }
+    for (int i = 1;i<=M;i++)
+    {
+        for (int j = 0;j<=T;j++)
+        {
+            if(j>=time[i])
+            {
+                f[i][j] = Max(f[i-1][j],f[i-1][j-time[i]]+value[i]);
+            }
+            else
+            {
+                f[i][j] = f[i-1][j];
+            }
+        }
+    }
+    printf("%d",f[M][T]);
+    return 0;
+}

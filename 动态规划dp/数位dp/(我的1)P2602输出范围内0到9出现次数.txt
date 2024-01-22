@@ -1,0 +1,85 @@
+//本方法采用的是数学分类讨论法，某种意义上说算不上dp
+
+#include <bits/stdc++.h>//需要特判0版本，其实不需要，一开始没想到（划掉）!!!!好吧，其实还是需要
+using namespace std;
+int num[100];//记录上界数字的每位数字
+int test;//记录最高位的位数(其实换一个变量名更好)
+long long quickpow(long long a,int b)//快速幂算法，long long 防爆
+{
+    long long ans = 1;
+    while(b)
+    {
+        if(b&1) ans *= a;
+        a *= a;
+        b >>= 1;
+    }
+    return ans;
+}
+long long DFS(int len,int x)//搜索指定数字在每个位置出现时的次数，仅适用于1~9,len为当前搜到的位，x代表指定数字
+{
+    if(len == 0) return 0;//如果全部搜完，回退
+    long long ret = 0;//初始化当前位指定数字出现次数
+    long long head = 0;//当前位前面的限制性可能数量
+    long long rear = 0;//当前位后面的限制性可能数量
+    for (int i = test;i>=len+1;i--) head = head*10 + num[i];//预处理
+    for (int i = len-1;i>=1;i--) rear = rear*10 + num[i];//预处理
+    if(x < num[len])//如果指定数字小于当前位上的数字，前面可全取，后面任取    （！！！！注意区分全取与任取）
+    {
+        ret = (head + 1)*quickpow(10,len-1) + DFS(len-1,x);//全取时head要加1，因为还可以全是0
+    }
+    else if(x == num[len])//如果相等，前面可全取，后面也全取(不是任取)
+    {
+	/*这时候是一个难点，要分类讨论，1，前面全取除去最大值，后面依旧可以任取
+	                             2，前面取最大值，后面全取*/
+        ret = head*quickpow(10,len-1) + (rear+1) + DFS(len-1,x);
+    }
+    else//如果大于，前面只能全取除去最大值，后面任取
+    {
+        ret = head*quickpow(10,len-1) + DFS(len-1,x);
+    }
+    return ret;//返回当前位答案
+}
+
+long long DFSspecial(int len)//特判0的数量，难点：前导零不算0！
+{
+    if(len <= 0) return 0;//一定要有小于，否则范围为个位数时就死循环了，具体原因看后面
+    long long ret = 0;//下面三个同DFS中的意义
+    long long head = 0;
+    long long rear = 0;
+    for (int i = test;i>=len+1;i--) head = head*10 + num[i];
+    for (int i = len - 1;i>=1;i--) rear = rear*10 + num[i];
+    if(num[len] == 0)//如果当前位置为0，则前面除去前导零有同上两种情况
+    {
+        ret = (head - 1)*quickpow(10,len-1) + (rear+1) + DFSspecial(len-1);
+    }
+    else//大于0，前面除去前导零全取，后面任取
+    {
+        ret = head*quickpow(10,len-1) + DFSspecial(len-1);
+    }
+    return ret;
+}
+long long Solve(long long up,int x)//中间函数，解决问题，up为上界，x为指定数字
+{
+    int len = 0;
+    while(up)//统计位数，且记录每位数字
+    {
+        num[++len] = up%10;
+        up /= 10;
+    }
+    test = len;//保存最大位
+    if(x == 0)//特判0
+    {
+        return DFSspecial(len - 1);
+    }
+    return DFS(len,x);
+}
+int main()
+{
+    long long l,r;
+    scanf("%lld%lld",&l,&r);//输入上下界
+    for (int i = 0;i<=9;i++)
+    {
+        printf("%lld ",Solve(r,i) - Solve(l-1,i));//前缀和思想，自己思考
+    }
+    return 0;
+}

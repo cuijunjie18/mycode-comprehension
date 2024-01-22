@@ -1,0 +1,51 @@
+//时间复杂度:o(m)
+//原理:每一次成功的合并都会使集合的个数少1
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//道路结构体
+{
+    int x,y,t;//x，y为道路连接的两个村庄，t为通车时间
+}EDGE;
+EDGE e[100001];
+int f[1001];//并查集根节点
+bool cmp(EDGE a,EDGE b)//按道路通车时间升序排序
+{
+    return a.t<b.t;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int a,int b)//并查集合并
+{
+    int f1 = Find(a);
+    int f2 = Find(b);
+    f[f2] = f1;
+}
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);//输入村庄个数及道路条数
+    for (int i = 1;i<=n;i++) f[i] = i;//初始化并查集根节点为自己
+    for (int i = 1;i<=m;i++)//输入每天道路情况
+    {
+        scanf("%d%d%d",&e[i].x,&e[i].y,&e[i].t);
+    }
+    sort(e+1,e+1+m,cmp);//排序
+    for (int i = 1;i<=m;i++)//依次修公路
+    {
+        if(Find(e[i].x) != Find(e[i].y))//如果每通车
+        {
+            Join(e[i].x,e[i].y);//合并村庄
+            n--;//集合个数减1
+            if(n == 1)//如果只有一个集合了，即全部村庄可以相互到达
+            {
+                printf("%d\n",e[i].t);//输出时间
+                return 0;
+            }
+        }
+    }
+    printf("-1\n");//全部路修好了还不能通车，输出-1
+    return 0;
+}

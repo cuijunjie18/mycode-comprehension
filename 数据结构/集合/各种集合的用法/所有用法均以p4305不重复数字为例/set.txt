@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+set<int> s;
+int main()
+{
+    int t,a,n;
+    scanf("%d",&t);
+    for (int i = 1;i<=t;i++)
+    {
+        s.clear();
+        scanf("%d",&n);
+        for (int j = 1;j<=n;j++)
+        {
+            scanf("%d",&a);
+            if(s.find(a)==s.end())
+            {
+                printf("%d ",a);
+                s.insert(a);
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}

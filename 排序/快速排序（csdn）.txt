@@ -1,0 +1,25 @@
+void Quick_Sort(int *arr, int begin, int end){
+    if(begin > end)
+        return;
+    int tmp = arr[begin];
+    int i = begin;
+    int j = end;
+    while(i != j){
+        while(arr[j] >= tmp && j > i)
+            j--;
+        while(arr[i] <= tmp && j > i)
+            i++;
+        if(j > i){
+            int t = arr[i];
+            arr[i] = arr[j];
+            arr[j] = t;
+        }
+    }
+    arr[begin] = arr[i];
+    arr[i] = tmp;
+    Quick_Sort(arr, begin, i-1);
+    Quick_Sort(arr, i+1, end);
+}
+————————————————
+版权声明：本文为CSDN博主「李小白~」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/qq_40941722/article/details/94396010

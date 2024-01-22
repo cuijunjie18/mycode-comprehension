@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct A
+{
+    int number;
+    int name;
+    int weigh[1001];
+    int value[1001];
+}GROUP;
+int f[1001];
+GROUP d[101];
+int Max(int a,int b)
+{
+    return a>b?a:b;
+}
+int main()
+{
+    int m,n;
+    int count = 0;
+    int flag = 1;
+    scanf("%d%d",&m,&n);
+    int a,b,c;
+    for (int i = 1;i<=n;i++)
+    {
+        flag = 1;
+        scanf("%d%d%d",&a,&b,&c);
+        for (int j = 1;j<=count;j++)
+        {
+            if(c == d[j].name)
+            {
+                flag = 0;
+                d[j].number++;
+                d[j].weigh[d[j].number] = a;
+                d[j].value[d[j].number] = b;
+            }
+        }
+        if(flag)
+        {
+            count++;
+            d[count].name = c;
+            d[count].number++;
+            d[count].weigh[d[count].number] = a;
+            d[count].value[d[count].number] = b;
+        }
+
+    }
+    for (int i = 1;i<=count;i++)
+    {
+        for (int j = m;j>=0;j--)
+        {
+            for (int k = 1;k<=d[i].number;k++)
+            {
+                if(j>=d[i].weigh[k])
+                    f[j] = Max(f[j],f[j-d[i].weigh[k]]+d[i].value[k]);
+            }
+        }
+    }
+    printf("%d",f[m]);
+    return 0;
+}

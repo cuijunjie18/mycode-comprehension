@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long f[10][82][1<<10];//第一维表示dp到第几行了，第二维为前面已经用了多少个国王，第三维为在t状态下时，f存储了方案数
+int g[1<<10];//判断放置方式的合法性
+int main()
+{
+    int n,k;
+    scanf("%d%d",&n,&k);
+    for (int i = 0;i<(1<<n);i++)
+    {
+        g[i] = !(i&(i<<1));//神来之笔，判断不相邻，即不会相互攻击
+    }
+    f[0][0][0] = 1;//初始化为1(自己仔细思考)
+    for (int r = 1;r<=n;r++)//dp行数
+    {
+        for (int t = 0;t<(1<<n);t++)//枚举要这一行要放的情况
+        {
+            if(g[t])//检验放置方式的合法性
+            {
+                int number = __builtin_popcount(t);//内置函数求该放置方式放了多少个国王
+                for (int i = 0;i<(1<<n);i++)//枚举上一行情况
+                {
+                    if((i&t) == 0&&((i<<1)&t) == 0&&((i>>1)&t) == 0)//检测不会相互攻击
+                    {
+                       for (int j = 0;j<=k-number;j++)//dp该行该放置状态下的放置了不同数量国王的方案数
+                       {
+                           f[r][j+number][t] += f[r-1][j][i];
+                       }
+                    }
+                }
+            }
+        }
+    }
+    long long ans = 0;
+    for (int i = 0;i<(1<<n);i++)
+    {
+        ans += f[n][k][i];//不同状态下放了k个国王的方案数
+    }
+    printf("%lld\n",ans);
+    return 0;
+}

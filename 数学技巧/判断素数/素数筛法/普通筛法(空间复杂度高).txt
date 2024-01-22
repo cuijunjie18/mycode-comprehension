@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+int number[1000001];
+void Prime()
+{
+    number[1] = 1;//1不是质数
+    for (int i = 2;i*i<=1000001;i++)//i*i减少时间复杂度，自己仔细想想（但这样不能顺序记录范围内所有素数）
+    {
+        if(!number[i])//如果没被筛过，说明这个数是素数，筛掉它的倍数
+        {
+            for (int j = i*i;j<=1000001;j+=i)//从i*i开始，自己思考
+            number[j] = 1;
+        }
+    }
+}
+int main()
+{
+    Prime();//预处理，即对范围内合数筛掉
+    int count = 0;
+    for (int i = 1;i<=1000001;i++)
+    {
+        if(number[i]==0)
+        {
+            count++;
+            printf("%d\n",i);
+        }
+    }
+    printf("%d",count);
+    return 0;
+}

@@ -1,0 +1,22 @@
+//原理:贪心
+//背景:我之前打比赛时没做出来的俄罗斯套娃，看了答案一知半解，但秒杀了这道题，现在开始逐渐理解为贪心(其实也可以递推)
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int n,x;
+    scanf("%d",&n);//输入连续洼地的长度
+    int ans = 0;//初始化答案天数
+    int before = 0;//一个细节初始化
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&x);//输入当前洼地凹陷程度
+        if(x>before)//如果凹陷程度小于之前的，该处一定可以被之前的连着一起全部填完，故不产生贡献；所以只考虑比之前的大
+        {
+            ans += (x - before);//多出来的要自己单独填
+        }
+        before = x;//更新之前的
+    }
+    printf("%d\n",ans);//输出答案
+    return 0;
+}

@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+int count;
+int n,k;
+int number[21];
+int Isprime(int n)
+{
+    if(n<=1) return 0;
+    if(n==2||n==3) return 1;
+    if(n%6!=1&&n%6!=5) return 0;
+    for (int i = 5;i*i<=n;i+=6)
+    {
+        if(n%i==0||n%(i+2)==0) return 0;
+    }
+    return 1;
+}
+
+void Cycle(int time,int sum,int begin)
+{
+    if(time == k)
+    {
+        if(Isprime(sum))
+            count++;
+    }
+    else
+    {
+        for (int i = begin;i<=n-k+time+1;i++)
+        {
+            Cycle(time+1,sum + number[i],i+1);
+        }
+    }
+}
+
+int main()
+{
+    scanf("%d %d",&n,&k);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&number[i]);
+    }
+    Cycle(0,0,1);
+    printf("%d",count);
+    return 0;
+}

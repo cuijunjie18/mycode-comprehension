@@ -1,0 +1,96 @@
+#include <bits/stdc++.h>
+#include <set>
+using namespace std;
+int mp[101][101];
+set <int>::iterator it;
+typedef struct bag
+{
+    set <int> data;
+}BAG;
+BAG f[101][101];
+int main()
+{
+    int n,m,k;
+    scanf("%d%d%d",&n,&m,&k);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            scanf("%d",&mp[i][j]);
+        }
+    }
+    f[1][1].data.insert(mp[1][1]%k);
+    for (int i = 2;i<=m;i++)
+    {
+        f[1][i].data.insert(*(f[1][i-1].data.begin())*mp[1][i]%k);
+        f[i][1].data.insert(*(f[i-1][1].data.begin())*mp[i][1]%k);
+    }
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 2;j<=m;j++)
+        {
+            for (it = f[i-1][j].data.begin();it!=f[i-1][j].data.end();it++)
+            {
+                f[i][j].data.insert(*(it)*mp[i][j]%k);
+            }
+            for (it = f[i][j-1].data.begin();it!=f[i][j-1].data.end();it++)
+            {
+                f[i][j].data.insert(*(it)*mp[i][j]%k);
+            }
+        }
+    }
+    printf("%d\n",f[n][m].data.size());
+    for (it = f[n][m].data.begin();it!=f[n][m].data.end();it++)
+    {
+        printf("%d ",*(it));
+    }
+    return 0;
+}
+#include <bits/stdc++.h>
+#include <set>
+using namespace std;
+int mp[101][101];
+set <int>::iterator it;
+typedef struct bag
+{
+    set <int> data;
+}BAG;
+BAG f[101][101];
+int main()
+{
+    int n,m,k;
+    scanf("%d%d%d",&n,&m,&k);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            scanf("%d",&mp[i][j]);
+        }
+    }
+    f[1][1].data.insert(mp[1][1]%k);
+    for (int i = 2;i<=m;i++)
+    {
+        f[1][i].data.insert(*(f[1][i-1].data.begin())*mp[1][i]%k);
+        f[i][1].data.insert(*(f[i-1][1].data.begin())*mp[i][1]%k);
+    }
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 2;j<=m;j++)
+        {
+            for (it = f[i-1][j].data.begin();it!=f[i-1][j].data.end();it++)
+            {
+                f[i][j].data.insert(*(it)*mp[i][j]%k);
+            }
+            for (it = f[i][j-1].data.begin();it!=f[i][j-1].data.end();it++)
+            {
+                f[i][j].data.insert(*(it)*mp[i][j]%k);
+            }
+        }
+    }
+    printf("%d\n",f[n][m].data.size());
+    for (it = f[n][m].data.begin();it!=f[n][m].data.end();it++)
+    {
+        printf("%d ",*(it));
+    }
+    return 0;
+}

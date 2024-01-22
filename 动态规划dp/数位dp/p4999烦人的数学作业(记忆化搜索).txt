@@ -1,0 +1,41 @@
+//记忆化搜索的复杂度优秀，本质与dp无区别，故又叫数位dp
+#include <bits/stdc++.h>
+using namespace std;
+const long long md = 1000000007;//模数
+int num[100];//记录数字的每一位数字
+long long f[20][1000];//第一维为当前位，第二维维前面位上数的和，f意义是该状态下后面不受限制的所有可能的数的全部和
+long long DFS(int len,bool limit,long long sum)
+{
+    if(len == 0) return sum;//搜完，返回数位和
+    if((!limit)&&(f[len][sum] != 0)) return f[len][sum];//如果同一种状态出现过，且之前无限制，直接复用返回
+    int up = limit?num[len]:9;//确定当前位的上界
+    long long ret = 0;//记录当前状态的和值，初始化0
+    for (int i = 0;i<=up;i++)
+    {
+        ret = (ret + DFS(len-1,limit&&(i == up),sum + i))%md;//递归求处理到当前位当前状态时所有情况的所有位和
+    }
+    if(!limit) f[len][sum] = ret;//如果符合无限制的情况，记忆状态值
+    return ret;//返回
+}
+long long Solve(long long up)
+{
+    int len = 0;
+    while(up)
+    {
+        num[++len] = up%10;
+        up /= 10;
+    }
+    return DFS(len,true,0)%md;
+}
+int main()
+{
+    int t;
+    long long l,r;
+    scanf("%d",&t);
+    while(t--)
+    {
+        scanf("%lld%lld",&l,&r);
+        printf("%lld\n",((Solve(r) - Solve(l - 1))%md + md)%md);
+    }
+    return 0;
+}

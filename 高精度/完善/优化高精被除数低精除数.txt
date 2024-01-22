@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+char word[5005];//字符被除数
+int number[5005];//整型除数
+int ans[5005];//答案
+long long b;//低精度除数
+int main()
+{
+    scanf("%s",word);//输入字符被除数
+    int n1 = strlen(word);//计算位数
+    for (int i = 1;i<=n1;i++)//转化为整型
+    {
+        number[i] = word[n1-i] - '0';
+    }
+    scanf("%lld",&b);//输入除数
+    long long x = 0;//中间态，即模拟草稿纸的过程
+    for (int i = n1;i>=1;i--)//从被除数最高位开始
+    {
+        x = x*10 + number[i];//当前情况用来计算的被除数
+        ans[i] = x/b;//当前位答案是x/b，不够除的时候结果是0
+        if(x>=b) x %= b;//如果之前够除了，那么就要取余数了(草稿纸计算模拟)，其if可以没有，因为x<b时取余数还是本身
+    }
+    while(ans[n1] == 0&&n1>1) n1--;//去掉答案的前导零并保留至少一位数(因为可能答案是0，防止没有输出)
+    for (int i = n1;i>=1;i--)//逆序输出答案
+    {
+        printf("%d",ans[i]);
+    }
+    return 0;
+}

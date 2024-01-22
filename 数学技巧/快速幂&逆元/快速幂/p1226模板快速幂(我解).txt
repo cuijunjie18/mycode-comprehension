@@ -1,0 +1,26 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long g[64];
+int main()
+{
+    memset(g,1,sizeof(g));
+    int a,b,p;
+    scanf("%d%d%d",&a,&b,&p);
+    g[1] = a%p;
+    long long number = 2;
+    while(number<=62)
+    {
+        g[number] = (g[number-1]*g[number-1])%p;
+        number++;
+    }
+    long long ans = 1;
+    for (int i = 1;i<=31;i++)
+    {
+        if((b>>(i-1))&1)
+        {
+            ans = (ans*g[i])%p;
+        }
+    }
+    printf("%d^%d mod %d=%lld",a,b,p,ans);
+    return 0;
+}

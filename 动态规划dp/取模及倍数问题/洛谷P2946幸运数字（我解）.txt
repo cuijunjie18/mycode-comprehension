@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+long long ans[2001][1000];
+long long temp[1000];
+int cow[2001];
+int main()
+{
+    int n,f;
+    scanf("%d%d",&n,&f);
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d",&cow[i]);
+    }
+    ans[1][cow[1]%f] = 1;
+    temp[cow[1]%f] = 1;
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 0;j<=f-1;j++)
+        {
+            ans[i][(j+cow[i])%f] = (temp[j] + temp[(j+cow[i])%f])%100000000;
+        }
+        for (int j = 0;j<=f-1;j++)
+        {
+            if(ans[i][j] == 0)
+            {
+                ans[i][j] = temp[j];
+            }
+        }
+        ans[i][cow[i]%f]+=1;
+        for (int j = 0;j<=f-1;j++)
+        {
+            temp[j] = ans[i][j];
+        }
+    }
+    printf("%lld",ans[n][0]);
+    return 0;
+}

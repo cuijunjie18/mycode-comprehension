@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+int b1[10][10];
+int b2[10][10];
+int b3[10][10];
+int ans[82];
+int flag = 0;
+void DFS(int times)
+{
+    if(ans[times])
+    {
+        DFS(times+1);
+        flag = 1;
+    }
+    if(flag)
+    {
+        flag = 0;
+        return;
+    }
+    if(times > 81)
+    {
+        for (int i = 1;i<=81;i++)
+        {
+            if((i-1)%9 == 0)
+            {
+                printf("\n");
+            }
+            printf("%d ",ans[i]);
+        }
+        exit(0);
+    }
+    int row = (times-1)/9 + 1;
+    int col = (times-1)%9+1;
+    int block =  (row-1)/3*3+(col-1)/3+1;
+    for (int i = 1;i<=9;i++)
+    {
+        if(b1[row][i] == 0&&b2[col][i] == 0&&b3[block][i] == 0)
+        {
+            b1[row][i] = 1;
+            b2[col][i] = 1;
+            b3[block][i] = 1;
+            ans[times] = i;
+            DFS(times+1);
+            ans[times] = 0;
+            b1[row][i] = 0;
+            b2[col][i] = 0;
+            b3[block][i] = 0;
+        }
+    }
+}
+int main()
+{
+    FILE* fp;
+    char filename[10];
+    printf("Please input the number:");
+    gets(filename);
+    fp = fopen(filename,"r");
+    if(fp == NULL)
+    {
+        printf("Fail to open the file!\n");
+        exit(0);
+    }
+    int n;
+    fscanf(fp,"%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        int x,y,number;
+        fscanf(fp,"%d%d%d",&x,&y,&number);
+        b1[x][number] = 1;
+        b2[y][number] = 1;
+        b3[(x-1)/3*3+(y-1)/3+1][number] = 1;
+        ans[(x-1)*9+y] = number;
+    }
+    DFS(1);
+    fclose(fp);
+    return 0;
+}

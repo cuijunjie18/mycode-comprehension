@@ -1,0 +1,21 @@
+#include <bits/stdc++.h>
+using namespace std;
+void DFS(char *instr,char *prestr,int length)//本身就是建树过程，只不过边建边后序遍历(因为是基于找每个子树的根节点)
+{							//故得以实现(想一想遍历过程)
+    if(length == 0) return;                    
+    int ch = prestr[0];//根节点即先序的第一个
+    int pos = 0;
+    while(instr[pos] != ch) pos++;//确定左右子树
+    DFS(&instr[0],&prestr[1],pos);//递归左子树
+    DFS(&instr[pos+1],&prestr[pos+1],length - pos - 1);//递归右子树
+    printf("%c",ch);
+}
+int main()
+{
+    char instr[30],prestr[30];
+    scanf("%s",instr);
+    scanf("%s",prestr);
+    int n = strlen(instr);
+    DFS(instr,prestr,n);
+    return 0;
+}

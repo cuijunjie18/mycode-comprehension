@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+int n;
+int number[33][33];
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+void DFS(int x,int y)
+{
+    for (int i = 0;i<=3;i++)
+    {
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if(wx<=n+1&&wx>=0&&wy<=n+1&&wy>=0&&number[wx][wy] == 0)
+        {
+            number[wx][wy] = 1;
+            DFS(wx,wy);
+        }
+    }
+}
+int main()
+{
+    scanf("%d",&n);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            scanf("%d",&number[i][j]);
+            if(number[i][j] == 1) number[i][j] = 2;
+        }
+    }
+    DFS(0,0);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            if(number[i][j] == 1) printf("0 ");
+            else if(number[i][j] == 2) printf("1 ");
+            else if(number[i][j] == 0) printf("2 ");
+        }
+        printf("\n");
+    }
+    return 0;
+}

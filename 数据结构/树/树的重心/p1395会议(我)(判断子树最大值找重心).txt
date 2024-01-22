@@ -1,0 +1,67 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[50001];//邻接表存图，此次用来存无根树
+int big[50001];//当结构变为有根树时，表示以该节点为根节点的树的大小(包含子树大小及自己)
+int m[50001];//表示以该节点为根节点的最大子树的大小
+int w[3];//表示树的重心(最多不超过两个)
+int number;//表示树的重心的个数
+int k = 50001;//初始化当前子树的最大大小
+int n,ans;//n为节点数，ans为所有节点到重心的路径和
+bool visit[50001];//标记数组
+int DFS(int x)//找重心核心函数，无返回值与有返回值本质一样
+{
+    for (int i = 0,s = g[x].size();i<s;i++)//枚举可以到达的子节点
+    {
+        if(!visit[g[x][i]])//如果到达过了，则一定为其来的那个节点(父节点)，防止了图的无向影响，不会回头(也可以不visit)
+        {										//DFS里加个father形参
+            visit[g[x][i]] = true;//标记到达过了
+            big[x] += DFS(g[x][i]);//以该节点为根的树的大小为加上所有子树的大小
+            m[x] = max(m[x],big[g[x][i]]);//求以该节点为子树的最大子树
+        }
+    }
+    int now = max(n-big[x],m[x]);//核心！！！等价于删去这一点后，判断最大树的大小(要么为最大子树，要么为去掉该树的大小)
+    if(now < k)//如果小于之前的最大树的大小，则更新该点为新的重心
+    {
+        k = now;//更新
+        number = 1;//刷新重心数
+        w[number] = x;//记录重心编号
+    }
+    else if(now == k&&number<=1)//如果相等，可能为第二个重心，但不能超过3个，故要防止w数组越界
+    {
+        number++;
+        w[number] = x;
+    }
+    return big[x];//返回该节点为根节点的树的大小
+}
+void Countway(int x,int h)//x为当前节点编号，h为当前节点到重心距离
+{
+    for (int i = 0,s = g[x].size();i<s;i++)//遍历
+    {
+        if(!visit[g[x][i]])//如果到达过，为父亲节点，跳过，防止回头
+        {
+            visit[g[x][i]] = true;//标记
+            Countway(g[x][i],h+1);//继续搜索
+        }
+    }
+   ans += h;//路径和加上该点的
+}
+int main()
+{
+    int a,b;
+    scanf("%d",&n);//输入节点数
+    for (int i = 1;i<=n;i++) big[i] = 1;//初始化以i为根节点树的大小，至少为1(自己)
+    for (int i = 1;i<=n-1;i++)//输入n-1条边，建图以建树
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);//树为无向图
+        g[b].push_back(a);//两边都要连接
+    }
+    visit[1] = true;//因为默认1为有根树的根节点，先标记他
+    DFS(1);//从一开始找重心，一次DFS就行了，具体看代码
+    if(number == 2) w[1] = min(w[1],w[2]);//题目要求取编号小的重心
+    memset(visit,false,sizeof(visit));//待会要求路径，去标记
+    visit[w[1]] = true;//重心提前标记
+    Countway(w[1],0);//计算所有节点到重心的路径和
+    printf("%d %d",w[1],ans);//输出
+    return 0;
+}

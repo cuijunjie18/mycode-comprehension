@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int a,b;
+    scanf("%d%d",&a,&b);
+    long long temp = a;
+    long long ans = 1;
+    int number = 1;
+    while(b!=0)
+    {
+        number *= 2;
+        if(number>b)
+        {
+            b -= (number/2);
+            ans *= temp;
+            if(b == 1)
+            {
+                ans *= a;
+                break;
+            }
+            number = 1;
+            temp = a;
+        }
+        else
+        {
+            temp *= temp;
+        }
+    }
+    printf("%lld\n",ans);
+    return 0;
+}

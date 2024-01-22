@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[1<<20];//吃完该二进制糖果状态下所需的最少包数
+int sweet[101];//糖果状态数组
+int main()
+{
+    int n,m,k,x;
+    scanf("%d%d%d",&n,&m,&k);//输入糖果包数，m种糖果，每包糖果有k个糖果
+    for (int i = 1;i<=n;i++)//确定每包糖果的包含的状态
+    {
+        for (int j = 1;j<=k;j++)//输入第i包糖果中的k个糖果
+        {
+            scanf("%d",&x);
+            sweet[i] |= 1<<(x-1);//合并状态
+        }
+    }
+    memset(f,0x3f,sizeof(f));//求最小值，初始化为正无穷
+    f[0] = 0;//吃0种糖果最少0包，初始化
+    for (int i = 1;i<=n;i++)//枚举糖果包
+    {
+        for (int j = 0;j<(1<<m);j++)//用j状态去吃糖果包i
+        {
+            f[j|sweet[i]] = min(f[j|sweet[i]],f[j] + 1);//合并取最小值
+        }
+    }
+    if(f[(1<<m)-1]>=99999999) printf("-1\n");//如果最后还是正无穷，则吃不到所有口味，输出-1
+    else printf("%d\n",f[(1<<m)-1]);//否则输出全部口味吃完的最小包数
+    return 0;
+}

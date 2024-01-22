@@ -1,0 +1,59 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct point//奶酪的坐标结构体
+{
+    double x,y;
+}POINT;
+POINT a[20];//奶酪数组
+double ans;//答案
+double f[20][1<<15];//状压数组，表示某状态下最后站在i奶酪上的最短路径和
+int g[20];//二进制数组，美化代码
+double d[20][20];//距离数组
+int n;//奶酪个数
+POINT zero = {0,0};//初始化原点
+double Distance(POINT p1,POINT p2)//计算平面两点距离
+{
+    return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+}
+int main()
+{
+    cin>>n;//输入奶酪数
+    for (int i = 1;i<=n;i++)//输入每个奶酪坐标并状态化
+    {
+        cin>>a[i].x>>a[i].y;//输入坐标
+        d[0][i] = Distance(zero,a[i]);//计算到原点距离
+        g[i] = 1<<(i-1);//状态二进制化
+    }
+    for (int i = 1;i<=n;i++)//计算每个点的距离
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            d[i][j] = Distance(a[i],a[j]);
+            d[j][i] = d[i][j];//对称性，类组合
+        }
+    }
+    memset(f,127,sizeof(f));//浮点数初始化为无穷大的方法
+    ans = f[0][0];//初始化答案为无穷大
+    for (int i = 1;i<=n;i++)//初始化必要的状态，及从原点出发到某个奶酪
+    {
+        f[i][g[i]] = d[0][i];
+    }
+    for (int i = 1;i<=(1<<n)-1;i++)//枚举状态
+    {
+        for (int j = 1;j<=n;j++)//枚举要去的点
+        {
+            if(i&g[j]) continue;//如果该状态下已经去过了，跳过
+            for (int k = 1;k<=n;k++)//枚举前一个位置
+            {
+                if((i&g[k])==0) continue;//如果不在状态中，跳过
+                f[j][i+g[j]] = min(f[j][i+g[j]],f[k][i]+d[k][j]);//状态转移方程，去最小值
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//枚举满状态下最后站的点
+    {
+        ans = min(f[i][(1<<n)-1],ans);//取最小值
+    }
+    printf("%.2lf\n",ans);//输出
+    return 0;
+}
