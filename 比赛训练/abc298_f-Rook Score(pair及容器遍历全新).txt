@@ -1,0 +1,44 @@
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+unordered_map<long long,long long>sumr,sumc;//用于记录每一列每一行的和
+map<pair<long long,long long>,long long> p;//用于记录某个点是否存在价值,pair引入,这里用unordered_map报错
+vector<pair<long long,long long>> r,c;//后续重新记录每一列每一行的和，用于排序
+bool cmp(pair<long long,long long> a,pair<long long,long long> b)//pair比较bool型
+{
+    return a.second>b.second;
+}
+int main()
+{
+    int n,row,col,x;
+    scanf("%d",&n);//输入点的数量
+    for (int i = 1;i<=n;i++)
+    {
+        scanf("%d%d%d",&row,&col,&x);
+        p[{row,col}] = x;//价值
+        sumr[row] += x;//行价值累加
+        sumc[col] += x;//列价值累加
+    }
+    for (auto rr:sumr) r.push_back({rr.first,rr.second});//遍历sumr的一种简洁方法,注意原点运算符
+    for (auto cc:sumc) c.push_back({cc.first,cc.second});//同上
+    sort(r.begin(),r.end(),cmp);//排序,按值由大到小
+    sort(c.begin(),c.end(),cmp);//同上
+    long long ans = 0;//初始化答案
+    for (auto rr:r)//遍历行(观察输入时只有n个点，最多n次比较)
+    {
+        for(auto cc:c)//遍历列
+        {
+            if(p.find({rr.first,cc.first}) == p.end())//如果找不到，说明空了(由于是降序，后面就算空也不够前面大，退出)
+            {
+                ans = max(ans,rr.second + cc.second);//取最大值
+                break;//退出
+            }
+            else//否则
+            {
+                ans = max(ans,rr.second+cc.second - p[{rr.first,cc.first}]);//取最大值
+            }
+        }
+    }
+    printf("%lld\n",ans);//输出
+    return 0;
+}

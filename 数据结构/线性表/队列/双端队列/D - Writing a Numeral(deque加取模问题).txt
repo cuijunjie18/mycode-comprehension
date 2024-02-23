@@ -1,0 +1,42 @@
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 998244353;//模数
+long long mod[600001];//预处理10的n次方的取模
+deque <int> s;
+int main()
+{
+    int q,c,x;
+    scanf("%d",&q);//输入q次询问
+    long long k = 1;//初始化
+    for (int i = 1;i<=q;i++)//处理最多10的q次方
+    {
+        mod[i] = k;//i长度时的10的次方取模
+        k = k*10%md;//取模
+
+    }
+    s.push_back(1);//初始队列为1
+    long long ans = 1;//初始化答案
+    while(q--)//依次处理q次询问
+    {
+        scanf("%d",&c);//输入选择
+        if(c == 1)
+        {
+            scanf("%d",&x);
+            s.push_back(x);//后面加入x
+            ans = (ans*10 + x)%md;//更新答案
+        }
+        else if(c == 2)
+        {
+            int x  = s.front();//取出队头
+            int big = s.size();//计算大小
+            ans = (ans + md - x*mod[big]%md)%md;//!!!核心，当前答案减去第一位的数的对取模的贡献且加上md防止负数
+            s.pop_front();//删除队头
+        }
+        else if(c == 3)
+        {
+            printf("%lld\n",ans);//输出答案
+        }
+    }
+    return 0;
+}

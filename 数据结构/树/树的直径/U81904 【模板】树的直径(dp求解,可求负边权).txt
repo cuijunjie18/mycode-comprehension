@@ -16,7 +16,7 @@ void DFS(int x,int f)
         if(g[x][i].p == f) continue;
         DFS(g[x][i].p,x);
         int t = d1[g[x][i].p] + g[x][i].value;
-        if(t > d1[x])//大于当前点最优解，更新最优与次优
+        if(t > d1[x])//大于当前点最优解，更新最优与次优!!!!!!一定要严格大于
         {
             d2[x] = d1[x];
             d1[x] = t;

@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+int Exgcd(int a,int b)
+{
+    if(b == 0) return a;
+    return Exgcd(b,a%b);//b的意义为可能的最大公约数
+}
+int Gcd(int a,int b)
+{
+    if(a < b)//该步骤确保a>=b
+    {
+        int temp = a;
+        a = b;
+        b = temp;
+    }
+    return Exgcd(a,b);
+}
+int main()
+{
+    int n,m;
+    cin>>n>>m;
+    cout<<Gcd(n,m)<<endl;
+    return 0;
+}

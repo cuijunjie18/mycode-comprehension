@@ -1,0 +1,80 @@
+//注意:非常多的细节!!!
+//题型的思想:要求相等的为一个集合,要求不能相等存入数组，最后在判断
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;//简化代码
+typedef struct against//存储不能等的规则结构体
+{
+    ll x,y;
+}AGAINST;
+unordered_set<ll>check;//记录某数是否进入相等的集合,作用是让其并查集初始化为自己
+unordered_map<ll,ll>f;//并查集,类f[i]
+vector<AGAINST>clash;//记录改组测试数据下的规则
+ll Find(ll x)//并查集查询加路径压缩
+{
+    if(f[x] == x) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()//题解函数
+{
+    check.clear();//提前清空
+    f.clear();
+    clash.clear();
+    int n;
+    cin>>n;//输入规则数
+    ll a,b;
+    int c;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>a>>b>>c;
+        if(c == 1)//如果是要求相等
+        {
+            if(check.find(a) == check.end())//细节1:要确定其是否已经有并查集归属了,没有则初始化
+            {
+                f[a] = a;
+                check.insert(a);//细节2:千万不要忘记记录，这是我经常放的错
+            }
+            if(check.find(b) == check.end())//同上
+            {
+                f[b] = b;
+                check.insert(b);
+            }
+            ll f1 = Find(a);//并查集查询
+            ll f2 = Find(b);
+            if(f1 == f2) continue;//不同则合并,同则1跳过
+            f[f1] = f2;
+        }
+        else if(c == 0)//如果要求不相等
+        {
+            AGAINST temp = {a,b};
+            clash.push_back(temp);//记录冲突的规则
+        }
+    }
+    for (int i = 0,s = clash.size();i<s;i++)//开始对每条冲突规则进行判断
+    {
+        if(clash[i].x == clash[i].y)//细节3:首先判断自己是否不能等于自己
+        {
+            cout<<"NO"<<"\n";//如果规则是自己不能等于自己,输出NO
+            return;//细节4:一定要返回
+        }
+        if(check.find(clash[i].x) == check.end()) continue;//细节4:(看了Hack数据发现的)检查是否要求与谁相等,如果没有,可以任意取,肯定可以满足规则
+        if(check.find(clash[i].y) == check.end()) continue;//同上
+        if(Find(clash[i].x) == Find(clash[i].y))//最后才是常规判断
+        {
+            cout<<"NO"<<"\n";
+            return;//返回
+        }
+    }
+    cout<<"YES"<<"\n";//全部不冲突,输出YES
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快读入输出,关闭同步流
+    int t;
+    cin>>t;
+    while(t--)//解决t组1测试数据
+    {
+        Solve();
+    }
+    return 0;
+}

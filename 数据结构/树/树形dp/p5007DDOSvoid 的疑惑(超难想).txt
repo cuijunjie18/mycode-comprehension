@@ -1,0 +1,62 @@
+//时间复杂度:o(n)
+//背景:分类讨论一定要齐全,状态转移方程超级难想
+//原理:见题解https://bluequantum.blog.luogu.org/solution-p5007
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[1000001<<1];
+int cnt;
+int head[1000001];
+const int md = 100000007;//模数
+long long f[1000001];//答案
+long long g[1000001];//以i为根的满足条件的集合个数
+int n,t;
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//搜索dp
+{
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x);//先到底
+        f[x] = (f[x]*g[e[i].to]%md + g[x]*f[e[i].to]%md + f[e[i].to] + f[x])%md;//更新答案
+        g[x] = ((g[x] + 1)*g[e[i].to]%md + g[x])%md;//更新集合数
+    }
+    f[x] += t?x:1;//特判只有自己时
+    g[x]++;//集合数加1
+}
+
+int main()
+{
+    n = read();
+    t = read();
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    DFS(1,0);//树形dp搜索
+    printf("%lld\n",f[1]);//输出答案
+    return 0;
+}

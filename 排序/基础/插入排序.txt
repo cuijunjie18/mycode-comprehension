@@ -2,7 +2,7 @@
 #include <stdlib.h>
 void Sortdata(int a[],int n)
 {
-    int temp;
+    int temp;//关键,临时存储当前操作的数
     for (int i = 1;i<=n-1;i++)
     {
         temp = a[i];

@@ -9,7 +9,7 @@ void DFS(int i,int depth)
     if(i == 0)//如果为0说明该左或右子树到底了，深度上一次多加了1，要减去
     {
         ans = max(ans,depth-1);//取最大值为答案
-	return;//一定要返回，否则死循环
+		return;//一定要返回，否则死循环
     }
     DFS(l[i],depth+1);//搜索左子树
     DFS(r[i],depth+1);//搜索右子树

@@ -1,0 +1,35 @@
+//原理:二分答案
+//时间复杂度:o(logr),r为上界
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    long long n,m,k;
+    cin>>n>>m>>k;
+    long long ans = 0;
+    long long l = 0;
+    long long r = 4e18;
+    long long lcm = n*m/(__gcd(n,m));//求最小公倍数方法:lca(n,m) * lcm(n,m) = n*m   很好证明
+    while(l<=r)//二分答案
+    {
+        long long mid = (l+r)>>1;//二分
+        long long x = mid/n + mid/m - 2*(mid/lcm);//求当前位置的满足条件的数的个数
+        if(x < k)//如果少了,只能往后判断
+        {
+            l = mid + 1;
+        }
+        else//如果多了或者刚刚好,往前判断
+        {
+            r = mid - 1;
+            ans = mid;//记录可能的答案
+        }
+    }
+    cout<<ans<<endl;//输出
+    return 0;
+}
+
+//这里特别解释刚刚好时为什么要往前
+//分类讨论:
+//1,如果刚刚好时是lcm(n,m)的倍数,则往后明显x会变大,不符合,而往前使得少减了2个lcm,等价于加了2,而题目最终要求的是n或m的倍数,故往前可以到达满足条件时
+//2,如果刚刚好时既不是n的倍数也不是m的倍数，明显不符合题目的意思,但是x == k,如果往后明显x变大,不满足题意
+//   往前可以

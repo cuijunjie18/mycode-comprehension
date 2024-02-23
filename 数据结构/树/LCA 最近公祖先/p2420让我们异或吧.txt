@@ -1,0 +1,85 @@
+/*背景:由于异或(xor)的特殊性质,本题其实可以一遍DFS记录x节点到根的路径异或和,求x,y的路径异或和时，lca到根节点那部分重合导致抵消了,故所得的答案依旧是正确答案(详见题解)*/
+//注意事项:异或和不是和,而是路径上的边权值的全部异或值
+//本题解做法:lca辅助求解
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next,value;
+}EDGE;
+EDGE e[100001<<1];
+int head[100001];
+int cnt;
+int f[100001][30];//lca数组
+int dp[100001][30];//x到倍增父节点路径的异或和
+int depth[100001];//深度数组,用于求lca
+void add(int x,int y,int v)//加边函数
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].value = v;//记录边权值
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int h,int v)//DFS预处理
+{
+    depth[x] = h;//记录深度
+    f[x][0] = fa;//记录直接父亲
+    dp[x][0] = v;//记录异或值
+    for (int i = 1;(1<<i)<=depth[x];i++)//倍增处理父节点及路径异或和
+    {
+        f[x][i] = f[f[x][i-1]][i-1];
+        dp[x][i] = dp[f[x][i-1]][i-1]^dp[x][i-1];//核心处理
+    }
+    for (int i = head[x];i;i = e[i].next)//DFS遍历子树
+    {
+        if(e[i].to == fa) continue;//来自父亲,跳过
+        DFS(e[i].to,x,h+1,e[i].value);
+    }
+}
+int LCA(int a,int b)
+{
+    if(a == b) return 0;
+    int ans = 0;//初始化答案(0异或任何值为任何值)
+    if(depth[a]<depth[b]) swap(a,b);//不妨假设a的深度大
+    while(depth[a]>depth[b])//先让a,b跳到同一深度
+    {
+        ans ^= dp[a][(int)(log(depth[a]-depth[b])/log(2))];//先异或在改变a,防止wa!细节
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];//改变
+    }
+    if(a == b) return ans;//如果b即父节点,直接返回答案
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)//lca求解模板
+    {
+        if(f[a][i] != f[b][i])//可以跳
+        {
+            ans ^= dp[a][i];//先异或
+            ans ^= dp[b][i];
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    ans ^= dp[a][0];//最后在异或(哭,一开始写成了f[a][0])
+    ans ^= dp[b][0];
+    return ans;//返回
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//解除输入输出同步(类似离线)
+    int n,m,x,y,v;
+    cin>>n;//输入节点数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y>>v;
+        add(x,y,v);
+        add(y,x,v);
+    }
+    DFS(1,0,0,0);//DFS预处理
+    cin>>m;
+    while(m--)//回答m次询问
+    {
+        cin>>x>>y;
+        int ans = LCA(x,y);//lca求解答案
+        cout<<ans<<'\n';//输出
+    }
+    return 0;
+}

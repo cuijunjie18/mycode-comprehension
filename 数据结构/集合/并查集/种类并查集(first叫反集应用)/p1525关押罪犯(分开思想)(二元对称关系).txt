@@ -1,0 +1,53 @@
+//原理:贪心+排序+种类并查集(反集),因为市长只看最大影响的冲突,故尽量要让大影响冲突无法发生,故有贪心
+//核心理解:敌人的敌人就是朋友,在此题的含义为a与b不在同一个监狱,c与b不在同一个监狱,则a与c一定在同一个监狱
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct relationship//定义罪犯关系结构体
+{
+    int x,y,c;
+}RE;
+RE r[100001];
+int f[20001<<1];//开两倍的并查集维护对立的关系(不一定是对立,此处意思a+n为虚拟的,连接了它的b表示它们不在一个集合)
+bool cmp(RE a,RE b)//bool定义结构体排序规则
+{
+    return a.c>b.c;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int x,int y)//并查集合并
+{
+    int f1 = Find(x);
+    int f2 = Find(y);
+    if(f1 == f2) return;
+    f[f1] = f2;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m;
+    cin>>n>>m;
+    for (int i = 1;i<=2*n;i++)//初始化双倍并查集
+    {
+        f[i] = i;
+    }
+    for (int i = 1;i<=m;i++)//输入罪犯关系信息
+    {
+        cin>>r[i].x>>r[i].y>>r[i].c;
+    }
+    sort(r+1,r+m+1,cmp);//由大到小排序
+    for (int i = 1;i<=m;i++)//依次判断每对关系
+    {
+        if(Find(r[i].x) == Find(r[i].y))//如果该对罪犯无法避免冲突了,即是达到极限了,为市长看到的最小值
+        {
+            cout<<r[i].c<<"\n";//输出
+            return 0;//返回
+        }
+        Join(r[i].x,r[i].y + n);//将两名罪犯关押在不同监狱,反集合并
+        Join(r[i].x + n,r[i].y);
+    }
+    cout<<0<<"\n";//输出无冲突
+    return 0;
+}

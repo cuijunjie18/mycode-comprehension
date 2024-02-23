@@ -1,3 +1,4 @@
+//注意:对于多组测试数据的,number1，number2，ans要清零
 #include <bits/stdc++.h>
 using namespace std;
 char word1[10000];//字符数字1

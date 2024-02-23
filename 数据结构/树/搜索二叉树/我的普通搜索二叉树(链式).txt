@@ -31,7 +31,7 @@ int main()//主函数
         printf("Choice 2 : Erase\n");
         printf("Choice 3 : Watch\n");
         printf("Choice 4 : Search\n");
-        printf("Choice 5 : Exit\n");
+        printf("Choice 0 : Exit\n");
         printf("The choice:");
         scanf("%d",&choice);//输入选择
         switch(choice)//按照选择进入对应功能的函数

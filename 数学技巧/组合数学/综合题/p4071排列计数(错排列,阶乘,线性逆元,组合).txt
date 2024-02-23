@@ -1,0 +1,52 @@
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 1000000007;//模数
+long long f[1000001];//阶乘预处理
+long long inv[1000001];//双重身份,先为线性逆元,后为阶乘逆元
+long long d[1000001];//错排列数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//解除同步流,作用类快读
+    f[1] = 1;//初始化阶乘
+    for (int i = 2;i<=1000000;i++)//从2开始处理阶乘
+    {
+        f[i] = i*f[i-1]%md;
+    }
+    inv[0] = 1;//初始化线性逆元
+    inv[1] = 1;
+    for (int i = 2;i<=1000000;i++)//线性求逆元
+    {
+        inv[i] = (md - md/i)*inv[md%i]%md;
+    }
+    for (int i = 2;i<=1000000;i++)//求阶乘的逆元,原理:乘积的逆元等于逆元的乘积
+    {
+        inv[i] = inv[i-1]*inv[i]%md;
+    }
+    d[1] = 0;//初始化错排列
+    d[2] = 1;
+    for (int i = 3;i<=1000000;i++)//递推公式求错排列
+    {
+        d[i] = (i-1)*(d[i-2] + d[i-1])%md;
+    }
+    int t,n,m;
+    cin>>t;//输入测试组数
+    while(t--)
+    {
+        cin>>n>>m;
+        if(m == 0)//边界判断(因为上述初始化中均为处理到边界0,要特殊处理,否则会导致答案为0)
+        {
+            cout<<d[n]<<"\n";
+        }
+        else if(m == n)
+        {
+            cout<<1<<"\n";
+        }
+        else
+        {
+            long long c = f[n]*inv[m]%md*inv[n-m]%md;//计算组合数
+            cout<<c*d[n-m]%md<<"\n";//输出答案取模
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,72 @@
+//原理:种类并查集,三元关系就开三倍并查集
+//解释含义:第一个n代表本体,第二个n代表虚拟本体吃谁,第三个n代表虚拟本体被谁吃,((我的含糊不清)三个n中区分靠区间下限,每个n中均可能会存在3个集合)
+//核心理解:多出的其他并查集大小本质是对应本体的虚拟身份,有着不同的功能
+#include <bits/stdc++.h>
+using namespace std;
+int f[50001*3];//并查集
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int x,int y)//合并并查集
+{
+    int f1 = Find(x);
+    int f2 = Find(y);
+    if(f1 == f2) return;
+    f[f1] = f2;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,x,y,c,ans = 0;
+    cin>>n>>m;
+    for (int i = 1;i<=3*n;i++)//初始化并查集
+    {
+        f[i] = i;
+    }
+    while(m--)//依次处理m对关系
+    {
+        cin>>c>>x>>y;
+        if(x > n||y > n)//如果超过范围,为假话
+        {
+            ans++;//答案加1
+            continue;//继续循环
+        }
+        if(c == 1)//如果是同类关系
+        {
+            if(Find(x+n) == Find(y))//如果y被x吃,假话
+            {
+                ans++;
+                continue;
+            }
+            if(Find(x+2*n) == Find(y))//如果x被y吃,假话
+            {
+                ans++;
+                continue;
+            }
+            //否则处理关系!!!!!!!超难点
+            Join(x,y);//本体合并
+            Join(x+n,y+n);//共同吃别人
+            Join(x+2*n,y+2*n);//共同被别人吃
+        }
+        else if(c == 2)//如果是吃与被吃关系
+        {
+            if(x == y)//如果是自己,假话
+            {
+                ans++;
+                continue;
+            }
+            if(Find(x) == Find(y)||Find(x+2*n) == Find(y))//如果同类或x被y吃,假话
+            {
+                ans++;
+                continue;
+            }
+            Join(x+n,y);//x吃y
+            Join(y+2*n,x);//y被x吃
+            Join(x+2*n,y+n);//!!!!难点,x被y吃的生物吃
+        }
+    }
+    cout<<ans<<endl;//输出答案
+    return 0;
+}

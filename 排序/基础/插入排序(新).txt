@@ -1,0 +1,58 @@
+//时间复杂度:o(n^2)
+//功能:可升序可降序(但是细节要注意)
+#include <bits/stdc++.h>
+using namespace std;
+int number[100];//存储输入的数字
+bool up(int a,int b)//按升序排序
+{
+    return a<=b;
+}
+bool down(int a,int b)//按降序排序
+{
+    return a>=b;
+}
+inline int read()//快读
+{
+    int s = 0;
+    int f = 1;
+    char ch = getchar();
+    while(ch < '0'||ch > '9')
+    {
+        if(ch == '-') f = -1;
+        ch = getchar();
+    }
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s*f;
+}
+void Insertsort(int a[],int n)//插入排序
+{
+    int i,j;
+    for(i = 1;i<=n;i++)//遍历要操作的数
+    {
+        int temp = a[i];//记录当前要插入的数,防止过程中位移导致原来操作数位置上的数不是当前操作数
+        for(j = i-1;j>=1;j--)//将操作数插入之前已经排好序的数组
+        {
+            if(up(a[j],temp)||j == 0) break;//以升序为例(注意temp与a[j]的左右位置,自己思考),满足可插入条件及退出
+            a[j+1] = a[j];
+        }
+        a[j+1] = temp;//插入可插入数的前面
+    }
+}
+int main()
+{
+    int n = read();//读入要排序的数的个数
+    for (int i = 1;i<=n;i++)//依次输入n个数
+    {
+        number[i] = read();
+    }
+    Insertsort(number,n);//插入排序
+    for (int i = 1;i<=n;i++)//遍历输出
+    {
+        printf("%d ",number[i]);
+    }
+    return 0;
+}

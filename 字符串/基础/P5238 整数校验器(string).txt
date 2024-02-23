@@ -1,0 +1,117 @@
+//原理:string容器
+//背景:快读类似输入TLE(我猜测是死循环)
+//投机取巧:未有右边界是负数时候的比较
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct str//数字结构体
+{
+    bool fu;//记录正负
+    int len;
+    string number;
+}STR;
+STR strl,strr;//左右边界
+long long l,r;//数字左右边界
+bool check(string x,bool fu)//检查是否为合法数字
+{
+    if(fu)//如果是负数
+    {
+        char ch = x[0];
+        if(ch == '0') return true;
+        if(x.size() == 0) return true;
+    }
+    else//正数
+    {
+        int len = x.size();
+        if(len >= 2&&x[0] == '0') return true;
+    }
+    return false;
+}
+void Solve()//判断
+{
+    string temp;
+    char x[1001];//作用:缓冲负数
+    bool fu = false;//初始化为正数
+    scanf("%s",x);//输入数字x
+    if(x[0] == '-' )//判断负数
+    {
+        fu = true;//标记为负数
+        temp = x;//!!!char型转string,直接赋值
+        temp = temp.substr(1);//截取
+    }
+    else//正数
+    {
+        temp = x;//直接赋值
+    }
+    if(check(temp,fu))//检查是否为合法数字
+    {
+        cout<<1<<endl;
+        return;//返回
+    }
+    int len = temp.size();//计算绝对值数字长度
+    if(fu)//负数(bug只比较左边界)
+    {
+        if(strl.fu)
+        {
+            if(len>strl.len) cout<<2<<endl;
+            else if(len == strl.len)
+            {
+                if(temp>strl.number) cout<<2<<endl;
+                else cout<<0<<endl;
+            }
+            else
+            {
+                cout<<0<<endl;
+            }
+        }
+        else
+        {
+            cout<<2<<endl;
+        }
+        return;
+    }
+    else//正数(bug只比较右边界)
+    {
+        if(len>strr.len) cout<<2<<endl;
+        else if(len == strr.len)
+        {
+            if(temp>strr.number) cout<<2<<endl;
+            else cout<<0<<endl;
+        }
+        else cout<<0<<endl;
+        return;
+    }
+}
+int main()
+{
+    int t;
+    cin>>l>>r>>t;//输入左右边界及测试组数
+    if(l<0)//由于边界问题,不能l *= -1处理
+    {
+        strl.fu = true;
+        strl.number = std::to_string(l);//!!!!数字转string方法
+        strl.number = strl.number.substr(1);//string中substr用法:substr(a,b)从a位置开始截取b个字符,省略b则截取完后面
+        strl.len = strl.number.size();
+    }
+    else
+    {
+        strl.number = std::to_string(l);
+        strl.len = strl.number.size();
+    }
+    if(r<0)
+    {
+        strr.fu = true;
+        strr.number = std::to_string(r);
+        strr.number = strr.number.substr(1);
+        strr.len = strr.number.size();
+    }
+    else
+    {
+        strr.number = std::to_string(r);
+        strr.len = strr.number.size();
+    }
+    while(t--)
+    {
+        Solve();//依次处理t次询问
+    }
+    return 0;
+}

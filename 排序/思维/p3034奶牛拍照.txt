@@ -1,0 +1,35 @@
+//原理:每个奶牛最多移动一次,故五张照片中某奶牛至少三次排在另一奶牛前面的,最初的相对位置一定在前面,相对位置想到排序
+//时间复杂度:期望:o(nlogn),最糟糕:o(n^2*logn),unordered_map哈希表
+#include <bits/stdc++.h>
+using namespace std;
+unordered_map<int,int>s[6];//哈希表map,记录每个照片中编号为i的奶牛的位置
+int ans[200001];//答案数组
+bool cmp(int a,int b)//核心排序bool判断
+{
+    int f = 0;//初始化排在前面次数
+    for (int i = 1;i<=5;i++)//遍历五个照片
+    {
+        if(s[i][a]<s[i][b]) f++;//i照片在前面,次数加1
+    }
+    return f>=3;//返回次数至少为3次
+}
+int main()
+{
+    int n,x;
+    cin>>n;//输入n头奶牛
+    for (int i = 1;i<=5;i++)//5行
+    {
+        for (int j = 1;j<=n;j++)//n个奶牛
+        {
+            cin>>x;
+            ans[j] = x;//初始化
+            s[i][x] = j;//记录,编号x在i行的位置为j
+        }
+    }
+    sort(ans+1,ans+n+1,cmp);//排序
+    for (int i = 1;i<=n;i++)//输出答案
+    {
+        cout<<ans[i]<<endl;
+    }
+    return 0;
+}

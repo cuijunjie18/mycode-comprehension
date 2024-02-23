@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <conio.h>
+#include <time.h>
+
+#define UP 72
+#define DOWN 80
+#define LEFT 75
+#define RIGHT 77
+
+
+int n,m;
+int mp[101][101];
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+int d;
+int px,py;
+void build();
+void show();
+void gotoxy(int y,int x);
+void HideCursor();
+void play();
+int main()
+{
+    build();
+    play();
+    return 0;
+}
+
+void build()
+{
+    printf("Please input the sphere of the map:");
+    scanf("%d%d",&n,&m);
+    for (int i = 1;i<=m+2;i++)
+    {
+        mp[1][i] = 1;
+        mp[n+2][i] = 1;
+    }
+    for (int i = 1;i<=n+2;i++)
+    {
+        mp[i][1] = 1;
+        mp[i][m+2] = 1;
+    }
+    px = n/2+1;
+    py = m/2+1;
+    printf("Are you ready?\n");
+    system("PAUSE");
+    show();
+}
+void show()
+{
+    HideCursor();
+    system("cls");
+    for (int i = 1;i<=n+2;i++)
+    {
+        for (int j = 1;j<=m+2;j++)
+        {
+            gotoxy(i-1,2*j-1);
+            if(mp[i][j]) printf("■");
+            else printf(" ");
+        }
+        printf("\n");
+    }
+    gotoxy(px-1,2*py-1);
+    printf("@");
+}
+void gotoxy(int y,int x)
+{
+    COORD p;
+    p.X = x;
+    p.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),p);
+}
+void HideCursor()
+{
+    CONSOLE_CURSOR_INFO cursor_info = {1,0};
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),&cursor_info);
+}
+void play()
+{
+    while(px<=n+1&&px>=2&&py>=2&&py<=m+1)
+    {
+        if(kbhit())
+        {
+            char ch = getch();
+            if(ch == UP&&d != 1) d = 0;
+            else if(ch == DOWN&&d != 0) d = 1;
+            else if(ch == LEFT&&d != 3) d = 2;
+            else if(ch == RIGHT&&d != 2) d = 3;
+            else if(ch == 'q') goto EXIT;
+        }
+        px += walk[d][0];
+        py += walk[d][1];
+        if(px<=n+1&&px>=2&&py>=2&&py<=m+1)
+        {
+            printf("\b ");
+            gotoxy(px-1,2*py-1);
+            printf("@");
+        }
+        Sleep(300);
+    }
+    Sleep(300);
+    EXIT:
+    gotoxy(n+2,0);
+    printf("Game over!");
+}
