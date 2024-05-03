@@ -1,0 +1,59 @@
+//背景:因为理解错了题目,调了一个小时
+//错因:含有质因数的数可以是质因数本身,我先入为主认为一定要是合数才能有因数
+//原理及方法:并查集 + 欧拉筛 + 区间筛思想(质因数原理)
+//时间复杂度:接近o(n)
+#include <bits/stdc++.h>
+using namespace std;
+bool number[100001];//判断是否为质数,初始化为0,即默认全部为质数
+int prime[100001];//存储筛选出来的质数
+int cnt;//一定范围内质数的个数
+int f[100001];//并查集
+void prework()//预先筛选出可用的质数,此处用欧拉筛
+{
+    number[1] = 1;
+    for (int i = 2;i<=100000;i++)
+    {
+        if(!number[i]) prime[++cnt] = i;
+        for (int j = 1;j<=cnt&&prime[j]*i<=100000;j++)
+        {
+            number[i*prime[j]] = 1;
+            if(i%prime[j] == 0) break;
+        }
+    }
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Join(int x,int y)//并查集合并
+{
+    int f1 = Find(x);
+    int f2 = Find(y);
+    if(f1 == f2) return;
+    f[f1] = f2;
+}
+int main()
+{
+    int a,b,p;
+    prework();//预处理质数
+    cin>>a>>b>>p;
+    for (int i = a;i<=b;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=cnt&&prime[i]*2<=b;i++)//区间筛思想!!!注意不是照搬
+    {
+        if(prime[i]<p) continue;
+        int x = prime[i];
+        int start = (a+x-1)/x*x;//此处可以从1开始,而不是max(2,a+x-1/x)*x 不是筛合数
+        for (int j = start+x;j<=b;j += x)
+        {
+            Join(start,j);//合并含公共质因数x的数
+        }
+    }
+    int ans = 0;
+    for (int i = a;i<=b;i++)//计算答案(还可以用set统计,也可以先令ans = b - a + 1,每一次成功的合并都使集合数减少1)
+    {
+        if(Find(i) == i) ans++;
+    }
+    cout<<ans<<endl;//输出
+    return 0;
+}

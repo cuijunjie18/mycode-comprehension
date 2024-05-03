@@ -1,0 +1,36 @@
+//背景:其实自己的做法已经很接近了,只是无神来一笔,故求助于模板
+//原理:倍增维护RMQ问题,其实对于可重复贡献的问题,区间重叠无所谓
+//时间复杂度:o(nlogn + m),瓶颈来自于预处理
+#include <bits/stdc++.h>
+using namespace std;
+int lg[100001];//预处理log2对数函数,每次调用log()函数不值得
+int f[100001][30];//核心倍增数组,意思为[x,x + 2^i - 1]区间内的最大值   更好理解:以x为起点,长度为2^i的区间
+void prework()//预处理log2数组
+{
+    lg[1] = 0;//初始化
+    for (int i = 2;i<=100000;i++) lg[i] = lg[i/2] + 1;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    prework();//一定不要忘记加上prework函数
+    int n,m,l,r;
+    cin>>n>>m;//输入数组大小及询问次数
+    for (int i = 1;i<=n;i++) cin>>f[i][0];//输入每个数字
+    for (int j = 1;j<= 30;j++)//枚举对数
+    {
+        for (int i = 1;i + (1<<j) - 1<=n;i++)//枚举每个位置的数字,且在所求区间在范围内,即i + (1<<j) - 1<=n
+        {
+            f[i][j] = max(f[i][j-1],f[i + (1<<(j-1))][j-1]);//dp转移
+        }
+    }
+    while(m--)/依次回答m个问题
+    {
+        cin>>l>>r;
+        int ans = 0;//初始化答案
+        int temp = lg[r-l+1];//获取最大的对数
+        ans = max(f[l][temp],f[r-(1<<temp)+1][temp]);//易有左右区间覆盖了整个所求范围,故答案是正确的
+        cout<<ans<<"\n";//输出
+    }
+    return 0;
+}

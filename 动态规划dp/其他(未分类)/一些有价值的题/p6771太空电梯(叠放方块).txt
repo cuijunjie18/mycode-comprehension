@@ -1,0 +1,33 @@
+//背景:刷题,下载了数据才发现有特殊性,故记录
+//原理:排序 + 完全背包dp
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct block
+{
+    int h,c,a;
+}BLOCK;
+BLOCK b[401];
+bool cmp(BLOCK x,BLOCK y) {return x.a < y.a;}
+int f[40001];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>b[i].h>>b[i].a>>b[i].c;
+    sort(b+1,b+n+1,cmp);//按极限高度由小到大排序
+    //for (int i = 1;i<=n;i++) cout<<b[i].a<<" "<<b[i].h<<" "<<b[i].c<<"\n";
+    for (int i = 1;i<=n;i++)//完全背包dp板子
+    {
+        for (int j = b[i-1].a;j<=b[i].a;j++) f[j] = f[b[i-1].a];//由于极限高度的突变,之前dp的容量改变,而新多出的背包容量未被赋值,故应该赋最优值
+        for (int j = b[i].a;j>=b[i].h;j--)
+        {
+            for (int k = 1;k<=b[i].c&&k*b[i].h<=j;k++)
+            {
+                f[j] = max(f[j],f[j-k*b[i].h] + k*b[i].h);
+            }
+        }
+    }
+    cout<<f[b[n].a]<<"\n";//输出
+    return 0;
+}

@@ -1,0 +1,61 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int heap[10001];
+int cnt;
+void up(int x)
+{
+    while(x>1&&heap[x]<heap[x/2])
+    {
+        swap(heap[x],heap[x/2]);
+        x /= 2;
+    }
+}
+void down(int x)
+{
+    while(x*2<=cnt)
+    {
+        int t = x*2;
+        if(t+1<=cnt&&heap[t+1]<heap[t]) t++;
+        if(heap[t]<heap[x])
+        {
+            swap(heap[t],heap[x]);
+            x = t;
+        }
+        else break;
+    }
+}
+void Erase()//删除堆顶(也可以删除任意位置)
+{
+    heap[1] = heap[cnt--];
+    down(1);
+}
+int getmin()//取堆顶
+{
+    int x = heap[1];
+    Erase();
+    return x;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x;
+        heap[++cnt] = x;
+    }
+    for (int i = n;i>=1;i--) down(i);//建堆
+    long long ans = 0;//初始化答案
+    while(cnt>=2)//还可以合并
+    {
+        int a = getmin();
+        int b = getmin();
+        ans += (a+b);
+        heap[++cnt] = (a+b);
+        up(cnt);
+    }
+    cout<<ans<<"\n";
+    return 0;
+}

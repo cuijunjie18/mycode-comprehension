@@ -1,0 +1,19 @@
+//背景:该题数据范围小,不需要取模,故可以用递推求卡特兰数
+//建模:一定100元之前要有人给了50元,才可以找,建模为栈(要有才能弹出),或者建模为括号匹配
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+long long f[21];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    f[0] = f[1] = 1;
+    for (int i = 2;i<=n;i++)
+    {
+        f[i] = f[i-1]*(4*i-2)/(i+1);//递推求卡特兰数公式
+    }
+    cout<<f[n]<<"\n";
+    return 0;
+}

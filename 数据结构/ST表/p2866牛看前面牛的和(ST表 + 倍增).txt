@@ -1,0 +1,49 @@
+//背景:一直想用的倍增,终于实现了！
+//收获:初步理解了倍增的运用细节:1,不能超过最大区间长度(这在LCA中没有显式的体现,其实f[i][x]越界后对应为0,故等于限制了,自己看);2,要从大的对数倒着枚举(类LCA)
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int f[80001][30];//ST表维护RMQ
+int logn[80001];//预处理log2对数数组
+void prework()//预处理对数数组
+{
+    logn[1] = 0;
+    for (int i = 2;i<=80000;i++) logn[i] = logn[i/2] + 1;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    //FILE* fp = fopen("1.txt","r");
+    prework();//预处理
+    int n;
+    cin>>n;//输出牛的个数
+    //fscanf(fp,"%d",&n);
+    for (int i = 1;i<=n;i++) cin>>f[i][0];//输入自己的身高 //fscanf(fp,"%d",&f[i][0]);
+    for (int i = n;i>=1;i--)//ST表维护RMQ
+    {
+
+        for (int j = 1;i + (1<<j) - 1<=n;j++)
+        {
+            f[i][j] = max(f[i][j-1],f[i + (1<<(j-1))][j-1]);
+        }
+    }
+    long long sum = 0;//初始化答案
+    for (int i = n-1;i>=1;i--)//依次处理n-1头牛
+    {
+        int now = i + 1;//初始化起点位置,为当前牛前面一位
+        int temp = 0;//初始化当前和
+        int st = f[i][0];//存储标准
+        for (int j = logn[n-now+1];j>=0;j--)//倒着倍增(原理自己想想二进制怎么来的),确保了能到达假设的满足条件的位置(类LCA)
+        {
+            if(f[now][j] < st&&now + (1<<j) - 1<=n)//确保满足条件,即RMQ小于标准,且不越界
+            {
+                temp += (1<<j);//累加
+                now = now + (1<<j);//移动标
+            }
+        }
+        sum += temp;//累加答案
+    }
+    //printf("%lld\n",sum);
+    cout<<sum<<"\n";//输出
+    return 0;
+}

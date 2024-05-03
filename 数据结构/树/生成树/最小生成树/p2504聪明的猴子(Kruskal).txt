@@ -1,0 +1,63 @@
+//原理:Kruskal算法,最小生成树的性质:所有边权中的最大值是所有生成树中最小的(我自己发现的,未证明)
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int b,e;//记录端点
+    double value;//记录边权
+}EDGE;
+EDGE e[1000001];
+int f[1001];//并查集数组
+int monkey[1001];//猴子最远跳跃距离
+int x[1001];//树的横坐标
+int y[1001];//树的纵坐标
+bool cmp(EDGE x,EDGE y)//自定义结构体比较
+{
+    return x.value<y.value;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int m,n;
+    cin>>m;//输入猴子数
+    for (int i = 1;i<=m;i++) cin>>monkey[i];//输入每个猴子的最远跳跃距离
+    cin>>n;//输入树的数目
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=n;i++) cin>>x[i]>>y[i];//输入树的坐标
+    for (int i = 1;i<=n;i++)//建边的集合(邻接矩阵思想)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            double d = sqrt((x[i]-x[j])*(x[i]-x[j]) + (y[i]-y[j])*(y[i]-y[j]));//计算距离
+            e[(i-1)*n + j].b = i;
+            e[(i-1)*n + j].e = j;
+            e[(i-1)*n + j].value = d;
+        }
+    }
+    sort(e+1,e+n*n+1,cmp);//对边距离排序
+    double ans = 0;//初始化最大边权
+    int finish = 0;//初始化完成的边的数
+    for (int i = 1;i<=n*n;i++)//枚举边
+    {
+        if(finish == n-1) break;//如果已经构成MST,退出
+        int x = Find(e[i].b);
+        int y = Find(e[i].e);
+        if(x == y) continue;//如果已经在一棵树上了,跳过
+        finish++;//完成边数加1
+        f[x] = y;//合并树
+        ans = max(ans,e[i].value);//记录树中的最大边权
+    }
+    int number = 0;//初始化答案数
+    for (int i = 1;i<=m;i++)
+    {
+        if(monkey[i]>=ans) number++;//如果能跳过最大边权,则全部可以跳过,该猴子满足条件,答案+1
+    }
+    cout<<number<<"\n";//输出
+    return 0;
+}

@@ -1,0 +1,56 @@
+//原理:最小生成树思想(Kruskal),最小森林,保证了将可以连通的节点形成多棵或一棵树的权值和最小
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal边结构体
+{
+    int b,e,value;
+}EDGE;
+EDGE e[10001];
+int f[1001];//并查集数组
+priority_queue<int,vector<int>,less<int>>heap;//堆维护生成树中的最大边
+bool cmp(EDGE x,EDGE y)//自定义结构体比较
+{
+    return x.value<y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,k;
+    cin>>n>>m>>k;//输入云朵数及边数及要连成的集合数
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=m;i++) cin>>e[i].b>>e[i].e>>e[i].value;//输入边数据
+    sort(e+1,e+m+1,cmp);//排序
+    int finish = 0;//已经连起来的边
+    int all = 0;//生成树(森林)的最小权值和
+    for (int i = 1;i<=m;i++)//Kruskal
+    {
+        if(finish == n-1) break;//如果图已连通,退出
+        int x = Find(e[i].b);
+        int y = Find(e[i].e);
+        if(x == y) continue;//如果成环,退出
+        f[x] = y;//并查集合并
+        finish++;//完成数加1
+        all += e[i].value;//累加
+        heap.push(e[i].value);//该边入堆
+    }
+    if(n-(finish) > k) cout<<"No Answer"<<"\n";//用完所有边后的集合数还多于要求的,无法完成要求
+    else//否则
+    {
+        int ans = 0;//记录删除的最大代价
+        int number = 0;//记录删除边数(删除一边就会多一个集合)
+        while(number < k - (n-finish))
+        {
+            ans += heap.top();//每次删最大权值的,即贪心
+            heap.pop();//弹出
+            number++;//删除数加1
+        }
+        cout<<all-ans<<"\n";//输出答案
+    }
+    return 0;
+}

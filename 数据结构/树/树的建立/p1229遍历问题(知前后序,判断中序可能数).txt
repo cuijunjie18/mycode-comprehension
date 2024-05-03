@@ -1,0 +1,33 @@
+//背景:时隔多月,终于Ac
+//原理:只有某个节点只有一个儿子的时候,该处的中序遍历才会有2中情况,即左右不影响前后序,但却影响中序,AB 对应 BA即只有一个儿子
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+unordered_set<int> s1;
+unordered_set<int> s2;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    string pre,host;
+    cin>>pre>>host;//输入前后序
+    for (int i = 0,big = pre.size();i<big;i++)//处理
+    {
+        if(i == big-1) break;
+        int temp = (pre[i] - 'a' + 1)*26 + (pre[i+1] - 'a' + 1);//26进制转换
+        s1.insert(temp);
+    }
+    for (int big = host.size(),i = big-1;i>=0;i--)//倒着转换
+    {
+        if(i == 0) break;
+        int temp = (host[i] - 'a' + 1)*26 + (host[i-1] - 'a' + 1);
+        s2.insert(temp);
+    }
+    int number = 0;
+    for (auto v : s1)//遍历判断
+    {
+        if(s2.count(v)) number++;
+    }
+    long long ans = pow(2,number);//计算答案
+    cout<<ans<<"\n";//输出
+    return 0;
+}

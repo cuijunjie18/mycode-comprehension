@@ -1,0 +1,49 @@
+//背景:我自己思考想出来的图论题,总归是有成就感的
+//分析:求间接连接的点的对数,即一个连通块中枚举出两两连接的组合数,减去整个连通块中的边数,因为一条边必然直接连接了两个不同的点
+//原理:并查集
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+int f[200001];//并查集
+int e[200001];//代表每个节点直接相连有多少边
+int big[200001];//记录每个连体块的大小,即含多少个节点(以祖先为代表)
+int connect[200001];//记录每个连通块的含边数
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,x,y;
+    cin>>n>>m;//输入节点数及边数
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化别忘了
+    for (int i = 1;i<=m;i++)//依次输入m条边
+    {
+        cin>>x>>y;
+        e[x]++;//边数累加
+        e[y]++;
+        int f1 = Find(x);
+        int f2 = Find(y);
+        if(f1 == f2) continue;
+        f[f1] = f2;//并查集合并
+    }
+    for (int i = 1;i<=n;i++)//预处理连通块
+    {
+        x = Find(i);
+        big[x]++;//对应连通块大小加1
+        connect[x] += e[i];//连通块含边数加上当前节点带来的边
+    }
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//求和
+    {
+        x = Find(i);
+        if(x != i) continue;//不是祖先跳过
+        connect[x] /= 2;//因为之前连通块中每条边重复计算了2次,故要除以2
+        long long temp = (long long)(big[x])*(big[x]-1)/2;//计算答案
+        ans += (temp - connect[x]);//累加
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

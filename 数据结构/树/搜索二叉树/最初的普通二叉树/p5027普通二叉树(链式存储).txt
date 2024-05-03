@@ -1,0 +1,171 @@
+//背景:时隔2个月终于AC了!,且链式存储结构对于树形结构来说比较好想
+//难点:细节多
+//x数排名的定义:小于x数的数的个数+1
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct tree//链式存储树的结构体
+{
+    struct tree* l;//连接左子树
+    struct tree* r;//连接右子树
+    int value;//当前节点权值
+    int number;//当前节点权值的个数
+    int big;//以当前节点为根的树的大小(包含当前节点)
+}TREE;
+int ans;//存储部分操作的答案
+int position;//存储查询x数排名的答案
+TREE* Build(TREE* head,int x)//建树,即插入操作(有返回值的函数,返回树的节点指针,易于操作)
+{
+    TREE* p = NULL;//新建立节点(一开始的目的是防止与原本的head混淆)
+    if(head == NULL)//如果当前节点为空
+    {
+        p = (TREE*)malloc(sizeof(TREE));//为新节点分配空间
+        p->big = 1;//初始化以当前节点为根的树的大小
+        p->number = 1;//初始化当前节点权值数
+        p->value = x;//为当前节点分配权值
+        p->l = NULL;//!!!一定要设置为空指针
+        p->r = NULL;//同理
+        return p;//返回指针p
+    }
+    if(x == (head->value))//如果待插入数与当前节点权值相同
+    {
+        (head->big)++;//改变树的大小
+        (head->number)++;//权值数加1
+        return head;//返回指针
+    }
+    else if(x < (head->value))//如果比当前节点小,根据平衡二叉树的性质,应为该数在左子树位置寻找合适的位置插入
+    {
+        head->l = Build(head->l,x);//往左子树方向插入,并连接到当前节点
+        //下面是重难点细节,调了一整晚才发现,即重新计算以当前节点为根的树的大小
+        //首先要判断左右子树是否存在才可以用指针表达式,否则空指针用->表达式运行时会出错(即时系统不报错)
+        head->big = (head->l == NULL?0:head->l->big) + (head->r == NULL?0:head->r->big) + (head->number);
+    }
+    else if(x > (head->value))//右子树同理
+    {
+        head->r = Build(head->r,x);
+        head->big = (head->l == NULL?0:head->l->big) + (head->r == NULL?0:head->r->big) + (head->number);
+    }
+    return head;//最后一定一定一定要返回!!!
+}
+void Findpre(TREE* head,int x)//查找前驱
+{
+    if(head == NULL) return;//如果查完了,返回
+    if(head->value == x)//如果当前节点权值等于要查的数
+    {
+        Findpre(head->l,x);//查找左子树
+    }
+    else if(head->value < x)//当前节点权值小于要查的数
+    {
+        ans = head->value;//更新可能的答案
+        Findpre(head->r,x);//往右子树找更接近的答案
+    }
+    else if(head->value > x)//当前节点权值大于要查的数
+    {
+        Findpre(head->l,x);//往左子树找答案
+    }
+}
+void Findpost(TREE* head,int x)//查找后继
+{
+    if(head == NULL) return;//查找完了,返回
+    if(head->value == x)//节点权值与要查的数相等
+    {
+        Findpost(head->r,x);//往右子树查
+    }
+    else if(head->value < x)//节点权值小于要查的数
+    {
+        Findpost(head->r,x);//往左子树查
+    }
+    else if(head->value > x)//节点权值大于要查的数
+    {
+        ans = head->value;//更新可能的答案
+        Findpost(head->l,x);//往左子树逼近答案
+    }
+
+}
+void Findposition(TREE* head,int x,int sum)//查找x数的排名,sum的含义为之前比x小的数的总数
+{
+    if(head == NULL)//查完了
+    {
+        position = sum + 1;//更新排名(由排名定义,要加1)
+        return;//返回
+    }
+    if(head->value == x)//节点权值等于要查的数
+    {
+        position = sum + (head->l == NULL?0:head->l->big) + 1;//直接更新排名
+        return;//返回
+    }
+    else if(head->value > x)//节点权值大于要查的数
+    {
+        Findposition(head->l,x,sum);//查左子树
+    }
+    else if(head->value < x)//节点权值小于要查的数
+    {
+        sum += ((head->l == NULL?0:head->l->big) + head->number);//更新sum
+        Findposition(head->r,x,sum);//递归右子树
+    }
+}
+void Findnumber(TREE* head,int x,int sum)//查找排名为x的数!!!(我认为最难的一个步骤),sum为当前已经排查过的数的数量(按大小顺序)
+{
+    int temp = (head->l == NULL?0:head->l->big);//先计算当前节点左子树大小,即比当前节点小的数的数量
+    if(temp + sum == (x-1))//判断满足条件(排名为x,即比x小的数有x-1个)
+    {
+        ans = head->value;//确定答案
+        return;//返回
+    }
+    else if(temp + sum > (x-1))//如果多了
+    {
+        Findnumber(head->l,x,sum);//往左子树逼近
+    }
+    else if(temp + sum < (x-1))//如果少了
+    {
+        sum += temp;//更新sum
+        if(sum + (head->number) > (x-1))//特殊情况,排名为x的数在一堆相同的权值中间!!注意,这里不能取等
+        {
+            ans = head->value;//确定答案
+            return;//返回
+        }
+        else//否则
+        {
+            sum += (head->number);更新sum
+            Findnumber(head->r,x,sum);//继续往右边找
+        }
+    }
+}
+int main()//主函数
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//解除同步流,加快输入输出
+    TREE* head = NULL;//参天大树从一颗种子开始,初始化平衡树的根
+    int n,c,x;
+    cin>>n;
+    while(n--)//依次处理n次操作
+    {
+        cin>>c>>x;
+        if(c == 1)//查询x数的排名
+        {
+            position = 1;
+            Findposition(head,x,0);
+            cout<<position<<"\n";
+        }
+        else if(c == 2)//查询排名为x的数
+        {
+            Findnumber(head,x,0);
+            cout<<ans<<"\n";
+        }
+        else if(c == 3)//查询比x小的最大值
+        {
+            ans = -2147483647;
+            Findpre(head,x);
+            cout<<ans<<"\n";
+        }
+        else if(c == 4)//查询比x大的最小值
+        {
+            ans = 2147483647;
+            Findpost(head,x);
+            cout<<ans<<"\n";
+        }
+        else if(c == 5)//往平衡树中插入x
+        {
+            head = Build(head,x);
+        }
+    }
+    return 0;
+}

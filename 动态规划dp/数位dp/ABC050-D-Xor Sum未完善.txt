@@ -1,0 +1,21 @@
+//背景:搞了多天,至今仍未理解
+//原理:进制 + 数位dp + 记忆化 + 空间优化
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 1e9 + 7;
+map<long long,long long>dp;//dp空间优化,利用map,含义为a+b小于等于x的数的(a,b)对数
+int my_count(long long n)//记忆化递归
+{
+   if(dp[n]) return dp[n];
+   else return dp[n] = (my_count(n/2) + my_count((n-1)/2) + my_count((n-2)/2))%md;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    long long n;
+    cin>>n;
+    dp[0] = 1;//初始化
+    dp[1] = 2;
+    cout<<my_count(n)<<"\n";//输出
+    return 0;
+}

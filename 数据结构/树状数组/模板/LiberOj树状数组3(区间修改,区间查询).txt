@@ -1,0 +1,69 @@
+//背景:树状数组的一般化,具体原理加证明见OI-wiki
+//适用条件:区间修改,区间查询
+//时间复杂度:o(nlogn)
+//难点:细节多
+#include <bits/stdc++.h>
+using namespace std;
+long long d1[1000001];//维护差分数组的前缀和(差分数组是隐式的)
+long long d2[1000001];//维护差分数组乘上自己位置的前缀和,即sum(d[i]*i)
+int n,q,l,r,x;//常规变量
+char ch;//选择
+int lowbit(int x)//截取低位1代表的二进制数
+{
+    return x&(-x);
+}
+void add(int x,int y)//单点修改,此次修改差分数组
+{
+    long long v = (long long)(x)*y;//因为d2的特殊性,先取出改变量
+    while(x<=n)//不超过范围
+    {
+        d1[x] += y;//修改所有管辖到了x的d1数组
+        d2[x] += v;//修改所有管辖到了x的d2数组
+        //注意不能写成 d2[x] += x*y，因为 x 的值已经不是原数组的下标了
+        x += lowbit(x);//跳父亲
+    }
+}
+void add1(int l,int r,int x)//总加,将区间修改分为两边(差分)
+{
+    add(l,x);
+    add(r+1,-x);
+}
+long long getsum(long long a[],int x)//获取前缀和,可以选择数组
+{
+    long long ans = 0;//初始化答案
+    while(x>=1)//在范围内
+    {
+        ans += a[x];//累加
+        x -= lowbit(x);//跳儿子
+    }
+    return ans;//返回
+}
+long long getsum1(int l,int r)//总区间求和
+{
+    return (r+1)*getsum(d1,r) - (l-1+1)*getsum(d1,l-1) - getsum(d2,r) + getsum(d2,l-1);//套用公式,注意细节即可:1,符号;2,数据溢出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n>>q;//输入数据量及操作次数
+    for (int i = 1;i<=n;i++)//初始化,及单区间修改
+    {
+        cin>>x;
+        add1(i,i,x);
+    }
+    while(q--)//q次操作
+    {
+        cin>>ch;//输入选择
+        if(ch == '1')//区间修改
+        {
+            cin>>l>>r>>x;
+            add1(l,r,x);
+        }
+        else if(ch == '2')//区间查询
+        {
+            cin>>l>>r;
+            cout<<getsum1(l,r)<<"\n";
+        }
+    }
+    return 0;
+}

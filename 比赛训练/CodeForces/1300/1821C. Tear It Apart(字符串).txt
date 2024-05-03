@@ -1,0 +1,41 @@
+//背景:比赛时一点思路都没有!!!,看了题解才有思路
+/*思路:对于使最后字符串中字母相同的题,这样的说法是模糊的,所有我们当然要假设最后留下的字符是什么.容易知道,只有26个字符,枚举每个字符最后保留的情况,
+      然后判断删掉其他字符的最多操作次数,可以知道是两个保留字符的间的最长长度的log2(因为一次最多可以搞掉length/2)*/
+#include <bits/stdc++.h>
+using namespace std;
+int logn[200001];//特殊的对数数组
+void prework()
+{
+    logn[1] = 1;//因为中间有一个字符的长度时答案是1,特殊logn
+    for (int i = 2;i<=200000;i++) logn[i] = logn[i/2] + 1;//自己枚举一下即可发现logn是原来的标准logn的偏移
+}
+void Solve()
+{
+    string s;
+    cin>>s;
+    vector<int> letter[26];//动态二维数组存每个字符出现的位置
+    int big = s.size();//计算大小
+    for (int i = 0;i<=25;i++) letter[i].push_back(0);//0也要插入,左边也会有长度但可能没有该字符
+    for (int i = 0;s[i] != '\0';i++) letter[s[i] - 'a'].push_back(i+1);//插入位置
+    for (int i = 0;i<=25;i++) letter[i].push_back(big+1);//最后要插入big+1
+    int ans = 99999999;//求最小值,初始化答案为无穷大
+    for (int i = 0;i<=25;i++)//枚举字符
+    {
+        int m = 0;//初始化当前字符间隔的最大值
+        for (int j = 1,b = letter[i].size();j<b;j++)//遍历,注意从1开始保证j-1存在
+        {
+            m = max(m,letter[i][j] - letter[i][j-1] - 1);//取最大值
+        }
+        ans = min(ans,logn[m]);//最后对答案取最小值
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int t;
+    cin>>t;
+    while(t--) Solve();
+    return 0;
+}

@@ -1,0 +1,22 @@
+//背景:单调队列的练手模板题,只是题目要求一开始有点迷惑
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+int a[2000001];//记录原始数据
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m;
+    deque<int> que;//建立双端队列,存储的是位置信息
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入原始数据
+    cout<<0<<"\n";//第一个数前面肯定没有数,输出0
+    for (int i = 2;i<=n;i++)//处理剩余n个位置
+    {
+        if(!que.empty()&&que.front()<i-m) que.pop_front();//超过限定窗口大小的出队
+        while(!que.empty()&&a[i-1] < a[que.back()]) que.pop_back();//求最小值维护单调上升的队列
+        que.push_back(i-1);//当前位置前一位入队
+        cout<<a[que.front()]<<"\n";//输出此时队头即为答案
+    }
+    return 0;
+}

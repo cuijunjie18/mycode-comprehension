@@ -1,0 +1,52 @@
+//时间复杂度:o(n^3)
+//背景:看了题解的思路才做出
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next,value;
+}EDGE;
+EDGE e[101<<1];
+int head[101];
+int cnt;
+int f[101][101];//dp数组,代表以i为节点的子树保留j条边保留的苹果的最大值
+int big[101];//以i为节点的子树的边总数
+int n,m,a,b,c;//输入变量
+void add(int x,int y,int v)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].value = v;
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//核心dp加DFS
+{
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        big[x]++;/改变大小
+        DFS(e[i].to,x);
+        big[x] += big[e[i].to];//改变大小
+        for (int j = min(m,big[x]);j>=1;j--)//dp,逆序(保证数据来自之前的),j不用等于0(就算为0答案也是0)
+        {
+            for(int k = min(j-1,min(m,big[e[i].to]));k>=0;k--)//这里顺序逆序均可,注意这个j-1
+            {
+                f[x][j] = max(f[x][j],f[x][j-k-1]+f[e[i].to][k]+e[i].value);//!!!难点,j-k-1而不是j-k,因为当前边也算上了
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n>>m;
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>a>>b>>c;
+        add(a,b,c);
+        add(b,a,c);
+    }
+    DFS(1,0);//dp
+    cout<<f[1][m]<<"\n";//输出答案
+    return 0;
+}

@@ -1,0 +1,46 @@
+//背景:边界处理调了2个小时,emo了,我是菜逼
+//方法:组合数代替动态规划求(x1,y1)到(x2,y2)距离,预处理出阶乘模及阶乘逆元值即可
+//时间复杂度:o(n+m)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 1000000007;
+long long f[200005];
+long long inv[200005];
+void prework()//预处理
+{
+    f[0] = 1;//必不可少,就是这个边界忘记了处理了2个小时
+    f[1] = 1;
+    for (int i = 2;i<=200005;i++)//处理阶乘模
+    {
+        f[i] = f[i-1]*i%md;
+    }
+    inv[0] = inv[1] = 1;//现象求逆元初始化
+    for (int i = 2;i<=200005;i++)//线性求逆元
+    {
+        inv[i] = (md-md/i)*inv[md%i]%md;
+    }
+    for (int i = 2;i<=200005;i++)//求阶乘的逆元,原理:乘积的逆元等于逆元的乘积,之前我有证明
+    {
+        inv[i] = inv[i-1]*inv[i]%md;
+    }
+}
+long long cal(int x1,int y1,int x2,int y2)//计算路径组合数
+{
+    return f[x2-x1+y2-y1]*inv[x2-x1]%md*inv[y2-y1]%md;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();//预处理别忘了
+    int h,w,a,b;
+    cin>>h>>w>>a>>b;
+    long long ans = 0;
+    for (int i = 1;i<=w-b;i++)
+    {
+        long long temp1 = cal(1,1,h-a,b+i);//先计算到达一个点
+        long long temp2 = cal(h-a+1,b+i,h,w);//再计算到达终点
+        ans = (ans + temp1*temp2)%md;
+    }
+    cout<<ans<<"\n";
+    return 0;
+}

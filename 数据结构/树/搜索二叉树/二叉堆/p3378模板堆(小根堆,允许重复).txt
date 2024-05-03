@@ -1,0 +1,59 @@
+//时间复杂度度:o(nlogn),插入o(logn),删除o(logn),查找最小值o(1)
+//类型:本题为小根堆,允许重复,故我的定义为下面的数是大于等于上面的数
+#include <bits/stdc++.h>
+using namespace std;
+int heap[1000001];//完美二叉树的数组存储方式
+int cnt;//堆中节点的数量
+void up(int x)//插入向上调整
+{
+    while(x>1&&heap[x]<heap[x/2])//往上比较
+    {
+        swap(heap[x],heap[x/2]);
+        x /= 2;
+    }
+}
+void down(int x)//向下调整
+{
+    while(x*2<=cnt)//往下走
+    {
+        int t = x*2;
+        if(t+1<=cnt&&heap[t+1]<heap[t]) t++;//取更小的值比较
+        if(heap[t]<heap[x])//如果小,交换后x继续往下
+        {
+            swap(heap[t],heap[x]);
+            x = t;
+        }
+        else break;//否则结束
+    }
+}
+void Erase()//删除函数(辅助函数为down())
+{
+    swap(heap[1],heap[cnt]);//先与最后一个节点交换
+    cnt--;//删除最后一个节点
+    if(cnt == 0||cnt == 1) return;//如果没有节点或只有一个,不用调整了,直接返回
+    down(1);//从根开始向下调整
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,op,x;
+    cin>>n;
+    while(n--)//依次处理n次操作
+    {
+        cin>>op;
+        if(op == 1)//插入操作
+        {
+            cin>>x;//输入插入数
+            heap[++cnt] = x;//直接放到最后
+            up(cnt);//向上调整
+        }
+        else if(op == 2)//输出最小值操作
+        {
+            cout<<heap[1]<<"\n";
+        }
+        else if(op == 3)//删除
+        {
+            Erase();
+        }
+    }
+}

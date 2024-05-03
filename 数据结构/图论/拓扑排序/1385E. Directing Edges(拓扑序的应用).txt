@@ -1,0 +1,85 @@
+//背景:本题为构造DAG题,给出了有向与无向边,CF2000分题目
+/*思路:先处理有向图,判断是否有环,有就NO,否则一定有解.
+       我们思考一下有环的条件(或者说环在什么情况下产生):即后面的数指向前面的数才可能构成环,即拓扑序大的指回去了!
+       故得构造思路:即让无向边的拓扑序小的指向大的即不会产生环*/
+//细节:想想全为无向边的情况下处理
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,m,t,x,y;
+    cin>>n>>m;
+    vector<int> e1[n+1];//邻接表存有向图
+    vector<pair<int,int>>e2;//存无向边
+    int topos[n+1];//记录拓扑序
+    int in[n+1];//记录入度
+    memset(topos,0,sizeof(topos));//初始拓扑序为0
+    memset(in,0,sizeof(in));//初始化入度为0
+    for (int i = 1;i<=m;i++)//输入边
+    {
+        cin>>t>>x>>y;
+        if(t == 0)
+        {
+            e2.push_back({x,y});//无向
+        }
+        else
+        {
+            in[y]++;
+            e1[x].push_back(y);//有向
+        }
+    }
+    queue<int> que;//拓扑队列
+    for (int i = 1;i<=n;i++)//这里跟以前的不太一样!!!采用了遍历而非拓扑图中存在的点,即也处理不在拓扑图中的点,其入度必为0
+    {
+        if(in[i] == 0) que.push(i);
+    }
+    int ans = 0;//初始化计数
+    while(!que.empty())//拓扑排序(显然优先处理入度为0的,所以不在拓扑图中的点也会被计算且被赋予拓扑序,神来之笔),而不在拓扑图中的点的拓扑序必然小!!
+    {
+        x = que.front();
+        que.pop();
+        ans++;
+        topos[x] = ans;//记录当前点的拓扑序
+        for (auto v:e1[x])
+        {
+            in[v]--;
+            if(in[v] == 0) que.push(v);
+        }
+    }
+    if(ans < n)//以n为判断环的标准了!!!
+    {
+        cout<<"NO"<<"\n";
+        return;
+    }
+    cout<<"YES"<<"\n";
+    for (int i = 1;i<=n;i++)//先输出有向边
+    {
+        for (auto v:e1[i]) cout<<i<<" "<<v<<"\n";
+    }
+    for (auto v:e2)//处理无向边,由小向大输出
+    {
+        if(topos[v.first] < topos[v.second]) cout<<v.first<<" "<<v.second<<"\n";
+        else cout<<v.second<<" "<<v.first<<"\n";
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+/*我的Hack数据:
+  1
+  4 4
+  0 1 2
+  0 2 3
+  0 3 4
+  0 4 1
+*/

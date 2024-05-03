@@ -1,0 +1,43 @@
+//原理:递推,f[n] = 2*f[n-1] + 1
+#include <bits/stdc++.h>
+using namespace std;
+int ans[1000001];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int index = 1;
+    ans[1] = 1;
+    int n;
+    cin>>n;
+    if(n == 0)//注意特判零
+    {
+        cout<<0;
+        return 0;
+    }
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 1;j<=index;j++)//先乘
+        {
+            ans[j] = ans[j]*2;
+        }
+        ans[1]++;
+        int k = 1;
+        while(k<index)//在处理进位
+        {
+            if(ans[k]>=10)
+            {
+                ans[k+1] += ans[k]/10;
+                ans[k] %= 10;
+            }
+            k++;
+        }
+        while(ans[index]>=10)//单独处理最高位
+        {
+            ans[index+1] = ans[index]/10;
+            ans[index] %= 10;
+            index++;
+        }
+    }
+    for (int i = index;i>=1;i--) cout<<ans[i];//倒着输出
+    return 0;
+}

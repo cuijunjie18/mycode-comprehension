@@ -1,0 +1,85 @@
+//背景:二次刷此题,上次还是不理解差分时做的,现在一做,果真有全新感悟
+//新理解:1,差分数组最终可以转换为待求数组而不用另开空间(适用于不仅树上差分)
+//      2,树上差分本质是把根节点当成数组末尾,而叶子节点为起始位置,分割成了多条链(可自己画图理解)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[50001<<1];
+int head[50001];
+int cnt;
+int d[50001];//差分数组
+int sum[50001];//差分和数组(待求数组,其实不用,只是为了解释直观)
+int depth[50001];//深度数组,辅助求lca
+int f[50001][30];//lca数组
+int ans;//最大压力值答案
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int dis)//预处理lca
+{
+    depth[x] = dis;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x,dis+1);
+    }
+}
+void Sum(int x,int fa)//差分求和,自底而上
+{
+    sum[x] = d[x];//初始化
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        Sum(e[i].to,x);//先往下
+        sum[x] += sum[e[i].to];//累加
+    }
+    ans = max(ans,sum[x]);//取最大值
+}
+int LCA(int a,int b)//倍增求LCA
+{
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,k,x,y,lca;
+    cin>>n>>k;//输入节点数及路径加压数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y;
+        add(x,y);
+        add(y,x);
+    }
+    DFS(1,0,0);//lca预处理
+    for (int i = 1;i<=k;i++)//差分
+    {
+        cin>>x>>y;
+        lca = LCA(x,y);
+        d[x]++;
+        d[y]++;
+        d[lca]--;
+        d[f[lca][0]]--;
+    }
+    Sum(1,0);//差分求和
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

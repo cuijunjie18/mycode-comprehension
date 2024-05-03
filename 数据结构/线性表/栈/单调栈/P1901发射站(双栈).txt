@@ -1,0 +1,67 @@
+//背景:单调栈练习题
+//原理:用两次单调栈分别处理往左与往右传播的情况(不及大佬的一次)
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+int a[1000001];//每个发射站的高度
+int v[1000001];//每个发射站的能量
+long long sum[1000001];//每个发射站接受的总能量
+stack<int> s;//栈模拟单调栈
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    cin>>n;//输入发射站个数
+    for (int i = 1;i<=n;i++) cin>>a[i]>>v[i];//输入高度及能量
+    for (int i = n;i>=1;i--)//往右传播的情况,即找到右边第一个大于它的位置
+    {
+        while(!s.empty()&&a[s.top()]<=a[i]) s.pop();//维护单调栈
+        if(!s.empty())//如果不空,说明有发射站可以接受当前发射站的能量
+        {
+            sum[s.top()] += v[i];//接受能量的是栈顶,累加
+        }
+        s.push(i);//入栈
+    }
+    while(!s.empty()) s.pop();//栈无clear,手动清空
+    for (int i = 1;i<=n;i++)//向左传播,同理
+    {
+        while(!s.empty()&&a[s.top()]<=a[i]) s.pop();
+        if(!s.empty())
+        {
+            sum[s.top()] += v[i];
+        }
+        s.push(i);
+    }
+    long long ans = 0;//初始化答案为0
+    for (int i = 1;i<=n;i++) ans = max(ans,sum[i]);//遍历取最大值
+    cout<<ans<<"\n";//输出
+    return 0;
+}
+
+
+
+
+//对比:最后附上大佬理解
+栈中储存发射站的标号。我们将接收能量的过程分成两个阶段：
+1.入栈时，由于栈是具有单调性的，如果栈顶的元素没有新加进来的元素高，那么他肯定就不能给后面的元素传输能量了，我们退掉这个元素(同时把能量给这个比它高的发射站)，将新的元素加进来即可。
+2.新的元素加进来以后，会对他在栈中下面那个元素传输能量，也就是离他最近还高于他的那个。P.S.（不需要对栈空时进行特判，我们只是对0这个元素传输了能量而已，最后不统计就行了）
+
+代码:
+#include<iostream>
+using namespace std;
+const int maxn=1e6+10;
+int s1[maxn],h[maxn],v[maxn],sum[maxn],ans,n,top;
+int main()
+{
+   cin>>n;
+   for(int i=1;i<=n;i++)
+   {
+   	cin>>h[i]>>v[i];
+   	while(top&&h[s1[top]]<h[i])sum[i]+=v[s1[top--]];
+   	sum[s1[top]]+=v[i];
+   	s1[++top]=i;
+   }
+   for(int i=1;i<=n;i++)ans=max(ans,sum[i]);
+   cout<<ans;
+   return 0;
+}

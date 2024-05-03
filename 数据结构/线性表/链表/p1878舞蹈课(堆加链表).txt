@@ -1,0 +1,115 @@
+//原理:用双向链表维护一个队列
+//提示:这道题画图可以便于理解
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct person//定义人的结构体
+{
+    int number;//编号
+    int value;//舞蹈能力
+    char sex;//性别
+}PERSON;
+typedef struct match//定义配对结构体
+{
+    int x,y;//x为左边的人,y为右边的人
+    int ca;//ca为两人舞蹈能力差值的绝对值
+}MATCH;
+struct cmp//自定义比较结构体(因为这个方法自定义优先队列取值是在队尾)
+{
+    bool operator()(MATCH a,MATCH b)
+    {
+        if(a.ca == b.ca)//如果绝对值相等,编号小的优先
+        {
+            return a.x>b.x;
+        }
+        else return a.ca>b.ca;//否则绝对值小的优先
+    }
+};
+PERSON p[200001];//人数组
+MATCH ans[200001];//配对数组,存答案
+int k;//成功配对数
+//双向链表结构体
+int l[200001];
+int r[200001];
+//标记数组
+bool vis[200001];
+priority_queue<MATCH,vector<MATCH>,cmp>heap;//小根堆
+void change(MATCH temp)//断链重连函数
+{
+    int x = temp.x;//先取出配对的x,y
+    int y = temp.y;
+    if(r[y] != 0&&l[x] != 0)//只有在中间才用重连(自己想)
+    {
+        r[l[x]] = r[y];//改变链表
+        l[r[y]] = l[x];
+        if(p[r[y]].sex != p[l[x]].sex)//判断新的配对是否合法
+        {
+            temp = {l[x],r[y],abs(p[l[x]].value-p[r[y]].value)};
+            heap.push(temp);//合法则入队
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    string s;
+    cin>>n;//输入人数
+    cin>>s;//输入每个人的性别
+    for (int i = 0;i<=n-1;i++)//预处理p数组
+    {
+        p[i+1].sex = s[i];
+        p[i+1].number = i+1;
+    }
+    for (int i = 1;i<=n;i++)//读入每个人的舞蹈能力
+    {
+        cin>>p[i].value;
+    }
+    for (int i = 1;i<=n;i++)//预处理链表
+    {
+        if(i == 1)
+        {
+            l[i] = 0;
+            r[i] = i+1;
+        }
+        else if(i == n)
+        {
+            r[i] = 0;
+            l[i] = i-1;
+        }
+        else
+        {
+            l[i] = i-1;
+            r[i] = i+1;
+        }
+    }
+    for (int i = 1;i<=n-1;i++)//先配对
+    {
+        if(p[i].sex != p[i+1].sex)
+        {
+            MATCH temp = {i,i+1,abs(p[i].value-p[i+1].value)};
+            heap.push(temp);
+        }
+    }
+    while(!heap.empty())//直到无法配对
+    {
+        MATCH temp = heap.top();//取出最小值
+        if(vis[temp.x] == 0&&vis[temp.y] == 0)//两人都未配过对
+        {
+            heap.pop();//弹出
+            k++;//配对数加1
+            ans[k].x = temp.x;//记录答案
+            ans[k].y = temp.y;
+            vis[temp.x] = true;//标记
+            vis[temp.y] = true;
+            change(temp);//断链重连
+        }
+        else heap.pop();//如果有人已经配对,该配对无效,删除
+    }
+    cout<<k<<"\n";//输出1配对数
+    for (int i = 1;i<=k;i++)//依次输出配对编号
+    {
+        cout<<ans[i].x<<" "<<ans[i].y<<"\n";
+    }
+    return 0;
+}

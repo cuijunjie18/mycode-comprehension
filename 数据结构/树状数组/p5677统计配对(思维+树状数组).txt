@@ -1,0 +1,130 @@
+//背景:没什么背景,主要是想知道树状数组的在具体问题的作用
+//难点:代码超长+动态思维
+//时间复杂度:o(nlogn)，瓶颈来自排序 + 树状数组区间查询
+//收获:以后一看到左右特判的要想是否n为1,尤其是链表之类的
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation//数字结构体
+{
+    int a,p;//a为数值,p为位置
+}SI;
+SI t[300001];
+typedef struct match//好配对结构体
+{
+    int x,y;//x,y为配对的编号
+}MATCH;
+MATCH match[600001];
+int cnt;
+typedef struct ask//询问数组
+{
+    int l,r,pos;//该次询问的左右端点,询问编号
+}ASK;
+ASK ask[300001];
+int n,m;//n为数字数,m为询问次数
+long long tree[300001];//树状数组存储左端点在[l-lowbit(l)-1,l]区间的好配对数
+bool cmp1(SI x,SI y) {return x.a < y.a;}//数字按值排序
+bool cmp2(ASK x,ASK y) {return x.r < y.r;}//询问按右端点排序
+bool cmp3(MATCH x,MATCH y) {return x.y < y.y;}//好配对按编号排序,希望小的在前
+void peidui(int x,int y)//形成配对
+{
+    match[++cnt].x = x;
+    match[cnt].y = y;
+}
+//下面为树状数组函数组
+int lowbit(int x) {return x & (-x);}
+int getsum(int x)
+{
+    int ans = 0;
+    while(x>0)
+    {
+        ans += tree[x];
+        x = x - lowbit(x);
+    }
+    return ans;
+}
+void add(int x)
+{
+    while(x<=n)
+    {
+        tree[x]++;
+        x = x + lowbit(x);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int minn = 0,maxn = 0;//临时变量
+    cin>>n>>m;//输入梳子数及询问次数
+    if(n == 1)//Hack数据!!!n为1
+    {
+        cout<<0<<"\n";//直接输出为0
+        return 0;
+    }
+    for (int i = 1;i<=n;i++)//依次输入n个数字并存储其位置
+    {
+        cin>>t[i].a;
+        t[i].p = i;
+    }
+    sort(t+1,t+n+1,cmp1);//按值排序
+    for (int i = 1;i<=n;i++)//依次获取所有配对
+    {
+        if(i == 1)//特判1
+        {
+            minn = min(t[i].p,t[i+1].p);
+            maxn = max(t[i].p,t[i+1].p);
+            peidui(minn,maxn);
+        }
+        else if(i == n)//特判n
+        {
+            minn = min(t[i].p,t[i-1].p);
+            maxn = max(t[i].p,t[i-1].p);
+            peidui(minn,maxn);
+        }
+        else//在中间,判断距离远近(数轴上)
+        {
+            if(t[i].a - t[i-1].a == t[i+1].a - t[i].a)
+            {
+                minn = min(t[i].p,t[i-1].p);
+                maxn = max(t[i].p,t[i-1].p);
+                peidui(minn,maxn);
+                minn = min(t[i].p,t[i+1].p);
+                maxn = max(t[i].p,t[i+1].p);
+                peidui(minn,maxn);
+            }
+            else if(t[i].a - t[i-1].a < t[i+1].a - t[i].a)
+            {
+                minn = min(t[i].p,t[i-1].p);
+                maxn = max(t[i].p,t[i-1].p);
+                peidui(minn,maxn);
+            }
+            else if(t[i].a - t[i-1].a > t[i+1].a - t[i].a)
+            {
+                minn = min(t[i].p,t[i+1].p);
+                maxn = max(t[i].p,t[i+1].p);
+                peidui(minn,maxn);
+            }
+        }
+    }
+    for (int i = 1;i<=m;i++)//获取m次询问
+    {
+        cin>>minn>>maxn;
+        ask[i].l = minn;
+        ask[i].r = maxn;
+        ask[i].pos = i;//记下2询问编号
+    }
+    sort(ask+1,ask+m+1,cmp2);//询问数组排序
+    sort(match+1,match+cnt+1,cmp3);//好配对排序
+    long long now = 1;//判断右点可以遍历到能够配对了,初始化为1(类似指针作用)
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<=m;i++)//依次遍历m次询问
+    {
+        while(match[now].y <= ask[i].r&&now<=cnt)//当前好配对右点还在询问范围内,及now还没超过配对数
+        {
+            add(match[now].x);//树状数组维护左点
+            now++;//移动指针
+        }
+        ans += (now - getsum(ask[i].l-1) - 1)*ask[i].pos;//累加答案,注意这里为now-1(因为上一次的now加了1后不满足)
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

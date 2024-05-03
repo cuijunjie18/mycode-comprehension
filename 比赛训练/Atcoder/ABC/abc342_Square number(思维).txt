@@ -1,0 +1,46 @@
+//原理:将原数开根,只有最后所带根号相同的相乘才会是整数
+//数学表示:即ab = c*c的条件是 根号(ab) = c,即根号a * 根号b为整数
+//时间复杂度度:接近o(n),因为小于2e5的平方数仅有400多个
+#include <bits/stdc++.h>
+using namespace std;
+unordered_map<int,int> s;//记录对应根号出现了多少次
+long long times;//特殊记录0的个数,long long 防止数值溢出
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    long long n;
+    long long x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//输入n个数
+    {
+        cin>>x;
+        if(x == 0)//特殊处理0
+        {
+            times++;
+            continue;
+        }
+        else
+        {
+            for (int j = 2;j*j<=x;j++)//模拟x的开根
+            {
+                while(x%(j*j) == 0)//这里一定要循环(乐,我之前写成了if,调了半小时),注意%与*优先级一样,一定要加括号
+                {
+                    x /= (j*j);
+                }
+            }
+            s[x]++;//最后带的根号数加1
+        }
+    }
+    long long ans = 0;//初始化答案,一定要开long long
+    if(times)//如果有0
+    {
+        ans += times*(n-times) + times*(times-1)/2;//组合公式求解
+    }
+    for (auto v : s)//遍历unordered_map
+    {
+        long long k = v.second;//取出个数
+        ans += (k*(k-1)/2);//组合数公式累加
+    }
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

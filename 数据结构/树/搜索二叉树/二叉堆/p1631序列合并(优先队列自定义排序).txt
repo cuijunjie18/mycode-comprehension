@@ -1,0 +1,47 @@
+//时间复杂度:o(nlogn)
+//原理:A[1]+B[1] <= A[1]+B[2] <= … <= A[1]+B[N]
+//	A[2]+B[1] <= A[2]+B[2] <= … <= A[2]+B[N]
+//	……
+//	A[N]+B[1] <= A[N]+B[2] <= … <= A[N]+B[N]
+//将配对分成n个有序队列
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct p//结构体定义
+{
+    int number,value;//number为对应队列编号,value为和
+}P;
+struct cmp//自定义比较
+{
+    bool operator()(P x,P y)
+    {
+        return x.value>y.value;//有别于常理,这样定义为小根堆
+    }
+};
+priority_queue<P,vector<P>,cmp>heap;//自定义的优先队列
+int a[100001];
+int b[100001];
+int x[100001];//存储每个队列到了哪个位置
+int n;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++) cin>>b[i];
+    for (int i = 1;i<=n;i++)//初始化入堆
+    {
+        x[i] = 1;//每个队列一开始都是1位置
+        P temp = {i,b[x[i]] + a[i]};
+        heap.push(temp);//入堆
+    }
+    for (int i = 1;i<=n;i++)//开始输出n个最小值
+    {
+        P temp = heap.top();//先取最小值
+        cout<<temp.value<<" ";//输出
+        heap.pop();//删除
+        x[temp.number]++;//对应的队列移动一个单位
+        temp = {temp.number,a[temp.number]+b[x[temp.number]]};
+        heap.push(temp);//再次入堆,时间复杂度为logn
+    }
+    return 0;
+}

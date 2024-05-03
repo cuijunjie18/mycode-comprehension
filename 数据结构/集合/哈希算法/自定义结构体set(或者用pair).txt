@@ -1,0 +1,35 @@
+#include <iostream>
+#include <string>
+#include <unordered_set>
+​
+using namespace std;
+​
+struct Person {
+    string name;
+    int age;
+​
+    bool operator==(const Person& rhs) const {
+        return (name == rhs.name && age == rhs.age);
+    }
+};
+​
+struct PersonHash {
+    size_t operator()(const Person& p) const {
+        return hash<string>()(p.name) ^ hash<int>()(p.age);
+    }
+};
+​
+int main() {
+    unordered_set<Person, PersonHash> hashSet;
+​
+    hashSet.emplace(Person{"Alice", 20});
+    hashSet.emplace(Person{"Bob", 30});
+    hashSet.emplace(Person{"Charlie", 40});
+    hashSet.emplace(Person{"Alice", 20});
+​
+    for (auto& p : hashSet) {
+        cout << "Name: " << p.name << ", Age: " << p.age << endl;
+    }
+​
+    return 0;
+}

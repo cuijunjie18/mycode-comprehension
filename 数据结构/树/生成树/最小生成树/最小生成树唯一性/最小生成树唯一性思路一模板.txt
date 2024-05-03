@@ -1,0 +1,95 @@
+//时间复杂度:o(mlogm + m*m),不太优秀
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal边结构体
+{
+    int a,b,value;
+}EDGE;
+EDGE e[1000001];
+bool del[1000001];//标记某边是否删除
+bool used[1000001];//标记某边是否在第一次最小生成树中使用
+int f[10001];//并查集数组
+bool cmp(EDGE x,EDGE y)//自定义比较
+{
+    return x.value<y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int Kruskal(int n,int m)//核心算法,此次作用是检查删边后的
+{
+    for (int i = 1;i<=n;i++) f[i] = i;//!!!并查集一定要重新初始化
+    int ans = 0;//初始化答案
+    int finish = 0;//初始化完成的边数
+    for (int i = 1;i<=m;i++)
+    {
+        if(finish == n-1) break;
+        if(del[i]) continue;//如果删除,该边不能用
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;
+        f[x] = y;
+        finish++;
+        ans += e[i].value;
+    }
+    if(finish == n-1) return ans;//如果有生成树,返回答案
+    else return -1;//否则返回-1
+}
+void Solve()//解决问题函数
+{
+    unordered_map<int,int> s;
+    int n,m;
+    cin>>n>>m;//输入节点数及边数
+    for (int i = 1;i<=n;i++) f[i] = i;//初始化并查集
+    for (int i = 1;i<=m;i++) del[i] = false;//初始化删除
+    for (int i = 1;i<=m;i++) used[i] = false;//初始化使用
+    for (int i = 1;i<=m;i++)//遍历边,计算不同权值出现的次数
+    {
+        cin>>e[i].a>>e[i].b>>e[i].value;
+        s[e[i].value]++;
+    }
+    sort(e+1,e+m+1,cmp);//排序
+    int ans = 0;//初始化答案
+    int finish = 0;//初始化完成的边数
+    for (int i = 1;i<=m;i++)//第一次Kruskal算法生成最小树
+    {
+        if(finish == n-1) break;
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;
+        f[x] = y;
+        finish++;
+        ans += e[i].value;
+        used[i] = true;//标记在该次使用过
+    }
+    bool flag = false;//初始化判断唯一标志
+    for (int i = 1;i<=m;i++)//遍历边
+    {
+        if(used[i] == true&&s[e[i].value] >= 2)//如果权值出现超过两次且被MST包含
+        {
+            del[i] = true;//删除
+            int temp = Kruskal(n,m);//重新计算
+            if(temp == ans)//如果相等,不唯一
+            {
+                flag = true;//标记不唯一
+                break;//退出
+            }
+            del[i] = false;//取消删除!!!这是一个细节,因为相同权值的最小生成树不是全部使用过的都不能使用了
+        }
+    }
+    if(flag) cout<<"Not Unique!"<<"\n";//输出不唯一
+    else cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int t;
+    cin>>t;//输入数据组数
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

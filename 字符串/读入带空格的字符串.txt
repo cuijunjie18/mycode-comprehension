@@ -1,0 +1,4 @@
+getline(cin,str)
+
+注意:1,如果之前有getline(cin,str)之外的输入,请先用一次getline(cin,str)清除,
+     2,getline(cin,str)会丢弃回车符,换句话来说,识别到缓冲区的回车符,拿出来,丢弃,但不放入string中,所以之前的回车符会影响该函数

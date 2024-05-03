@@ -1,0 +1,48 @@
+//背景:搜索ST表时发现的题,挺有意思
+//原理:栈,建模为括号匹配
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situaiton//记录结构体
+{
+    int number,turn,other;//其实可以忽略turn,仅用other判断
+}SB;
+SB s[400005];
+bool cmp(SB x,SB y)//按数字编号排序
+{
+    return x.number<y.number;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,a,b;
+    cin>>n;//输入n个连线
+    for (int i = 1;i<=2*n-1;i+=2)//注意这里的循环,之前在P1306瑞士轮中错过一次
+    {
+        cin>>a>>b;//输入连线的两端点
+        s[i].number = a;//记录自己
+        s[i].turn = 0;
+        s[i].other = b;//记录对应点
+        s[i+1].number = b;//记录自己
+        s[i+1].turn = 1;
+        s[i+1].other = a;//记录对应点
+    }
+    sort(s+1,s+2*n+1,cmp);//排序
+    stack<SB> t;//建立栈
+    /*for (int i = 1;i<=2*n;i++)
+    {
+        cout<<s[i].number<<" "<<s[i].turn<<" "<<s[i].other<<"\n";
+    }*/
+    for (int i = 1;i<=2*n;i++)//枚举判断
+    {
+        if(!t.empty())//栈不空的时候
+        {
+            SB temp = t.top();//获取栈顶
+            if(temp.turn + s[i].turn == 1&&s[i].other == temp.number) t.pop();//判断是否匹配,括号匹配思路
+            else t.push(s[i]);//否则入栈
+        }
+        else t.push(s[i]);//入栈
+    }
+    if(t.empty()) cout<<"No"<<"\n";//如果空的话,说明无交点
+    else cout<<"Yes"<<"\n";//否则有
+    return 0;
+}

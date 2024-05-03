@@ -1,0 +1,29 @@
+//背景:自己做,做不出来,看了官方题解才会
+//难点:如果没有身高相同的人便是一个较简单的单调栈,而有了身高相同的便上了难度
+//神之一笔:pair<int,int>记录同身高的人数,同时pop,但却将同身高继承了下来
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+stack<pair<int,int>>s;//pair类型单调栈
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    long long x,sum = 0;//初始化答案
+    cin>>n;
+    for (int i = 1;i<=n;i++)//因为是正着输入,不需要额外开数组去存身高,边输入边处理即可
+    {
+        cin>>x;//输入当前位置的身高
+        pair<int,int> p = {x,1};//初始化pair
+        while((!s.empty())&&s.top().first <= x)//维护单调栈
+        {
+            sum += s.top().second;//累加(同时也加上了原本相邻的)
+            if(x == s.top().first) p.second += s.top().second;//神之一笔,如果与之前相同,继承数量
+            s.pop();//出栈
+        }
+        if(!s.empty()) sum++;//先不入栈,先判断栈是否空,不则加(可以理解为加上相邻的(前提是之前循环中x<s.top.first)或者最后的相望)
+        s.push(p);//入栈
+    }
+    cout<<sum<<"\n";//输出答案
+    return 0;
+}

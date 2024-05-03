@@ -1,0 +1,81 @@
+//背景:ans[x] + ans[y] - ans[lca] - ans[f[lca][0]],这是维护两点树上路径的关于点权的公式,感觉做过,却找不到记录
+//原理:倍增求Lca
+//感悟:细节多
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星边结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[100001<<1];
+int head[100001];
+int cnt;
+int f[100001][30];//lca数组
+long long ans[100001];//答案数组,表示该点到根节点的答案和
+long long delay[100001];//记录每个点直接相连的点的数目,即延迟数
+int depth[100001];//记录深度,辅助lca求解
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS1(int x,int fa,int d)//预处理DFS
+{
+    depth[x] = d;
+    f[x][0] = fa;
+    int temp = 0;//初始化延迟
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (int i = head[x];i;i = e[i].next)
+    {
+        temp++;//延迟累加
+        if(e[i].to == fa) continue;
+        DFS1(e[i].to,x,d+1);
+    }
+    delay[x] = temp;//记录延迟
+}
+void DFS2(int x,int fa,long long sum)//预处理到根节点路径点权和,sum为到现在位置的点权和(包括自己)
+{
+    ans[x] = sum;//记录
+    for (int i = head[x];i;i = e[i].next)//遍历
+    {
+        if(e[i].to == fa) continue;
+        DFS2(e[i].to,x,sum + delay[e[i].to]);//改变sum,加上要去的点的点权
+    }
+}
+long long LCA(int a,int b)//倍增lca
+{
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,x,y,lca;
+    cin>>n>>m;//输入点及边数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y;
+        add(x,y);
+        add(y,x);
+    }
+    DFS1(1,0,0);//预处理1
+    DFS2(1,0,delay[1]);//预处理2
+    for (int i = 1;i<=m;i++)//回答每次询问
+    {
+        cin>>x>>y;
+        lca = LCA(x,y);//求lca
+        cout<<ans[x] + ans[y] - ans[lca] - ans[f[lca][0]]<<"\n";//输出(核心公式)
+    }
+    return 0;
+}

@@ -1,0 +1,42 @@
+//背景:比赛的时候没想到剪枝,比完直接秒杀了
+//原理:DFS + 剪枝
+#include <bits/stdc++.h>
+using namespace std;
+int k,n;//k为要求的行列和,n为方格大小
+int row[5];//row为已经填好数的某行的和
+int col[5];//col同理
+//神之一笔:剪枝.(1)如果n-1定了,最后一个不用管了,一定为k - row[x](列同理).(2)枚举可填数的时候可以限定范围,维护行列和不超过k
+int ans;//记录答案
+void DFS(int x,int y)//核心DFS
+{
+    if(y > n-1)//如果要换行了
+    {
+        x++;//换行
+        y = 1;//重置y
+    }
+    if(x == n)//如果到了底行,进行特判(之前的行列和(左上角的n-1矩阵)满足<=k,但是不能保证最后的行列和<=k,故要特判)
+    {
+        //其实由数学推算:最后右下角的代表数是一致的,故sumr与sumc一个就够了,没观察出也没关系,两个不影响
+        int sumr = 0,sumc = 0;//初始化为0
+        for (int i = 1;i<=n-1;i++) sumc += (k - row[i]);//累加之前行
+        for (int i = 1;i<=n-1;i++) sumr += (k - col[i]);//累加之前列
+        if(sumc <= k&&sumr <= k) ans++;//如果<=k,答案合法,+1
+        return;//切记,一定要返回
+    }
+    for (int i = 0;i<=k-row[x]&&i<=k-col[y];i++)//限制性枚举,维护左上角矩阵行列和<=k,记住从0开始
+    {
+        row[x] += i;//累加行
+        col[y] += i;//累加列
+        DFS(x,y+1);//递归搜索
+        row[x] -= i;//删去
+        col[y] -= i;//删去
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>k>>n;//输入
+    DFS(1,1);//搜索
+    cout<<ans<<"\n";//输出
+    return 0;
+}

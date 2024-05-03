@@ -1,0 +1,56 @@
+//题目简要:计算每个城市既被公路又被铁路连在一起的城市数目
+//思路:维护两个并查集,并判断连通块的交集(我的思路),不过难以实现
+//正解:并查集 + 哈希 + map,具体见代码
+#include <bits/stdc++.h>
+using namespace std;
+int f1[200001],f2[200001];//两个并查集,一个是公路,一个是铁路
+unordered_map<long long,int> s;//对应Hash值出现次数
+long long Hash(int a,int b)//Hash函数
+{
+    return (long long)(a)*200001 + b;//模拟进制,开long long
+}
+int Find1(int x)//并查集1查找
+{
+    if(x == f1[x]) return x;
+    else return f1[x] = Find1(f1[x]);
+}
+int Find2(int x)//并查集2查找
+{
+    if(x == f2[x]) return x;
+    else return f2[x] = Find2(f2[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,k,l,x,y;
+    cin>>n>>k>>l;//输入城市数目,公路数目,铁路数目
+    for (int i = 1;i<=n;i++) f1[i] = i;//初始化并查集1
+    for (int i = 1;i<=n;i++) f2[i] = i;//初始化并查集2
+    for (int i = 1;i<=k;i++)//公路合并,维护连通块
+    {
+        cin>>x>>y;
+        int a = Find1(x);
+        int b = Find1(y);
+        f1[a] = b;
+    }
+    for (int i = 1;i<=l;i++)//铁路合并,维护连通块
+    {
+        cin>>x>>y;
+        int a = Find2(x);
+        int b = Find2(y);
+        f2[a] = b;
+    }
+    for (int i = 1;i<=n;i++)//对每个节点进行预处理
+    {
+        x = Find1(i);//找在公路区域连通块上的祖先
+        y = Find2(i);//找在铁路区域连通块上的祖先
+        s[Hash(x,y)]++;//对应Hash值加1,神之一笔
+    }
+    for (int i = 1;i<=n;i++)//输出答案
+    {
+        x = Find1(i);
+        y = Find2(i);
+        cout<<s[Hash(x,y)]<<" ";//输出对应Hash值答案
+    }
+    return 0;
+}

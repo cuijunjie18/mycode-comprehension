@@ -1,0 +1,136 @@
+//背景:又是差一点思路,而且仅仅是一个category数组
+//时间复杂度:o(nlogn+m)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation//记录离线状态的答案结构体
+{
+    int number,need;//number为对应答案的编号,need为要>=几
+}COME;
+typedef struct all
+{
+    int number,times;
+}ALL;
+typedef struct edge//边结构体
+{
+    int to,next;
+}EDGE;
+//边权相关数组
+EDGE e[100001<<1];
+int head[100001];
+int cnt;
+//颜色相关数组
+int color[100001];
+int times[100001];
+int category[100001];//记录大于等于i的颜色种类数
+//遍历预处理所需数组
+int big[100001];
+int son[100001];
+int l[100001];
+int r[100001];
+int node[100001];
+int pos;
+//离线答案数组
+vector<COME> ask[100001];
+int ans[100001];
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS1(int x,int fa)//预处理
+{
+    big[x] = 1;//初始化树的大小
+    l[x] = ++pos;//记录DFS序
+    node[pos] = x;//记录DFS序对应节点
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS1(e[i].to,x);
+        big[x] += big[e[i].to];//累加大小
+        if(son[x] == 0||big[son[x]] < big[e[i].to]) son[x] = e[i].to;//更新重儿子
+    }
+    r[x] = pos;//记录最远DFS序
+}
+void change(int x)//加颜色
+{
+    times[color[x]]++;
+    category[times[color[x]]]++;
+}
+void del(int x)//删除颜色
+{
+    category[times[color[x]]]--;
+    times[color[x]]--;
+}
+void DFS2(int x,int fa,bool keep)
+{
+    //先计算轻儿子
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa||e[i].to == son[x]) continue;
+        DFS2(e[i].to,x,false);
+    }
+    if(son[x])//计算重儿子
+    {
+        DFS2(son[x],x,true);
+    }
+    for (int i = head[x];i;i = e[i].next)//再次计算轻儿子
+    {
+        if(e[i].to == fa||e[i].to == son[x]) continue;
+        for (int j = l[e[i].to];j<=r[e[i].to];j++)//直接DFS遍历
+        {
+            change(node[j]);
+        }
+    }
+    change(x);//计算自己的颜色
+    for (auto v:ask[x])//记录对应节点的答案,时间复杂度o(m)的来源
+    {
+        ans[v.number] = category[v.need];
+    }
+    if(!keep)//如果要删除
+    {
+        for (int i = l[x];i<=r[x];i++)
+        {
+            del(node[i]);
+        }
+    }
+}
+int main()
+{
+    int n = read();//读入节点数
+    int m = read();//读入询问数
+    for (int i = 1;i<=n;i++) color[i] = read();//输入节点颜色
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int x = read();
+        int y = read();
+        add(x,y);
+        add(y,x);
+    }
+    for (int i = 1;i<=m;i++)//记录离线答案
+    {
+        int x = read();//记录答案所在的节点
+        int k = read();
+        COME temp = {i,k};//记录答案编号及k
+        ask[x].push_back(temp);//放入节点为x的相关询问
+    }
+    DFS1(1,0);//预处理
+    DFS2(1,0,false);//树上启发式搜索
+    for (int i = 1;i<=m;i++)//输出答案
+    {
+        cout<<ans[i]<<"\n";
+    }
+    return 0;
+}

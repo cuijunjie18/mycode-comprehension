@@ -1,0 +1,78 @@
+//原理:贪心+堆优化
+//时间复杂度:o(nlogm+m)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next,value;
+}EDGE;
+//边相关数组
+EDGE e[200001<<1];
+int head[5001];
+int cnt;
+//Prim相关数组
+int dis[5001];//记录每个节点到已生成连通块的最小距离
+int ans,finish;//记录答案及已加入的点的个数
+bool vis[5001];//标记点是否已经在当前连通块中
+//初始化变量,节点及边数量
+int n,m;
+//堆自定义相关
+struct S
+{
+    int number,d;//记录当前点编号及到连通块的距离
+};
+bool operator<(const S&x,const S&y)//按到连通块的距离排序
+{
+    return x.d>y.d;
+}
+priority_queue<S> heap;//自定义堆
+
+void add(int x,int y,int v)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].value = v;
+    head[x] = cnt;
+}
+void Prim()//核心Prim
+{
+    memset(dis,127,sizeof(dis));//初始化dis为无穷大
+    S temp = {1,0};
+    heap.push(temp);//以1为起点开始Prim
+    while(!heap.empty())//如果不空
+    {
+        if(finish >= n) break;//已经完成n个节点的连接,退出循环
+        int u = heap.top().number;//获取堆顶的节点编号
+        int d = heap.top().d;//获取最近距离
+        heap.pop();//弹出
+        if(vis[u]) continue;//如果已经连接,跳过
+        vis[u] = true;//标记
+        ans += d;//累加答案
+        finish++;//已连接节点数加1
+        for (int i = head[u];i;i = e[i].next)//以当前节点去更新其他节点到当前连通块的距离
+        {
+            if(vis[e[i].to]) continue;//如果已经在连通块,跳过
+            if(dis[e[i].to] > e[i].value)//如果更优(即比之前到连通块更近)
+            {
+                S save = {e[i].to,e[i].value};//存储相关数据
+                heap.push(save);//入堆
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int x,y,v;
+    cin>>n>>m;//输入节点个数及边的个数
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        add(x,y,v);
+        add(y,x,v);
+    }
+    Prim();
+    if(finish == n) cout<<ans<<"\n";//有生成树,输出答案
+    else cout<<"orz"<<"\n";//否则没有
+    return 0;
+}

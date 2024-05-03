@@ -1,0 +1,43 @@
+//背景:刷单调队列,结果发现是双端队列(其实单调队列就是双端队列维护的)
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x,cnt = 0;//初始化进队的奶牛编号为0
+    char ch,d;
+    deque<int> que;//建立双端队列
+    cin>>n;
+    while(n--)
+    {
+        cin>>ch>>d;
+        if(ch == 'A')//添加
+        {
+            if(d == 'L') que.push_front(++cnt);//左边加
+            else if(d == 'R') que.push_back(++cnt);//右边加
+        }
+        else if(ch == 'D')//删除
+        {
+            cin>>x;//一次删除x个
+            int t = 0;
+            if(d == 'L')//左边删
+            {
+                while(t<x)
+                {
+                    que.pop_front();
+                    t++;
+                }
+            }
+            else if(d == 'R')//右边删
+            {
+                while(t<x)
+                {
+                    que.pop_back();
+                    t++;
+                }
+            }
+        }
+    }
+    for (auto v:que) cout<<v<<"\n";//容器遍历输出(也可以依次取出队头弹出,输出)
+    return 0;
+}

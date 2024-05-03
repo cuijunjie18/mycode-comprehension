@@ -1,0 +1,85 @@
+//背景:将点差分理解后做了边差分,明显比点差分复杂,且细节多.虽说是边化为点来做,但仍然有大区别
+//原理:倍增lca + 树上边差分
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next,times,c1,c2;
+}EDGE;
+EDGE e[200001<<1];
+int head[200001];
+int cnt;
+int depth[200001];//深度数组,辅助求lca
+int f[200001][30];//lca数组
+long long d[200001];//差分数组
+long long ans;//答案
+void add(int x,int y,int a,int b)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].c1 = a;
+    e[cnt].c2 = b;
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int dis)//预处理lca
+{
+    depth[x] = dis;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x,dis+1);
+    }
+}
+void Sum(int x,int fa)//差分求和,自底而上
+{
+    for (int i = head[x];i;i = e[i].next)//DFS遍历
+    {
+        if(e[i].to == fa) continue;
+        Sum(e[i].to,x);//先到底
+        //因为底部的点权差分值对应通向该底部的边,且底部的遍历已经结束,其差分值已经转化为了实际值,故可以处理当前边了
+        //取更便宜的值累加答案
+        if(d[e[i].to]*e[i].c1 > e[i].c2) ans += e[i].c2;
+        else ans += d[e[i].to]*e[i].c1;
+        d[x] += d[e[i].to];//当前点差分值累加
+    }
+}
+int LCA(int a,int b)//倍增求lca
+{
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x,y,a,b,lca;
+    cin>>n;//输入节点数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y>>a>>b;
+        add(x,y,a,b);
+        add(y,x,a,b);
+    }
+    DFS(1,0,0);//预处理lca
+    for (int i = 2;i<=n;i++)//多线程连续游走,边差分模板(无需再减1)
+    {
+        lca = LCA(i,i-1);
+        d[i]++;
+        d[i-1]++;
+        d[lca] -= 2;
+    }
+    Sum(1,0);//差分求和
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

@@ -1,0 +1,44 @@
+//背景:由于St表不熟练,出现了较多错误,不能秒杀
+//原理:维护最大值与最小值ST表
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int minn[200001][30];//维护区间最小值
+int maxn[200001][30];//维护区间最大值
+int logn[200001];//log2的对数数组
+void prework()//预处理log2数组
+{
+    logn[1] = 0;
+    for (int i = 2;i<=100000;i++) logn[i] = logn[i/2] + 1;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    memset(minn,127,sizeof(minn));//求最小值,初始化为正无穷,因为h>=1,而全局maxn已经为0,无需初始化了
+    prework();//不要忘了预处理
+    int n,q,l,r,x;
+    cin>>n>>q;//输入n头牛,q次询问
+    for (int i = 1;i<=n;i++)//预处理自己
+    {
+        cin>>x;
+        minn[i][0] = x;
+        maxn[i][0] = x;
+    }
+    for (int i = n;i>=1;i--)//倍增预处理,倒着,确保之前的已经dp过了
+    {
+        for (int j = 1;i + (1<<j) - 1<=n;j++)//正着枚举,确保之前的已经dp过了
+        {
+            minn[i][j] = min(minn[i][j-1],minn[i + (1<<(j-1))][j-1]);//最小值区间维护
+            maxn[i][j] = max(maxn[i][j-1],maxn[i + (1<<(j-1))][j-1]);//最大值区间维护
+        }
+    }
+    while(q--)//依次回答q次询问
+    {
+        cin>>l>>r;//输入左右端点
+        int s = logn[r-l+1];//计算区间长度的对数值(向下取整)
+        int a = max(maxn[l][s],maxn[r-(1<<s)+1][s]);//区间重叠计算最高身高
+        int b = min(minn[l][s],minn[r-(1<<s)+1][s]);//区间重叠计算最矮身高
+        cout<<a-b<<"\n";//输出差值
+    }
+    return 0;
+}

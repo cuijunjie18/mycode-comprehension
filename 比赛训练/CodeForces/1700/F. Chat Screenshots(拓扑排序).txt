@@ -1,0 +1,59 @@
+//背景:比赛的时候没有做出来,补了拓扑排序发现是模板题
+//原理:拓扑排序
+//时间复杂度:o(n*k)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next;
+}EDGE;
+void Solve()
+{
+    int n,k;
+    cin>>n>>k;//输入人数及提供的图片数量
+    EDGE e[n*k+1];
+    int head[n+1];
+    int a[n+1];
+    int cnt = 0;
+    int in[n+1];//记录每个点的入度
+    memset(head,0,sizeof(head));//一定要初始化为0
+    memset(in,0,sizeof(in));//一定要初始化为0
+    for (int i = 1;i<=k;i++)//依次处理每张截图中的数字之间的偏序关系
+    {
+        for (int j = 1;j<=n;j++) cin>>a[j];//输入
+        for (int j = 3;j<=n;j++)//第一张不用处理,因为第一张可能是特殊的移动到第一位的
+        {
+            e[++cnt].to = a[j-1];//建立有向边
+            e[cnt].next = head[a[j]];
+            head[a[j]] = cnt;
+            in[a[j-1]]++;//累加入度
+        }
+    }
+    queue<int> que;//队列
+    vector<int> ans;//答案
+    for (int i = 1;i<=n;i++)//寻找入度为0的点入队
+    {
+        if(in[a[i]] == 0) que.push(a[i]);
+    }
+    while(!que.empty())//kahn算法
+    {
+        int x = que.front();//获取队头
+        que.pop();
+        ans.push_back(x);//加入答案
+        for (int i = head[x];i;i = e[i].next)
+        {
+            in[e[i].to]--;
+            if(in[e[i].to] == 0) que.push(e[i].to);
+        }
+    }
+    if(ans.size() == n) cout<<"YES"<<"\n";//如果无环,即可进行拓扑排序,则可能将可能的排序化为唯一的,即在偏序关系中删边
+    else cout<<"NO"<<"\n";//否则不可能
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int t;
+    cin>>t;
+    while(t--) Solve();
+    return 0;
+}

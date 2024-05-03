@@ -1,0 +1,56 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+priority_queue<int,vector<int>,less<int> >big;//大根堆
+priority_queue<int,vector<int>,greater<int> >small;//小根堆
+int a[200001];//输入的数
+int u[200001];//指令发出的时间
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m;
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入数组
+    for (int i = 1;i<=m;i++) cin>>u[i];//输入时间
+    int b = 1;//初始化开始加入堆中的数是从哪一个开始
+    int x;//临时变量
+    for (int i = 1;i<=m;i++)//依次处理m个GET
+    {
+        for (int j = b;j<=u[i];j++)//把对应的u[i]之前的数全部加入到堆里
+        {
+            x = a[j];
+            if(big.size()<i)//i即要输出第i小的数,即大根堆要有i个节点,大根堆少了节点
+            {
+                if(!small.empty())//小根堆不空
+                {
+                    if(a[j]>small.top())//且新数大于小根堆堆顶
+                    {
+                        small.push(a[j]);//放入小根堆
+                        x = small.top();//换一个出来
+                        small.pop();//删除堆顶
+                    }
+                }
+                big.push(x);//放入大根堆
+            }
+            else//小根堆少了节点
+            {
+                if(a[j]<big.top())//新数小于大根堆堆顶
+                {
+                    big.push(a[j]);//放入大根堆
+                    x = big.top();//换一个数
+                    big.pop();//删除堆顶
+                }
+                small.push(x);//放入小根堆
+            }
+        }
+        if(big.size()<i)//特殊处理,即那种u[i] == u[j],j>i那种,此时没有新数加入,只能在两个堆中转移节点
+        {
+            x = small.top();//取出小根堆堆顶
+            small.pop();//删除堆顶
+            big.push(x);//放入到大根堆
+        }
+        cout<<big.top()<<"\n";//输出此次询问答案
+        b = u[i] + 1;//改变新数开始的位置
+    }
+    return 0;
+}

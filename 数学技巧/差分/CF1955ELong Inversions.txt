@@ -1,0 +1,61 @@
+//背景:夸一下自己,CF1955A~E均是自己想出来的,这道题思路是自己想的,唯一没想到用差分数组维护
+//原理:贪心(想最左边的1开始,不可能对其左边包括自己操作了,否则又要反转回去,无效操作,故可以一直往右移动判断) + 差分(也可以用线段树或树状数组)
+//时间复杂度:纯差分数组o(n^2),树状数组o(n^2logn)，可能会超时
+//收获:差分数组的进一步理解,本题本质为区间修改,单点查询,但是这题有一个特殊性质,即区间单调移动,故用树状数组会有很多重复计算,不如一次差分前缀和
+//感悟:CF的题质量的确高!
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()//解决问题函数
+{
+    int n;
+    string s;
+    cin>>n>>s;//输入长度及对应长度的01串
+    int number[n+1];//整型数组,将01字符串转换,便于数学操作
+    int c[n+1];//差分数组
+    for (int i = 1;i<=n;i++) number[i] = s[i-1] - '0';//字符转数字
+    for (int i = n;i>=1;i--)//从大的开始枚举
+    {
+        memset(c,0,sizeof(c));//每次要重新初始化差分数组
+        for (int j = 1;j+i-1<=n;j++)//在01串上移动
+        {
+            c[j] = c[j-1] + c[j];//当前的位置的反转次数,求差分前缀和(我用了高级版,而用sum显式版反而不好操作)
+            int x = (number[j] + c[j])%2;//判断01
+            if(x) continue;//一不用处理
+            else//否则反转
+            {
+                c[j]++;//差分模板
+                c[j+i]--;
+            }
+        }
+        //操作完后,还剩余i-1(区间长度-1)个数未判断
+        bool flag = true;//标记是否全为1
+        for (int j = n+2-i;j<=n;j++)
+        {
+            c[j] = c[j-1] + c[j];//差分求和
+            int x = (number[j] + c[j])%2;//计算反转
+            if(x) continue;//如果是1,跳过
+            else//否则
+            {
+                flag = false;//标记非法
+                break;//退出循环
+            }
+        }
+        if(flag)//如果合法
+        {
+            cout<<i<<"\n";//输出
+            return;
+        }
+    }
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

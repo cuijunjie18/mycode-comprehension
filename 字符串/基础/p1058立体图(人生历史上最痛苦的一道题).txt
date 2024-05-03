@@ -1,0 +1,67 @@
+//背景:此题真正的做了2个小时,是我人生做过的最痛苦的一道题(目前为止)
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;//存储大小
+int k,l;//存储输出所需的最大的行与列,k为行,l为列
+int number[51][51];//每个位置的正方形数
+int row[51];//记录每行的最多正方体个数
+char standard[10][10] = {
+"  +---+",
+" /   /|",
+"+---+ |",
+"|   | +",
+"|   |/",
+"+---+",};//标准正方体
+int main()
+{
+    scanf("%d%d",&m,&n);//输入m行n列
+    for (int i = 1;i<=m;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            scanf("%d",&number[i][j]);
+            row[i] = max(row[i],number[i][j]);//更新最大值
+        }
+        k = max(k,row[i]*3+3+2*(m-i));//更新所需最长行数(过程自己想)
+    }
+    l = 2*m+4*n+1;//最大所需列易有
+    char ans[k+1][l+1];//初始化答案
+    for (int i = 1;i<=k;i++)//初始化答案
+    {
+        for (int j = 1;j<=l;j++)
+        {
+            ans[i][j] = 0;
+        }
+    }
+    for (int i = 1;i<=m;i++)//为每个正方体找到左下角的位置
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            int c = 2*(m-i) + 4*(j-1)+1;//列位置,细节加1(调试出来的)
+            int r;
+            for (int x = 1;x<=number[i][j];x++)
+            {
+                r = k - 2*(m-i) - 3*(x-1);//行位置较难(自己再思考)
+                for (int t = 1;t<=6;t++)//记录及覆盖正方体
+                {
+                    int y = 0;
+                    while(standard[6-t][y] == ' ') y++;//目的是特判第一行防止第一行左边空格覆盖左边的正方体
+                    for (y = y;standard[6-t][y]!='\0';y++)//记录
+                    {
+                        ans[r-t+1][c+y] = standard[6-t][y];
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=k;i++)//输出
+    {
+        for (int j = 1;j<=l;j++)
+        {
+            if(ans[i][j] == '\000') printf(".");
+            else printf("%c",ans[i][j]);
+        }
+        printf("\n");
+    }
+    return 0;
+}

@@ -1,0 +1,22 @@
+//注意涉及到取模的卡特兰数题目不能用递归,只能用定义或者组合数
+//坑点:题目说是2n个点,实际上是输出f[n]!!!
+#include <bits/stdc++.h>
+using namespace std;
+int f[201];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    f[0] = f[1] = 1;
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 1;j<=i;j++)
+        {
+            f[i] += f[i-j]*f[j-1];
+            f[i] %= 100;
+        }
+    }
+    cout<<f[n]<<"\n";
+    return 0;
+}

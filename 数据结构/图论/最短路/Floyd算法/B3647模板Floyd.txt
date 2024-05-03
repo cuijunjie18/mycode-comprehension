@@ -1,0 +1,39 @@
+//背景:看到模板题忍不住做了
+//收获:进一步理解了滚动数组,动态规划在Floyd算法中的应用
+//原理:即以每一个点为中转站,更新两个点间的最小距离,实际上是遍历了全部情况的
+#include <bits/stdc++.h>
+using namespace std;
+int f[101][101];//dp数组,含义为x,y的最短路
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    memset(f,0x3f,sizeof(f));//记住0x3f = 1061109567,加起来不会爆int,而赋值127会!!!
+    int n,m,x,y,v;
+    cin>>n>>m;//输入点数及边数
+    for (int i = 1;i<=n;i++) f[i][i] = 0;//处理自己到自己当然是0
+    for (int i = 1;i<=m;i++)//输入m条边
+    {
+        cin>>x>>y>>v;//输入边两点及权值
+        f[x][y] = min(f[x][y],v);//双向边且判断重边取小值
+        f[y][x] = min(f[y][x],v);
+    }
+    for (int k = 1;k<=n;k++)//Floyd算法
+    {
+        for (int i = 1;i<=n;i++)//注意i,j都要从1开始,因为最后是要求每个点的邻接矩阵最短路表达形式
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                f[i][j] = min(f[i][j],f[i][k] + f[k][j]);//以k为中转站取小值
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//输出最短路邻接矩阵
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cout<<f[i][j]<<" ";
+        }
+        cout<<"\n";
+    }
+    return 0;
+}

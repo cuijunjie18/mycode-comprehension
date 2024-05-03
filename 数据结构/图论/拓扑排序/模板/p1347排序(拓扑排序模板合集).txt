@@ -1,0 +1,95 @@
+//背景:拓扑排序好题!!!
+//内容:1,拓扑排序的唯一性(判断是否成链);2,拓扑排序成环;3,细节
+//原理:拓扑排序
+//时间复杂度:o(w^2)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    char to;
+    int next;
+}EDGE;
+EDGE e[601];
+unordered_map<char,int>head;//字符形式的head
+int cnt;
+unordered_map<char,int> in;//入度
+unordered_map<char,int> intemp;//临时入度(因为要删除,故要临时,否则后面in都没了,无法继承)
+unordered_set<char> s;//检测当前有图中有多少中字母
+set<pair<char,char>> use;//检测边是否重复用过,其实可以没有(减少一次拓扑排序)
+int n,m;//n为节点,m为边
+void add(char x,char y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void Solve(int x)//拓扑排序核心函数
+{
+    queue<pair<char,int>> que;//集合中记录每个字母及其入度为0时的层数
+    vector<char> ans;//存储答案
+    int check = 0;//记录最大层数的
+    for(auto v:s)//找入度为0的点
+    {
+        if(intemp[v] == 0) que.push({v,1});//入队且层数为1
+    }
+    while(!que.empty())//kahn算法,BFS
+    {
+        char ch = que.front().first;//取字母
+        int t = que.front().second;//取层数
+        que.pop();//弹出!!!!
+        ans.push_back(ch);//记录答案
+        for (int i = head[ch];i;i = e[i].next)//遍历它的边
+        {
+            intemp[e[i].to]--;//入度减1
+            if(intemp[e[i].to] == 0)//当入度为0
+            {
+                que.push({e[i].to,t+1});//由当前层数加1
+                check = max(check,t+1);//更新最大层数
+            }
+        }
+    }
+    if(ans.size() != s.size())//判断对已有的字母是否成环
+    {
+        cout<<"Inconsistency found after "<<x<<" relations.\n";//成环输出矛盾
+        exit(0);//结束程序
+    }
+    else
+    {
+        if(check < n) return;//检查层数,即检查拓扑排序的唯一性,是否为链,不是则返回
+        if(ans.size() == n)//已经唯一且全部字母集齐,序列唯一确定了
+        {
+            cout<<"Sorted sequence determined after "<<x<<" relations: ";//输出
+            for (auto v:ans) cout<<v;//输出序列
+            cout<<".\n";
+            exit(0);//结束程序
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    char a,b,c;
+    cin>>n>>m;
+    for (int i = 1;i<=m;i++)//依次加边,每次加边进行一次拓扑排序
+    {
+        cin>>a>>b>>c;
+        s.insert(a);//字符入集合
+        s.insert(c);
+        if(use.count({a,c}) == 1) continue;//用过的边再加进来也不能改变结果,不用拓扑排序了,跳过
+        use.insert({a,c});
+        if(b == '>')//建立有向边,由小的指向大的
+        {
+            add(c,a);
+            in[a]++;
+        }
+        else if(b == '<')
+        {
+            add(a,c);
+            in[c]++;
+        }
+        intemp = in;//unordered_map的复制
+        Solve(i);//拓扑排序
+    }
+    cout<<"Sorted sequence cannot be determined."<<"\n";//无法判断
+    return 0;
+}

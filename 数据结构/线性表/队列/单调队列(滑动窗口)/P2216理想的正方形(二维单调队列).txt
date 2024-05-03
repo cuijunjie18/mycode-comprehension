@@ -1,0 +1,79 @@
+//背景:被二维滑动窗口薄纱了!!!,看了知乎后才懂
+//原理:二维单调队列,先行后列或者先列后行
+//时间复杂度:o(a*b)
+#include <bits/stdc++.h>
+using namespace std;
+int a,b,n;//行,列,及滑动矩阵的大小n*n
+int c[1001][1001];//原始矩阵
+int temp1[1001][1001];//先处理行后的最大值矩阵,大小为a*(b-n+1)
+int temp2[1001][1001];//先处理行后的最小值矩阵,大小为a*(b-n+1)
+int minn[1001][1001];//最终的最大值矩阵,大小为(a-n+1)*(b-n+1)
+int maxn[1001][1001];//最终的最小值矩阵,大小为(a-n+1)*(b-n+1)
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>a>>b>>n;//输入行列及滑动窗口的大小
+    for (int i = 1;i<=a;i++)//输入原始矩阵
+    {
+        for (int j = 1;j<=b;j++)
+        {
+            cin>>c[i][j];
+        }
+    }
+    deque<int> x;//定义一维序列的单调队列,记录最大值的,存储的是位置
+    deque<int> y;//定义一维序列的单调队列,记录最小值的,存储的是位置
+    for (int i = 1;i<=a;i++)//先行处理
+    {
+        for (int j = 1;j<=b;j++)//移动列
+        {
+            if(!x.empty()&&x.front()<=j-n) x.pop_front();//超出范围的出队
+            if(!y.empty()&&y.front()<=j-n) y.pop_front();//超出范围的出队
+            while(!x.empty()&&c[i][x.back()]<c[i][j]) x.pop_back();//维护最大值单调队列
+            while(!y.empty()&&c[i][y.back()]>c[i][j]) y.pop_back();//维护最小值单调队列,注意!!!这里均是与原始矩阵C[a][b]问比对
+            x.push_back(j);//当前位置入队尾
+            y.push_back(j);//当前位置入队尾
+            if(j>=n) temp1[i][j-n+1] = c[i][x.front()];//但符合窗口的截取大小时,进行最大值获取
+            if(j>=n) temp2[i][j-n+1] = c[i][y.front()];//同上,进行最小值获取
+        }
+        //注意要手动清空队列,防止对下一行处理造成干扰
+        while(!x.empty()) x.pop_back();
+        while(!y.empty()) y.pop_back();
+    }
+    //我的debug,请忽略
+    /*for (int i = 1;i<=a;i++)
+    {
+        for (int j = 1;j+n-1<=b;j++)
+        {
+            cout<<temp2[i][j]<<" ";
+        }
+        cout<<"\n";
+    }
+    return 0;*/
+    for (int j = 1;j+n-1<=b;j++)//列处理
+    {
+        for (int i = 1;i<=a;i++)//移动行,其他同上
+        {
+            if(!x.empty()&&x.front()<=i-n) x.pop_front();
+            if(!y.empty()&&y.front()<=i-n) y.pop_front();
+            while(!x.empty()&&temp1[x.back()][j]<temp1[i][j]) x.pop_back();//细节:注意这里是与temp数组为比对,因为要在最大值中找最大
+            while(!y.empty()&&temp2[y.back()][j]>temp2[i][j]) y.pop_back();
+            x.push_back(i);
+            y.push_back(i);
+            if(i>=n) maxn[i-n+1][j] = temp1[x.front()][j];
+            if(i>=n) minn[i-n+1][j] = temp2[y.front()][j];
+        }
+        //注意要手动清空队列,防止对下一列处理造成干扰
+        while(!x.empty()) x.pop_back();
+        while(!y.empty()) y.pop_back();
+    }
+    int ans = 1e9 + 5;//求最小值,初始化答案为无穷大
+    for (int i = 1;i+n-1<=a;i++)//遍历最终矩阵
+    {
+        for (int j = 1;j+n-1<=b;j++)
+        {
+            ans = min(ans,maxn[i][j]-minn[i][j]);//取最小差值
+        }
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

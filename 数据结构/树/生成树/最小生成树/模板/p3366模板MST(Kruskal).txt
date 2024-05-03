@@ -1,0 +1,45 @@
+//原理:贪心
+//所用的操作:排序
+//特定的数据结构维护:并查集
+//时间复杂度:o(nlogn+(a)n),主要来自于排序及并查集查询
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal边结构体
+{
+    int b,e,v;
+}EDGE;
+EDGE e[200001];//Kruskal边数组不用双边,因为取出来用的时候是两边都有用上的
+int f[200001];//并查集数组
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+bool cmp(EDGE x,EDGE y)//边结构体按边权排序
+{
+    return x.v < y.v;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m;
+    cin>>n>>m;//输入节点与边数
+    for (int i = 1;i<=n;i++) f[i] = i;//初始化并查集
+    for (int i = 1;i<=m;i++) cin>>e[i].b>>e[i].e>>e[i].v;//依次输入m条边
+    sort(e+1,e+m+1,cmp);//排序
+    int ans = 0;//初始化答案
+    int finish = 0;//初始化完成的边数
+    for (int i = 1;i<=m;i++)//枚举边
+    {
+        if(finish == n-1) break;//已经建好树了,退出
+        int f1 = Find(e[i].b);//查找祖先
+        int f2 = Find(e[i].e);//查找祖先
+        if(f1 == f2) continue;//如果成环,之前有更小的边,跳过
+        finish++;//边数加1
+        ans += e[i].v;//答案累加
+        f[f1] = f2;//连通区域合并合并
+    }
+    if(finish == n-1) cout<<ans<<"\n";//如果有MST,输出最小权值和
+    else cout<<"orz"<<"\n";//否则输出无
+    return 0;
+}

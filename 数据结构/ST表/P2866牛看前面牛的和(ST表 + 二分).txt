@@ -1,0 +1,53 @@
+//背景:时隔3个星期,看题解做的
+//原理:ST表维护区间最值 + 二分查找(因为满足条件的区间是连续的)
+#include <bits/stdc++.h>
+using namespace std;
+int f[80001][30];//ST表数组
+int logn[80001];//log2的预处理对数数组
+void prework()//预处理log2数组
+{
+    logn[1] = 0;
+    for (int i = 2;i<=80000;i++) logn[i] = logn[i/2] + 1;
+}
+bool check(int l,int r)//二分查找判断函数,标准的ST表o(1)查找
+{
+    int t = logn[r-l+1];//获取最大长度对数
+    int ans = max(f[l][t],f[r-(1<<t)+1][t]);//获取区间最大值
+    return ans < f[l-1][0];//小于当前牛的身高
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    prework();//预处理
+    int n;
+    cin>>n;//输入牛的个数
+    for (int i = 1;i<=n;i++) cin>>f[i][0];//输入对应起点长度为1的区间最大值(即自己)
+    for (int i = n;i>=1;i--)//ST表预处理模板
+    {
+
+        for (int j = 1;i + (1<<j) - 1<=n;j++)//限定在范围内
+        {
+            f[i][j] = max(f[i][j-1],f[i + (1<<(j-1))][j-1]);//更新最大值
+        }
+    }
+    long long sum = 0;//初始化答案
+    for (int i = 1;i<=n-1;i++)//依次处理n-1头牛(最后一个不用处理,肯定为0)
+    {
+        int ans = i;//初始化位置
+        int l = i+1;//初始化二分右点的左右范围
+        int r = n;
+        while(l<=r)//二分查找模板
+        {
+            int mid = (l+r)>>1;
+            if(check(i+1,mid))//记住是i+1到mid
+            {
+                ans = mid;//更新位置
+                l = mid + 1;
+            }
+            else r = mid - 1;
+        }
+        sum += (ans - i);//累加答案
+    }
+    cout<<sum<<"\n";//输出
+    return 0;
+}

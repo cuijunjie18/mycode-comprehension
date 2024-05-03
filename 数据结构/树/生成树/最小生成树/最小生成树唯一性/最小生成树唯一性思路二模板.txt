@@ -1,0 +1,82 @@
+//背景:看似简单的思路,实际上细节多!!!代码坑多
+//时间复杂度:o(mlogm + 2*m*a(n)),(与思路一时间复杂度无大区别) <- 之前想错了,其实优秀了很多
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal边结构体
+{
+    int a,b,value;
+}EDGE;
+EDGE e[100005];//边集
+int f[1005];//并查集数组
+bool cmp(EDGE x,EDGE y)//自定义比较
+{
+    return x.value<y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()//解决问题函数
+{
+    int n,m;
+    cin>>n>>m;//输入节点数及边数
+    for (int i = 1;i<=n;i++) f[i] = i;//初始化并查集
+    for (int i = 1;i<=m;i++) cin>>e[i].a>>e[i].b>>e[i].value;//输入边数据
+    sort(e+1,e+m+1,cmp);//排序
+    //保险:让溢出的部分已知
+    e[m+1].value = 0;
+    e[m+1].a = 0;
+    e[m+1].b = 0;
+    //核心变量
+    int finish = 0;//完成的边(因为题目求MST是否唯一,默认了有,所有该变量在我有保险的条件下无用,或者是说题目专门卡了e[m+1]这一点,可以i>m,break)
+    int ans = 0;//最小权值和
+    int sum1 = 0;//每个阶段相同的可放的边条数
+    int sum2 = 0;//每个阶段实际放的条数
+    int tail = 0;//尾指针,用于确定阶段的
+    bool flag = false;//判断是否唯一
+    for (int i = 1;i<=m+1;i++)//注意这里要是m+1,否则可能最后一次无法判断
+    {
+        if(i>tail)//该更换阶段了
+        {
+            if(sum1 != sum2)//如果实际用的与可用的数量不同
+            {
+                flag = true;//标记不唯一
+                break;//退出循环
+            }
+            sum1 = 0;//重置阶段计数
+            sum2 = 0;
+            for (int j = i;j<=m+1;j++)//m+1还是要开保险安全
+            {
+                if(e[j].value != e[i].value)
+                {
+                    tail = j-1;//更新尾指针
+                    break;//退出
+                }
+                if(Find(e[j].a) != Find(e[j].b)) sum1++;//如果可加,可加边数加1
+            }
+        }
+        //注意这里不能else，因为更换阶段时的那一点也要用于判断的
+        if(finish == n-1) continue;//有保险的情况下可有可无,无的话也可以无,加上i>m break  !!!注意不能break,否则判断不全
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;//判断是否可以连接
+        f[x] = y;//合并
+        finish++;//边加1
+        sum2++;//实际阶段边数加1
+        ans += e[i].value;//答案累加
+    }
+    if(flag) cout<<"Not Unique!"<<"\n";//不唯一输出
+    else cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int t;
+    cin>>t;//输入测试组数
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

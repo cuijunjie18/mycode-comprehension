@@ -1,0 +1,46 @@
+//背景:难理解
+#include <bits/stdc++.h>
+using namespace std;
+int g[151][151];//表示以i为节点的儿子编号
+int cnt[151];//i为节点的儿子数
+int f[151][151];//dp数组,表示以i为根保留了j个节点的答案(最小值)
+int big[151];//记录以i为节点当前的树的大小(包括自己)
+int n,p,x,y;
+void DFS(int x)
+{
+    big[x] = 1;//初始化树的大小
+    f[x][1] = 0;//一开始不考虑有儿子,故保留自己不需要删边
+    for (int i = 1;i<=cnt[x];i++)//遍历儿子
+    {
+        DFS(g[x][i]);//先到底
+        big[x] += big[g[x][i]];//大小累加
+        for (int j = big[x];j>=1;j--)//逆序dp(确保数据来自之前的)
+        {
+            f[x][j]++;//当前结果加1(因为多了儿子,说明之前所有的最优解都是建立在删了这条边的基础上的)
+            for (int k = 1;k<=min(j-1,big[g[x][i]]);k++)//枚举,注意这里要是j-1
+            {
+                f[x][j] = min(f[x][j],f[x][j-k] + f[g[x][i]][k]);
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    memset(f,0x3f,sizeof(f));//求最小值,初始化为正无穷
+    cin>>n>>p;//输入节点数与保留数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y;
+        cnt[x]++;
+        g[x][cnt[x]] = y;
+    }
+    DFS(1);//开始dp
+    int ans = f[1][p];//初始化答案
+    for (int i = 2;i<=n;i++)//遍历可能的答案
+    {
+        ans = min(ans,f[i][p]+1);//因为以当前节点为根的树被分离出来还要断开与父节点的连接
+    }
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

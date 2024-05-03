@@ -1,0 +1,88 @@
+//其他一样,只看差分求和函数即可
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge
+{
+    int to,next,c1,c2;
+}EDGE;
+EDGE e[200001<<1];
+int head[200001];
+int cnt;
+int depth[200001];
+int f[200001][30];
+long long d[200001];
+long long ans;
+void add(int x,int y,int a,int b)
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].c1 = a;
+    e[cnt].c2 = b;
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int dis)
+{
+    depth[x] = dis;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x,dis+1);
+    }
+}
+void Sum(int x,int fa)//差分求和
+{
+    int u = 0;//临时变量
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa)//记下连接父亲这条边的编号
+        {
+            u = i;
+            continue;
+        }
+        Sum(e[i].to,x);
+        d[x] += d[e[i].to];
+    }
+    //当前点差分值化为实际值后处理其边
+    if(d[x]*e[u].c1 > e[u].c2) ans += e[u].c2;
+    else ans += d[x]*e[u].c1;
+}
+int LCA(int a,int b)
+{
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    if(a == b) return a;
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y,a,b,lca;
+    cin>>n;
+    for (int i = 1;i<=n-1;i++)
+    {
+        cin>>x>>y>>a>>b;
+        add(x,y,a,b);
+        add(y,x,a,b);
+    }
+    DFS(1,0,0);
+    for (int i = 2;i<=n;i++)
+    {
+        lca = LCA(i,i-1);
+        d[i]++;
+        d[i-1]++;
+        d[lca] -= 2;
+    }
+    Sum(1,0);
+    cout<<ans<<"\n";
+    return 0;
+}

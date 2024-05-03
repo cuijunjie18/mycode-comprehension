@@ -1,0 +1,48 @@
+//背景:第二次做这道题,上一次是用反向建图,这一次直接拓扑排序
+//时间复杂度:o(n+m)
+#include <bits/stdc++.h>
+using namespace std;
+vector<int> e[100001];//邻接表存有向边
+int times[100001];//记录完成这个点对应的任务的时间
+int ans[100001];//记录完成这个点的所有前驱任务所需的最多时间,即至少要这么多时间才能开始做这件事
+int in[100001];//记录每个点的入度
+unordered_set<int> s;//记录拓扑图中存在的点,防止不在拓扑图中的点入队
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x;
+    cin>>n;//输入点数
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x>>times[i];
+        cin>>x;
+        while(x)//不为0
+        {
+            e[x].push_back(i);//建立单向边
+            in[i]++;//入度加1
+            s.insert(x);//入集合
+            s.insert(i);
+            cin>>x;
+        }
+    }
+    queue<int> que;//初始化队列
+    for (auto v:s)//在图上的点中找入度为0的点
+    {
+        if(in[v] == 0) que.push(v);
+    }
+    while(!que.empty())//拓扑排序
+    {
+        x = que.front();
+        que.pop();
+        for (auto v:e[x])
+        {
+            in[v]--;
+            ans[v] = max(ans[v],ans[x] + times[x]);//每次更新最大值
+            if(in[v] == 0) que.push(v);//如果入度为0了,入队
+        }
+    }
+    int m = 0;//初始化最大值
+    for (int i = 1;i<=n;i++) m = max(m,ans[i] + times[i]);//还要完成自己,故要加上自己的时间
+    cout<<m<<"\n";//输出
+    return 0;
+}

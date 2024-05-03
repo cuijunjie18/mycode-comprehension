@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+int ans[100001];//某一点可以达到的最大值
+vector <int> g[100001];//邻接表存有向图
+void DFS(int x,int v)//搜索
+{
+    ans[x] = v;//改变这一点为v
+    for (int i = 0,s = g[x].size();i<s;i++)//枚举这一点可以由谁走来
+    {
+        if(ans[g[x][i]] == 0)//如果为0，搜索它
+        {
+            DFS(g[x][i],v);
+        }
+    }
+}
+int main()
+{
+    int n,m,a,b;
+    scanf("%d%d",&n,&m);//输入点与边的个数
+    for (int i = 1;i<=m;i++)//存边，反向建图
+    {
+        scanf("%d%d",&a,&b);//原本是由a到b有路
+        g[b].push_back(a);//反向为b该位置可以由a直接走来
+    }
+    for (int i = n;i>=1;i--)//求最大值，由最大编号开始，确定谁可以走了这一点，就改变该点的最大值
+    {
+        if(ans[i] == 0)//如果没有改变过
+        {
+            DFS(i,i);//从该点开始搜索
+        }
+        else continue;//如果已经改变过了，跳过
+    }
+    for (int i = 1;i<=n;i++)//正着输出每个点可以到达的最大编号
+    {
+        printf("%d ",ans[i]);
+    }
+    return 0;
+}
+
+
+
+
+为什么正向不行?
+//我的正向:可能有环导致某个点获取的是的后一个点最佳值未更新的情况
+/*附一组Hack:
+ 4
+4
+1 2
+2 3
+3 1
+1 4*/
+#include <bits/stdc++.h>
+using namespace std;
+vector<int> e[100001];
+int ans[100001];
+int in[100001];
+bool vis[100001];
+void DFS(int x)
+{
+    vis[x] = true;
+    for (auto v:e[x])
+    {
+        if(!vis[v]) DFS(v);
+        ans[x] = max(ans[x],ans[v]);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin>>n>>m;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        in[y]++;
+    }
+    for (int i = 1;i<=n;i++) ans[i] = i;
+    for (int i = 1;i<=n;i++)
+    {
+        DFS(i);
+    }
+    for (int i = 1;i<=n;i++) cout<<ans[i]<<" ";
+    return 0;
+}

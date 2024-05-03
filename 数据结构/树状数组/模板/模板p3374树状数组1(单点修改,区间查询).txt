@@ -1,0 +1,54 @@
+//背景:了解了核心函数集后自己写的第一个树状数组
+//原理:树 + 前缀和
+//适用情况:单点修改 + 区间查询
+//时间复杂度:o(nlogn)
+//注意:本题不需要开额外空间存储原数组的原因是前缀和数组可以导出原数组,差分前缀和也一样
+#include <bits/stdc++.h>
+using namespace std;
+int tree[500001];//树状数组维护管辖区域前缀和
+int n,m,x,k,c;//基本变量
+int lowbit(int x)//截断低位1后的数函数
+{
+    return x&(-x);
+}
+int getsum(int x)//区间求和,求[1,x]
+{
+    int ans = 0;//初始化答案
+    while(x > 0)//终止条件
+    {
+        ans += tree[x];
+        x = x - lowbit(x);//往下跳
+    }
+    return ans;
+}
+void add(int x,int k)//单点修改,加值
+{
+    while(x <= n)//不能越界
+    {
+        tree[x] += k;//每个祖先均修改
+        x = x + lowbit(x);//往上跳
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n>>m;//输入数组大小及操作次数
+    for (int i = 1;i<=n;i++)//依次输入初始数组数据(但不需要开额外的数组取存储)
+    {
+        cin>>x;
+        add(i,x);//单点修改
+    }
+    while(m--)//依次处理m次操作
+    {
+        cin>>c>>x>>k;
+        if(c == 1)//修改操作
+        {
+            add(x,k);//单点修改
+        }
+        else if(c == 2)//区间询问操作
+        {
+            cout<<getsum(k) - getsum(x-1)<<"\n";//前缀和做差
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,58 @@
+//背景:比赛的时候思路超时了!!!
+//原理:(知乎大佬)这种扫描点、边的题目,我们做题时要注意，怎么才能不重复扫描边和点。常用的套路就是往 bfs,dfs这些算法思路去套.
+//方法:此次采用树的DFS(也可以用BFS,但是树的遍历我一般习惯用DFS)
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next,p;
+}EDGE;
+EDGE e[200001<<1];
+int head[200001];
+int cnt;
+int ans = 0;//初始化答案为0
+void add(int x,int y,int t)//加边并记录时间
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].p = t;
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int t,int pos)//核心DFS,t为目前用时,pos为上一条边的排位
+{
+    ans = max(ans,t);//取该次DFS的最大值
+    for (int i = head[x];i;i = e[i].next)//遍历儿子
+    {
+        if(e[i].to == fa) continue;//跳过
+        if(e[i].p > pos) DFS(e[i].to,x,t,e[i].p);//如果来自这个点的边的排位小,时间不用加
+        else DFS(e[i].to,x,t+1,e[i].p);//否则加1
+    }
+}
+void Solve()
+{
+    int n,x,y;
+    cnt = 0;//记得要重置0
+    ans = 0;//重置0
+    cin>>n;
+    for (int i = 1;i<=n;i++) head[i] = 0;//!!!!重中之重,链式前向星要手动对head置零,否则会有上次的干扰,除非在函数中定义,不用全局变量;或者邻接表
+    for (int i = 1;i<=n-1;i++)//建边
+    {
+        cin>>x>>y;
+        add(x,y,i);//且记录排位
+        add(y,x,i);
+    }
+    DFS(1,0,1,0);//DFS遍历求解
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

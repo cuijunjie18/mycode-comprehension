@@ -1,0 +1,50 @@
+//坑点:完全的时候要从0开始,因为二次函数中有常数
+#include <bits/stdc++.h>
+using namespace std;
+long long f[10001];
+long long v[100001],w[100001];
+int cnt;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    long long n,m,c,x,y,d,a,b,e;
+    cin>>n>>m>>c;
+    for (int i = 1;i<=n;i++)//二进制优化记录
+    {
+        cin>>x>>y>>d;
+        int now = 1;
+        while(now < d)
+        {
+            w[++cnt] = x*now;
+            v[cnt] = y*now;
+            d -= now;
+            now *= 2;
+        }
+        if(d)
+        {
+            w[++cnt] = x*d;
+            v[cnt] = y*d;
+        }
+    }
+    for (int i = 1;i<=cnt;i++)//01背包模板
+    {
+        for (int j = c;j>=w[i];j--)
+        {
+            f[j] = max(f[j],f[j-w[i]] + v[i]);
+        }
+    }
+    for (int i = 1;i<=m;i++)//多重背包模板
+    {
+        cin>>a>>b>>e;
+        for (int j = c;j>=1;j--)
+        {
+            for (int k = 0;k<=j;k++)//!!!注意从0开始
+            {
+                long long temp = a*k*k + b*k + e;
+                f[j] = max(f[j],f[j-k] + temp);
+            }
+        }
+    }
+    cout<<f[c]<<"\n";//输出
+    return 0;
+}

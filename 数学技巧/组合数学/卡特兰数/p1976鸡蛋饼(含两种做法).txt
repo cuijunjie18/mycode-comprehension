@@ -1,0 +1,72 @@
+//背景:本题圆连接线段建模转换为括号匹配,即得到卡特兰数的做法
+//坑点:数据过大,涉及取模,不能用卡特兰数的递推式
+
+//做法一:卡特兰数的定义式
+//时间复杂度:o(n^2)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 100000007;
+long long f[3000];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    f[0] = f[1] = 1;
+    for (int i = 2;i<=n;i++)
+    {
+        for (int j = 1;j<=i;j++)
+        {
+            f[i] += f[i-j]*f[j-1];
+            f[i] %= md;
+        }
+    }
+    cout<<f[n]<<"\n";
+    return 0;
+}
+
+//做法二:卡特兰数的通项公式加乘法逆元
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 100000007;
+int ans;//答案
+void Gcd(int a,int b,int &x,int &y)//Gcd递归
+{
+    if(b == 0)
+    {
+        x = 1;
+        y = 0;
+        return;
+    }
+    Gcd(b,a%b,x,y);
+    int temp = x;
+    x = y;
+    y = temp - a/b*y;
+}
+int Exgcd(int a,int b)//拓展欧几里得求逆元
+{
+    int x,y;
+    Gcd(a,b,x,y);
+    return (x%md + md)%md;//返回正数的逆元
+}
+int Solve(int n)//利用通项公式算卡特兰数
+{
+    long long son = 1,mom = 1;//初始化求组合数的分子与分母
+    for (int i = n+1;i<=2*n;i++) son = son*i%md;//累乘分子并过程取模
+    for (int i = 1;i<=n;i++) mom = mom*i%md;//累乘分母并过程取模(可行性原理:取模求逆等于求逆取模)
+    int ny = Exgcd((int)(mom),md);//获得分母的逆元
+    long long ans1 = son*ny%md;//计算出组合数
+    ny = Exgcd(n+1,md);//计算n+1的逆元
+    long long ans = ans1*ny%md;//计算卡特兰数取模
+    return (int)(ans);//返回整型答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    ans = Solve(n);
+    cout<<ans<<"\n";//输出
+    return 0;
+}

@@ -1,0 +1,23 @@
+//背景:之前用的ST表,现在单调栈
+//原理:单调栈维护,找每个数第一个大于等于它的位置
+#include <bits/stdc++.h>
+using namespace std;
+int a[80001];//记录每头牛的高度
+stack<int> s;//栈模拟单调栈
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    long long sum = 0;//初始化答案为0
+    cin>>n;//输入牛个数
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入牛的高度
+    for (int i = n;i>=1;i--)//倒着处理(单调栈特性)
+    {
+        while(!s.empty()&&a[s.top()] < a[i]) s.pop();//维护单调不升倒序列(因为身高相同的牛也会挡住)
+        int p = s.empty()?n+1:s.top();//如果空则说明当前牛一镜到底,赋值n+1;否则栈顶就是第一个大于等于它的位置
+        sum += (p-1-i);//累加区间长度(注意大于等于的那一头不算)
+        s.push(i);//入栈
+    }
+    cout<<sum<<"\n";//输出
+    return 0;
+}

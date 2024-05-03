@@ -1,0 +1,26 @@
+queue<pair<char,int>> que;//集合中记录每个字母及其入度为0时的层数
+    vector<char> ans;//存储答案
+    int check = 0;//记录最大层数的
+    for(auto v:s)//找入度为0的点
+    {
+        if(intemp[v] == 0) que.push({v,1});//入队且层数为1
+    }
+    while(!que.empty())//kahn算法,BFS
+    {
+        char ch = que.front().first;//取字母
+        int t = que.front().second;//取层数
+        que.pop();//弹出!!!!
+        ans.push_back(ch);//记录答案
+        for (int i = head[ch];i;i = e[i].next)//遍历它的边
+        {
+            intemp[e[i].to]--;//入度减1
+            if(intemp[e[i].to] == 0)//当入度为0
+            {
+                que.push({e[i].to,t+1});//由当前层数加1
+                check = max(check,t+1);//更新最大层数
+            }
+        }
+    }
+    
+    
+有稳定拓扑排序说明拓扑排序的层数是n,即最后判断无环的情况下层数是否为n

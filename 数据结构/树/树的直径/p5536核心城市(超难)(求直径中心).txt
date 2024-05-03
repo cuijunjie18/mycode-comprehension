@@ -1,0 +1,113 @@
+//背景:第二次挑战这道题,看题解调了2个小时
+//本题主要思路:先求直径中心(难点),然后以直径中心为树根DFS,求得每个节点往下最大距离,将距离排序,取距离前k大的为核心城市,故最后答案为dis[k+1]+1
+//时间复杂度:o(nlogn)主要是来自最后的排序,其他DFS均为o(n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,next;
+}EDGE;
+//边相关数组
+EDGE e[100001<<1];
+int head[100001];
+int cnt;
+//点相关数组
+int f[100001];//记录某点的父亲,用于求直径中心
+int one;//记录第一次DFS求直径到底的最远点(即直径的一个端点)
+int two;//记录直径的另一端点
+int m;//临时变量,存放最远距离
+//根节点为直径中心后的相关数组
+int root;//记录直径中心
+int dis[100001];//记录以直径中心为根的树每个节点往下的最大距离
+int depth[100001];//记录当前节点深度
+int mdepth[100001];//记录当前节点所能往下到达的最大深度
+bool cmp(int x,int y)//降序排序
+{
+    return x>y;
+}
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS1(int x,int fa,int d)//第一次找直径端点
+{
+    if(d>m)//如果更远
+    {
+        m = d;//更新最远值
+        one = x;//记录端点
+    }
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS1(e[i].to,x,d+1);
+    }
+}
+void DFS2(int x,int fa,int d)//第二次求另一端点
+{
+    if(d>m)//注意!!!如果m在上一次DFS为清零,这里应该为d>=m(因为可能一开始就是从直径的两端点操作了)
+    {
+        m = d;//更新
+        two = x;
+    }
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        f[e[i].to] = x;//记录父亲,便于求直径中心
+        DFS2(e[i].to,x,d+1);
+    }
+}
+void DFS3(int x,int d)//求直径中心,其实可以用循环
+{
+    if(d == m/2)//自己想想,到了中点
+    {
+        root = x;//标记中心
+        return;
+    }
+    else DFS3(f[x],d+1);//否则继续往上找
+}
+void DFS4(int x,int fa,int d)//以直径中心为根求答案
+{
+    depth[x] = d;//记录节点深度
+    mdepth[x] = d;//初始化可到达最大深度
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS4(e[i].to,x,d+1);
+        mdepth[x] = max(mdepth[x],mdepth[e[i].to]);//更新最大深度
+    }
+    dis[x] = mdepth[x] - depth[x];//记录最远距离
+}
+int main()
+{
+    int n = read();//读入节点个数
+    int k = read();//读入核心城市个数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    DFS1(1,0,0);//第一次求直径端点
+    m = 0;//重置
+    DFS2(one,0,0);//求直径另一端点
+    DFS3(two,0);//求直径中心
+    DFS4(root,0,0);/遍历直径中心树,预处理答案
+    sort(dis+1,dis+n+1,cmp);//排序
+    cout<<dis[k+1]+1<<endl;//输出答案
+    return 0;
+}

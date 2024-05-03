@@ -1,0 +1,59 @@
+//背景:模板题,无背景
+//原理:队列维护一个入度为0的集合
+//时间复杂度:o(E + V),E为边数,V为顶点数
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next;
+}EDGE;
+EDGE e[101*101];
+int head[101];
+int cnt;
+int in[101];//记录顶点的入度
+void add(int x,int y)//建边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//建边
+    {
+        cin>>x;
+        while(x)
+        {
+            add(i,x);
+            in[x]++;//记录入度
+            cin>>x;
+        }
+    }
+    queue<int> que;//初始化队列
+    for (int i = 1;i<=n;i++)//遍历顶点
+    {
+        if(in[i] == 0) que.push(i);//入度为0的入队
+    }
+    vector <int> ans;//拓扑排序结果序列
+    while(!que.empty())
+    {
+        int v = que.front();
+        que.pop();
+        ans.push_back(v);
+        for (int i = head[v];i;i = e[i].next)
+        {
+            in[e[i].to]--;
+            if(in[e[i].to] == 0) que.push(e[i].to);
+        }
+    }
+    if(ans.size() == n)//如果序列中包含了全部点,说明该图为有向无环图,即DAG
+    {
+        for (auto v:ans) cout<<v<<" ";
+        cout<<"\n";
+    }
+    else cout<<-1<<"\n";//否则输出-1
+    return 0;
+}

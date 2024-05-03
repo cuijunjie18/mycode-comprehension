@@ -1,0 +1,50 @@
+//原理:排序后的数组无逆序对，归并排序的合并操作中，每次后段首元素被作为当前最小值取出时，前段剩余元素个数之和即是合并操作减少的逆序对数量
+//主要是取决于归并排序的双有序队列性质
+#include <bits/stdc++.h>
+using namespace std;
+int temp[500001];//全局辅助数组(即临时存储数据)
+long long ans;//逆序对数量
+void my_merge(int a[],int s1,int b[],int s2)//合并有序队列
+{
+    int k = 0,i = 0,j = 0;
+    while(i<s1&&j<s2)
+    {
+        if(a[i] <= b[j]) temp[k] = a[i++];
+        else
+        {
+            temp[k] = b[j++];
+            ans += (s1-i);//累加逆序对
+        }
+        k++;
+    }
+    for (;i<s1;i++,k++) temp[k] = a[i];
+    for (;j<s2;j++,k++) temp[k] = b[j];
+}
+void merge_sort(int a[],int l,int r)//归并排序
+{
+    if(r-l<=1)
+    {
+        if(l>=r) return;
+        if(a[r] < a[l])//特殊处理
+        {
+            swap(a[r],a[l]);
+            ans++;//累加逆序对
+        }
+        return;
+    }
+    int mid = (l+r)>>1;
+    merge_sort(a,l,mid-1);
+    merge_sort(a,mid,r);
+    my_merge(&a[l],mid-l,&a[mid],r-mid+1);
+    for (int i = l;i<=r;i++) a[i] = temp[i-l];
+}
+int main()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    merge_sort(a,1,n);
+    cout<<ans<<"\n";//输出
+    return 0;
+}

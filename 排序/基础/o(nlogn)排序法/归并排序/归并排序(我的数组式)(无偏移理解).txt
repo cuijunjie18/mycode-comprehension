@@ -1,0 +1,42 @@
+//背景:之前自己在众多指针中创造出我的数组式(下标从0开始)的做法,指针与我的数组最大区别就是下标0问题,故之前的应该叫半我的数组式
+//注意区别:仅my_merge()变动
+#include <bits/stdc++.h>
+using namespace std;
+int temp[100005];
+void my_merge(int a[],int b1,int e1,int b2,int e2)//直接利用下标处理
+{
+    int i = b1,j = b2,p = 0;
+    while(i<=e1&&j<=e2)
+    {
+        if(a[i]<a[j]) temp[p] = a[i++];
+        else temp[p] = a[j++];
+        p++;
+    }
+    for (;i<=e1;i++) temp[p++] = a[i];
+    for (;j<=e2;j++) temp[p++] = a[j];
+}
+void merge_sort(int a[],int l,int r)
+{
+    if(r-l<=1)
+    {
+        if(r<=l) return;
+        if(a[r] < a[l]) swap(a[r],a[l]);
+        return;
+    }
+    int mid = (l+r)>>1;
+    merge_sort(a,l,mid-1);
+    merge_sort(a,mid,r);
+    my_merge(a,l,mid-1,mid,r);
+    for (int i = l;i<=r;i++) a[i] = temp[i-l];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    merge_sort(a,1,n);
+    for (int i = 1;i<=n;i++) cout<<a[i]<<" ";
+    return 0;
+}

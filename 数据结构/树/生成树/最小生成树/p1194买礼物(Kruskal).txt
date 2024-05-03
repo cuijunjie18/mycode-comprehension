@@ -1,0 +1,54 @@
+//原理:kruskal算法求最小生成树
+//难点:处理第一个点(即第一个点必须是原价最后加入,也可以认为是一开始就加入的)
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//定义边结构体
+{
+    int b,to,value;//记录边端点及边权
+}EDGE;
+EDGE e[250001];
+int f[501];//并查集,用于判断是否会成环
+bool cmp(EDGE x,EDGE y)//自定义结构体比较
+{
+    return x.value<y.value;
+}
+int Find(int x)//并查集查找加路径压缩
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int a,b,x;
+    cin>>a>>b;//输入初始价格及物品数量
+    for (int i = 1;i<=b;i++) f[i] = i;//初始化并查集
+    for (int i = 1;i<=b;i++)//读入每条边数据
+    {
+        for (int j = 1;j<=b;j++)
+        {
+			//其实这里i>j时可以跳过,因为是双向边(权值同)
+            cin>>x;
+            e[(i-1)*b + j].b = i;//记录起点
+            e[(i-1)*b + j].to = j;//记录终点
+            e[(i-1)*b + j].value = a;//初始化边权,及默认无优惠
+            if(x != 0&& x<a) e[(i-1)*b + j].value = x;//如果不是0且小于默认价,替换
+        }
+    }
+    sort(e+1,e+b*b+1,cmp);//按优惠从小到大排序
+    int finish = 0;//初始化已完成的边数
+    int ans = a;//初始化答案,一定会有一开始买的原价,因为生成树只是边权
+    for (int i = 1;i<=b*b;i++)//Kruskal算法
+    {
+        int x = Find(e[i].b);//查找端点集合
+        int y = Find(e[i].to);
+        if(Find(x) == Find(y)) continue;//如果已经连通了,跳过
+        f[x] = y;//合并
+        finish++;//边数加1
+        ans += e[i].value;//答案加上边权
+        if(finish == b-1) break;//如果完成,退出
+    }
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

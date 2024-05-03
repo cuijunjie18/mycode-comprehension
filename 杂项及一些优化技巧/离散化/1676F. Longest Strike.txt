@@ -1,0 +1,68 @@
+//背景:1300的题竟然调了2个小时
+//原理:模拟 + 离散化(哈希),其实用map可以瞬秒
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,k;
+    cin>>n>>k;
+    int a[n+5];//记录原始数据
+    int times[n+5];//因为数据大,所以记录出现次数离散化
+    int p[n+5];//记录对应离散化值对应的原始值
+    int b[n+5];//记录满足大于k的值
+    int pos = 0;//b的数量
+    memset(times,0,sizeof(times));//初始化
+    memset(p,0,sizeof(p));//初始化
+    for (int i = 1;i<=n;i++)//输入
+    {
+        cin>>a[i];
+    }
+    sort(a+1,a+n+1);//排序
+    int before = 0;//用于去重
+    int cnt = 0;//记录去重后有多少元素
+    for (int i = 1;i<=n;i++)//手动去重并判断出现次数(排序后相同的数连续)
+    {
+        if(a[i] == before)//相同
+        {
+            times[cnt]++;//累加
+        }
+        else
+        {
+            p[++cnt] = a[i];//否则新建离散值
+            times[cnt] = 1;
+            before = a[i];
+        }
+    }
+    for (int i = 1;i<=cnt;i++)//遍历离散值,取满足出现次数的
+    {
+        if(times[i] >= k) b[++pos] = p[i];//记录原始数据
+    }
+    int length = 1;//初始化最大长度
+    int ansl = 0,ansr = 0;//初始化答案
+    b[pos+1] = -1;//巧妙赋值
+    for (int i = 1;i<=pos+1;i++)//注意这里是到pos+1,确保一直到最后都满足条件时的区间得以判断
+    {
+        if(i == 1) continue;//起点不管
+        if(b[i] == b[i-1] + 1) length++;/连续段,长度加1
+        else
+        {
+            if(length >= ansr-ansl+1)//更新最大值
+            {
+                ansl = b[i-length];
+                ansr = b[i-1];
+            }
+            length = 1;//重新计算
+        }
+    }
+    if(ansl == 0) cout<<-1<<"\n";//如果无解
+    else cout<<ansl<<" "<<ansr<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--) Solve();
+    return 0;
+}

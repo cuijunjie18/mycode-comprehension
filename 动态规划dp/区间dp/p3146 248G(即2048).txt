@@ -1,0 +1,35 @@
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+int f[249][249];//记录区间只有一个数字(即该区间的所有数字能合成一个数)的最大值
+int number[249];//记录初始每个位置的数字
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    memset(f,-0x3f,sizeof(f));//要将答案初始化为负无穷,因为可能对应区间不能合成一个数字(注意,不可初始化为0,因为可能将两个无效区间合并,即0 == 0满足合并条件)
+    int n,ans = 0;//初始化答案
+    cin>>n
+    for (int i = 1;i<=n;i++)//依次输入n个数字
+    {
+        cin>>number[i];
+        f[i][i] = number[i];//初始化区间dp数组
+        ans = max(ans,number[i]);//取最大值为答案,因为可能没有一个区间可以合成
+    }
+    for (int l = 2;l<=n;l++)//枚举区间长度
+    {
+        for (int b = 1;b+l-1<=n;b++)//枚举起点
+        {
+            int e = b + l - 1;//计算终点
+            for (int k = b;k<e;k++)//枚举区间断点
+            {
+                if(f[b][k] == f[k+1][e])//如果断点两端可以合成
+                {
+                    f[b][e] = max(f[b][e],f[b][k] + 1);//合成取最大值
+                    ans = max(ans,f[b][e]);//同时更新答案即可
+                }
+            }
+        }
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

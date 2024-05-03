@@ -1,0 +1,15 @@
+1,string 转 int      int x = atoi(str.c_str())
+2,int 转string  string s = to_string(x);
+
+
+std::to_string(int)
+std::to_string(long)
+std::to_string(long long)
+std::to_string(float)
+std::to_string(double)
+std::to_string(long double)
+
+
+std::stoi(string)
+std::stol(string)
+std::stoll(string)

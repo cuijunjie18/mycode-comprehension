@@ -1,0 +1,90 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct city//建筑修复信息结构体
+{
+    int u,e;//u为修复耗时,e为报废时间
+}CITY;
+CITY c[150001];
+long long now;//当前已经修好的建筑的总用时
+priority_queue<int>heap;
+bool cmp(CITY a,CITY b)//自定义结构体排序比较(升序)
+{
+    return a.e<b.e;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>c[i].u>>c[i].e;
+    sort(c+1,c+n+1,cmp);//排序
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//依次处理n个建筑
+    {
+        if(now+c[i].u<=c[i].e)//如果可以修
+        {
+            now += c[i].u;
+            heap.push(c[i].u);
+            ans++;
+        }
+        else//不行
+        {
+            if(heap.top()>c[i].u)//还可以优化,更换
+            {
+                heap.push(c[i].u);
+                now = now - heap.top() + c[i].u;
+                heap.pop();
+            }
+        }
+    }
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}
+
+
+
+
+//更优雅的代码
+#include <bits/stdc++.h>
+
+#define ll long long
+#define I inline
+#define N 150001
+
+using namespace std;
+
+struct Building{
+    ll t1;
+    ll t2;
+}build[N];
+
+bool cmp(Building a , Building b){
+    return a.t2 < b.t2;
+}
+
+int n;
+ll sum , ans;
+priority_queue<ll > Q;    //采用优先队列维护耗时最长的建筑。
+
+int main(){
+    cin >> n;
+    for(int i = 1; i <= n; i ++){
+        cin >> build[i].t1 >> build[i].t2;
+    }
+    sort(build + 1 , build + 1 + n , cmp);
+    for(int i = 1; i <= n; i ++){
+        sum += build[i].t1;
+        Q.push(build[i].t1);
+        if(sum <= build[i].t2){     //如果可以修，就修。
+            ans ++;
+        }
+        else{       //否则报废耗时最长的建筑。
+            sum -= Q.top();
+            Q.pop();
+        }
+    }
+    cout << ans << "\n";
+
+    return 0;
+}

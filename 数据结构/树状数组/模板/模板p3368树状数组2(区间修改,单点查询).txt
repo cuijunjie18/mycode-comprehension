@@ -1,0 +1,59 @@
+//背景:刚刚学完树状数组,打了个前缀和思想的单点修改,区间查询的,现在做区间修改,单点查询
+//原理:树 + 差分 + 前缀和
+//适用范围:区间修改 + 单点查询
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int n;//数组大小
+int tree[500001];//树状数组维护差分数组前缀和(这里的差分数组为隐式的)
+int lowbit(int x)//阶段低位1后的数
+{
+    return x&(-x);
+}
+int getsum(int x)//求区间和,[1,x]
+{
+    int ans = 0;//初始化和
+    while(x > 0)//终止条件
+    {
+        ans += tree[x];//累加答案(单点值为差分数组的前缀和)
+        x = x - lowbit(x);//向下跳
+    }
+    return ans;//返回答案
+}
+void add(int x,int k)//单点修改操作
+{
+    while(x <= n)//注意不能越界
+    {
+        tree[x] += k;//所有管辖差分数组[x]的都要修改
+        x = x + lowbit(x);//向上跳
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int m,x,y,k,before = 0,c;//基本变量
+    cin>>n>>m;//输入数组大小及操作次数
+    for (int i = 1;i<=n;i++)//预处理每个数及获取该序列的差分数组(或者当成[i,i]区间修改)
+    {
+        cin>>x;//输入
+        if(i == 1) add(i,x);//如果是第一个数,特殊差分数组处理
+        else add(i,x-before);//否则正常处理,c[i] = b[i] - b[i-1] 
+        before = x;//更新before
+    }
+    while(m--)//依次处理m次操作
+    {
+        cin>>c;//输入选择
+        if(c == 1)//区间修改
+        {
+            cin>>x>>y>>k;
+            add(x,k);//差分数组修改方法,转换为单点修改
+            add(y+1,-k);//注意-k
+        }
+        else if(c == 2)//单点查询
+        {
+            cin>>x;
+            cout<<getsum(x)<<"\n";//差分数组前缀和即为所求数
+        }
+    }
+    return 0;
+}

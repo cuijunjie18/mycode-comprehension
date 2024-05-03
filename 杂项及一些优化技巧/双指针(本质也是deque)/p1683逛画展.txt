@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+int a[1000001];//记录数组信息
+int cnt;//记录画家出现的不同数
+int times[2001];//记录每个画家的画出现的次数(当m大的时候可以用map)
+int ansl,ansr,anslength = 99999999;//初始化答案,依次为左端点,右端点,最小长度(初始化为最大值)
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,b = 1;//b为左指针初始化为1
+    cin>>n>>m;//输入画数及画家数
+    for (int i = 1;i<=n;i++)//遍历每幅画,移动右指针
+    {
+       cin>>a[i];//输入当前位置画的画家
+       times[a[i]]++;//出现次数加1
+       if(times[a[i]] == 1) cnt++;//第一次出现说明有新的画家出现,cnt加1
+       if(cnt == m)//如果区间,即双指针区域已经满足要求
+       {
+           //cout<<i<<"\n";
+           while(times[a[b]]>1)//如果前面的出现大于一次,可以减去,直到无法移动
+           {
+               times[a[b]]--;//减1
+               b++;//移动左指针
+           }
+           //cout<<b<<"\n";
+           int length = i-b+1;//计算此时符合条件的长度
+           if(length < anslength)//小于答案长度(这里不用取等,因为题目要求输出左端点小的)
+           {
+               ansl = b;//更新
+               ansr = i;
+               anslength = length;
+           }
+       }
+    }
+    cout<<ansl<<" "<<ansr<<"\n";//输出
+    return 0;
+}

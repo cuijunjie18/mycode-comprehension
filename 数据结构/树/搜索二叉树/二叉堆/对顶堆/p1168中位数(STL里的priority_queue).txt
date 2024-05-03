@@ -1,0 +1,42 @@
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+priority_queue<int,vector<int>,less<int> >big;//等价于priority_queue<int> 默认为大根堆(less为降序,故队头为最大值)
+priority_queue<int,vector<int>,greater<int> >small;//小根堆!!!注意不可以忽略实现容器直接加上比较方式(greater为升序,队头为最小值)
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x;
+        if(big.size()<=small.size())//轮到big新增
+        {
+            if(!small.empty())//确保不空才能用top!!!!
+            {
+                if(x>small.top())
+                {
+                    small.push(x);
+                    x = small.top();
+                    small.pop();//pop没有获取功能,只有删除堆顶
+                }
+            }
+            big.push(x);
+        }
+        else
+        {
+            if(x<big.top())
+            {
+                big.push(x);
+                x = big.top();
+                big.pop();
+            }
+            small.push(x);
+        }
+        if(i%2)
+        {
+            cout<<big.top()<<"\n";
+        }
+    }
+}

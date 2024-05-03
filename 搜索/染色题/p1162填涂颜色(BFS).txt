@@ -1,0 +1,52 @@
+//背景:备战GPLT回顾
+//原理:思维 + BFS
+#include <bits/stdc++.h>
+using namespace std;
+int mp[35][35];//记录初始地图信息
+bool vis[35][35];//标记数组
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//快读快写
+    int n;
+    cin>>n;//输入地图大小
+    for (int i = 1;i<=n;i++)//输入地图信息
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cin>>mp[i][j];
+        }
+    }
+    queue<pair<int,int>>que;//队列进行BFS
+    que.push(make_pair(0,0));//(0,0)为水圈起点,入队
+    vis[0][0] = true;//标记
+    while(!que.empty())//BFS
+    {
+        pair<int,int>p = que.front();
+        que.pop();
+        int x = p.first;
+        int y = p.second;
+        for (int i  = 0;i<=3;i++)
+        {
+            int wx = x + walk[i][0];
+            int wy = y + walk[i][1];
+            if(wx>=0&&wx<=n+1&&wy>=0&&wy<=n+1&&vis[wx][wy] == false&&mp[wx][wy] != 1)//注意范围,要包含水圈
+            {
+                vis[wx][wy] = true;
+                que.push(make_pair(wx,wy));
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//实际输出不要外围水圈
+    {
+        for (int j = 1;j<=n;j++)
+        {
+			//三种情况输出
+            if(vis[i][j]) cout<<0<<" ";
+            else if(mp[i][j] == 0) cout<<2<<" ";
+            else cout<<1<<" ";
+        }
+        cout<<"\n";
+    }
+    return 0;
+}

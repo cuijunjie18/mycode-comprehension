@@ -1,0 +1,22 @@
+//背景:闲来无事,学一下数据结构
+//单调栈要点:维护的就是一个数前/后第一个大于/小于他的数,一般是从后往前扫的
+#include <bits/stdc++.h>
+using namespace std;
+int f[3000001];//x位置的第一个大于它的位置
+int a[3000001];//x位置的数的大小
+stack<int> s;//栈模拟单调栈,注意!!!此题存储的位置而不是数大小
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    cin>>n;//输入数组大小
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入
+    for (int i = n;i>=1;i--)//从后面开始扫描
+    {
+        while(!s.empty()&&a[s.top()] <= a[i]) s.pop();//维护单调栈
+        f[i] = s.empty()?0:s.top();//如果不空则第一个比它大的位置为栈顶,否则为0(即没有比它大的)
+        s.push(i);//当前位置入栈
+    }
+    for (int i = 1;i<=n;i++) cout<<f[i]<<" ";//输出
+    return 0;
+}

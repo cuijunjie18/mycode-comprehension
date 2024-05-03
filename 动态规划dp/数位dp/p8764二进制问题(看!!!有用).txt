@@ -1,0 +1,40 @@
+//背景:隔了很久没做数位dpl,这道题竟然有收获与理解(因为学了树)
+//时间复杂度:即所有可能的状态数!!!
+#include <bits/stdc++.h>
+long long f[70][70];//记忆化dp!!!注意一定要初始化为-1,因为有的满足条件的状态答案就是零
+int num[70];//记录对应数的二进制表示的每一位
+int k;//记录要求出现的1的个数
+using namespace std;
+long long DFS(int len,int times,bool limit)//记忆化DFS 数位dp
+{
+    if(times>k) return 0;//如果之前已经超出k个了,直接返回0即可,一个重要(其实剪不剪无所谓)剪枝
+    if(len == 0) return times == k?1:0;//到底了,如果满足条件返回数目加1,否则为0
+    if(!limit&&f[len][times] != -1) return f[len][times];//如果状态已经搞过了,直接返回
+    int up = limit?num[len]:1;//计算当前位的上限
+    long long ret = 0;//初始化当前状态的答案数
+    for (int i = 0;i<=up;i++)//遍历
+    {
+        ret += DFS(len-1,times + (i == 1),limit&&(i == up));//DFS
+    }
+    if(!limit&&f[len][times] == -1) f[len][times] = ret;//如果之前没有记录过,记忆化
+    return ret;//返回
+}
+long long Solve(long long n)
+{
+    int len = 0;
+    while(n)//二进制位提取
+    {
+        num[++len] = n%2;
+        n /= 2;
+    }
+    return DFS(len,0,true);//返回搜索值
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    memset(f,-1,sizeof(f));//!!!细节及重中之重,记得初始化为-1,因为有很多状态是答案为0的
+    long long n;
+    cin>>n>>k;
+    cout<<Solve(n)<<"\n";//输出
+    return 0;
+}

@@ -1,0 +1,56 @@
+//背景:吃奶酪的类比题,只是有了距离的限制,需要引入最短路的算法
+//算法:状态压缩dp + Floyd最短路算法
+//时间复杂度:o(2^n*n^2)
+#include <bits/stdc++.h>
+using namespace std;
+double x[21],y[21],dis[21][21];//记录每个村庄的x,y坐标,dis为x到y的最短距离
+int n,d;//记录村庄个数及最远限制
+int g[21];//记录每个村庄对应的二进制状态,美化代码
+double dp[21][1<<20];//dp数组,为状态t下,最后在i(第一维)下飞行的最小距离
+double Count(int a,int b)//计算欧几里得距离
+{
+    double ans = sqrt((x[a]-x[b])*(x[a]-x[b]) + (y[a]-y[b])*(y[a]-y[b]));
+    if(ans > d) return 99999999999;//如果大于限制,返回极大值
+    return ans;//否则返回计算结果
+}
+int main()
+{
+    scanf("%d%d",&n,&d);//输入村庄数及最大限制
+    for (int i = 1;i<=n;i++) scanf("%lf%lf",&x[i],&y[i]);//依次输入每个村庄的坐标
+    for (int i = 1;i<=n;i++) g[i] = (1<<(i-1));//计算村庄二进制表示
+    for (int i = 1;i<=n;i++)//计算每个村庄间的直接欧几里得距离
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            dis[i][j] = Count(i,j);
+            dis[j][i] = dis[i][j];
+        }
+    }
+    //Floyd算法+滚动数组
+    for (int k = 1;k<=n;k++)
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                dis[i][j] = min(dis[i][j],dis[i][k] + dis[k][j]);
+            }
+        }
+    }
+    memset(dp,127,sizeof(dp));//初始化dp数组为最大值
+    for (int i = 2;i<=n;i++) dp[i][g[i]] = dis[1][i];//初始化由1号村庄出发到当前村庄的状态dp,但不计入1号村庄的状态
+    for (int t = 1;t<=(1<<n)-1;t++)//模板状压dp
+    {
+        for (int i = 1;i<=n;i++)//枚举要到哪里
+        {
+            if(t&g[i]) continue;
+            for (int j = 1;j<=n;j++)//枚举最后站在哪里
+            {
+                if((t&g[j]) == 0) continue;
+                dp[i][t|g[i]] = min(dp[i][t|g[i]],dp[j][t] + dis[j][i]);//更新
+            }
+        }
+    }
+    printf("%.2f",dp[1][(1<<n)-1]);//输出答案
+    return 0;
+}

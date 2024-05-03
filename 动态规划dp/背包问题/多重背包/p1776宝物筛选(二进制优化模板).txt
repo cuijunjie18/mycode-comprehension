@@ -1,0 +1,40 @@
+//背景:dp复习回来做多重背包
+//收获:v[++cnt],w[cnt]
+//时间复杂度:o(n*logm*W)
+#include <bits/stdc++.h>
+using namespace std;
+long long f[40001];//dp数组
+long long v[3001],w[3001];//价值及重量
+int cnt;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,W,x,y,m;
+    cin>>n>>W;
+    for (int i = 1;i<=n;i++)//依次输入n种物品信息
+    {
+        cin>>x>>y>>m;
+        int now  = 1;
+        while(now < m)//二进制优化
+        {
+            v[++cnt] = (long long)(now)*x;
+            w[cnt] = (long long)(now)*y;
+            m -= now;
+            now *= 2;
+        }
+        if(m)//还有剩余
+        {
+            v[++cnt] = (long long)(m)*x;
+            w[cnt] = (long long)(m)*y;
+        }
+    }
+    for (int i = 1;i<=cnt;i++)//dp
+    {
+        for (int j = W;j>=w[i];j--)//逆序枚举
+        {
+            f[j] = max(f[j],f[j-w[i]] + v[i]);
+        }
+    }
+    cout<<f[W]<<"\n";//输出答案
+    return 0;
+}

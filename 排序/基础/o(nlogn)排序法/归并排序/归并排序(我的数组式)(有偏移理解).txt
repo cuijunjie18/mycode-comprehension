@@ -1,0 +1,44 @@
+//注意:我的答案数组下标开始为1,且所有操作区间均为闭区间
+//时间复杂度:稳定o(nlogn)
+//空间复杂度:o(n),栈空间:o(nlogn),若开全局数组则可忽略栈空间
+#include <bits/stdc++.h>
+using namespace std;
+void my_merge(int a[],int s1,int b[],int s2,int temp[])//合并两个有序数组(其实是有序队列)
+{
+	//有点像01背包第k优解的感觉
+    int k = 0,i = 0,j = 0;//因为这里传入的是首地址,故下标从0开始
+    while(i<s1&&j<s2)//直到其中一个队列先空为止
+    {
+        if(a[i] <= b[j]) temp[k] = a[i++];//小的在前且移动下标
+        else temp[k] = b[j++];
+        k++;//移动
+    }
+    //将为空的继续放入临时数组
+    for (;i<s1;i++,k++) temp[k] = a[i];
+    for (;j<s2;j++,k++) temp[k] = b[j];
+}
+void merge_sort(int a[],int l,int r)//我的归并排序,指针式
+{
+    if(r - l<=1)//特殊处理!!!(产生原因为我的操作为闭区间,当区间为2的时候,一直是二,一边长度为2,一边为0)
+    {
+        if(l>=r) return;//特殊处理
+        if(a[r] < a[l]) swap(a[r],a[l]);//处理长度为二的时候
+        return;//返回
+    }
+    int mid = (l+r)>>1;//分割区间
+    merge_sort(a,l,mid-1);
+    merge_sort(a,mid,r);
+    int temp[1024];//临时数组,大小应该是数组的最大大小,n,故空间复杂度(栈空间nlogn)
+    my_merge(&a[l],mid-l,&a[mid],r-mid+1,temp);//合并两个数组为一个有序数组
+    for (int i = l;i<=r;i++) a[i] = temp[i-l];//赋值
+}
+int main()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    merge_sort(a,1,n);
+    for (int i = 1;i<=n;i++) cout<<a[i]<<"\n";
+    return 0;
+}

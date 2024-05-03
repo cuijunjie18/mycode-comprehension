@@ -1,0 +1,20 @@
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        unordered_set<char> check;//哈希表检查是否出现过某字符
+        int l = 0,r = 0;//初始化左右指针
+        int ans = 0;//初始化答案
+        while(s[r] != '\0'&&s[l] != '\0')//左右指针在范围内
+        {
+            while(check.count(s[r]) == 0&&s[r] != '\0')//如果不重复且在范围内
+            {
+                check.insert(s[r]);//入队
+                ans = max(ans,r-l+1);//取最大值
+                r++;//移动右指针
+            }
+            check.erase(s[l]);//删除左边
+            l++;//移动左指针
+        }
+        return ans;
+    }
+};

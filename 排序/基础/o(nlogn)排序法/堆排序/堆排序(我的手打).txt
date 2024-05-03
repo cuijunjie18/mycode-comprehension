@@ -1,0 +1,48 @@
+//背景:温故而知新
+//评价:时间复杂度略逊于归并,空间复杂度最优
+#include <bits/stdc++.h>
+using namespace std;
+int heap[100001];//堆数组
+int cnt;
+void down(int x)//向下调整,辅助删除
+{
+    while(2*x<=cnt)
+    {
+        int t = 2*x;
+        if(2*x + 1<=cnt&&heap[2*x+1] < heap[2*x]) t++;
+        if(heap[t] >= heap[x]) break;
+        swap(heap[t],heap[x]);
+        x = t;
+    }
+}
+void up(int x)//向上调整
+{
+    while(x > 1&&heap[x/2] > heap[x])
+    {
+        swap(heap[x],heap[x/2]);
+        x /= 2;
+    }
+}
+int gettop()//获取小根堆堆顶并删除
+{
+    int x = heap[1];
+    heap[1] = heap[cnt--];
+    down(1);
+    return x;
+}
+void heap_sort(int a[],int n)//堆排序
+{
+    for (int i = 1;i<=n;i++) heap[++cnt] = a[i];
+    for (int i = n;i>=1;i--) down(i);
+    for (int i = 1;i<=n;i++) a[i] = gettop();
+}
+int main()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    heap_sort(a,n);
+    for (int i = 1;i<=n;i++) cout<<a[i]<<" ";
+    return 0;
+}

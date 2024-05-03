@@ -1,0 +1,26 @@
+//背景:一道朴素的dp引导题
+//原理:dp
+//时间复杂度:o(n^2),过不了本题
+#include <bits/stdc++.h>
+using namespace std;
+int f[1001][1001];//dp数组,f[i][j]为处理了a的前i位,b的前j位得到的最长公共子序列
+int a[1001];
+int b[1001];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++) cin>>b[i];
+    for (int i = 1;i<=n;i++)//dp,处理f[i][j]
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            if(a[i] == b[j]) f[i][j] = f[i-1][j-1] + 1;//如果当前a[i] == b[j],则可以长度加1
+            else f[i][j] = max(f[i-1][j],f[i][j-1]);//否则转移最大值(观察下标,之前的已经计算过了)
+        }
+    }
+    cout<<f[n][n]<<"\n";//输出答案
+    return 0;
+}

@@ -1,0 +1,41 @@
+//背景:学ST表过程中临时起性,想到了倍增求LCA,便有了这个算法
+//原理:朴素倍增dp
+//时间复杂度:o(nlogn),理论上可以过,但是被卡了
+#include <bits/stdc++.h>
+using namespace std;
+int number[100001];//数字数组
+int f[100001][30];//倍增位置数组,我的含义为x位置的后2^i次方个位置
+int dp[100001][30];//倍增dp数组
+int main()
+{
+    //ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,l,r;
+    cin>>n>>m;//输入数组大小及询问次数
+    for (int i = 1;i<=n;i++) cin>>number[i];//依次输入n个数
+    for (int i = n-1;i>=1;i--)//倒着处理每个数才能确保遍历数组
+    {
+        f[i][0] = i+1;//初始化i的第2^0 = 1后位置
+        dp[i][0] = max(number[i],number[i+1]);//初始化dp数组
+        for (int j = 1;(1<<j)<=n-i;j++) f[i][j] = f[f[i][j-1]][j-1];//倍增求解,因为f[f[i][j-1]]>i之前求过,所以它的在范围内的答案全部有解
+        for (int j = 1;(1<<j)<=n-i;j++) dp[i][j] = max(dp[i][j-1],dp[f[i][j-1]][j-1]);//dp转移,取最大值
+    }
+    /*for (int i = 1;i<=n;i++)
+    {
+        cout<<i<<" ";
+        for (int j = 0;(1<<j)<=n-i;j++) cout<<f[i][j]<<" ";
+        cout<<"\n";
+    }*/
+    for (int i = 1;i<=m;i++)//依次处理m个询问
+    {
+        cin>>l>>r;//输入区间左右位置
+        int ans = number[l];//初始化答案
+        int temp = l;//初始化跳跃变量
+        while(temp<r)
+        {
+            ans = max(ans,dp[temp][(int)(log(r-temp)/log(2))]);//先取答案
+            temp = f[temp][(int)(log(r-temp)/log(2))];//再跳跃至最远位置
+        }
+        cout<<ans<<"\n";//输出答案
+    }
+    return 0;
+}

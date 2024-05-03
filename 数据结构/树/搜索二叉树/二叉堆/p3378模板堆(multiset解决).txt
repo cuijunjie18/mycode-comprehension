@@ -1,0 +1,30 @@
+#include <bits/stdc++.h>
+using namespace std;
+multiset<int> s;
+multiset<int>::iterator it;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,op,x;
+    cin>>n;
+    while(n--)
+    {
+        cin>>op;
+        if(op == 1)
+        {
+            cin>>x;
+            s.insert(x);
+        }
+        else if(op == 2)
+        {
+            it = s.begin();
+            cout<<(*it)<<"\n";
+        }
+        else if(op == 3)
+        {
+            it = s.begin();
+            s.erase(it);
+        }
+    }
+    return 0;
+}

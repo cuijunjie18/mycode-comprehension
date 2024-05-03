@@ -1,0 +1,57 @@
+//背景:时隔半年,即时学了最小生成树也没有立刻做出了,因为建模思想不足
+//原理:图论建模 + 最小生成树,Kruskal算法
+//关键信息:合成后的西瓜中所有标签均可用,意思就是连通块了,可以从连通块中任意一个位置引出一条边,连接待加入的点,即题目转换为以最小代价让图连通,故有MST解法
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal存边结构体
+{
+    int x,y,value;
+}EDGE;
+EDGE e[2001*2001];//边
+int cnt;//边数
+int a[2001];//1标签(给华强看的)
+int b[2001];//2标签(给刀哥看的)
+int f[2001];//并查集数组
+bool cmp(EDGE a,EDGE b)//自定义结构体比较
+{
+    return a.value < b.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    //ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    FILE* fp = fopen("1.txt","r");
+    int n;
+    fscanf(fp,"%d",&n);
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化不要忘了
+    for (int i = 1;i<=n;i++) fscanf(fp,"%d",&a[i]);
+    for (int i = 1;i<=n;i++) fscanf(fp,"%d",&b[i]);
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            e[++cnt].x = i;
+            e[cnt].y = j;
+            e[cnt].value = min(a[i]^b[j],b[i]^a[j]);//这里两条边的权值取小的
+        }
+    }
+    int finish = 0;//初始化完成边数
+    int ans = 0;//初始化答案
+    sort(e+1,e+cnt+1,cmp);//排序
+    for (int i = 1;i<=cnt;i++)//Kruskal
+    {
+		if(finish == n-1) break;
+        int f1 = Find(e[i].x);
+        int f2 = Find(e[i].y);
+        if(f1 == f2) continue;
+        f[f1] = f2;
+        finish++;
+        ans += e[i].value;
+    }
+    printf("%d\n",ans);//输出
+    return 0;
+}

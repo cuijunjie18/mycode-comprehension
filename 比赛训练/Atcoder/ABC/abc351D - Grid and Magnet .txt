@@ -1,0 +1,89 @@
+//背景:思路与答案一模一样,但是调了3个小时,就两处出现问题!!!
+//时间复杂度:o(nm*lognm),因为我用了set
+#include <bits/stdc++.h>
+using namespace std;
+char mp[1001][1001];//记录地图数据
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int n,m;//地图长宽
+bool vis[1001][1001];//标记数组
+int ans[1001][1001];//答案数组
+bool check(int x,int y)//检查该点是否被磁铁吸住
+{
+    for (int i = 0;i<=3;i++)//枚举该点周围
+    {
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if(wx<1||wx>n||wy<1||wy>m) continue;//不写RE
+        if(mp[wx][wy] == '#') return true;//如果有则不能动了
+    }
+    return false;//否则无
+}
+void BFS(int x,int y)
+{
+    set<pair<int,int>>s;//存储此次BFS中可以到达的不能动点(其实可以用vector维护,最后情况vector里的点标记,时间复杂度少一个logn,注意unordered_set无pair)
+    vis[x][y] = true;//标记
+    ans[x][y] = 1;//初始化答案
+    queue<pair<int,int>>que;//队列
+    que.push({x,y});//入队
+    while(!que.empty())//BFS
+    {
+        int bx = que.front().first;
+        int by = que.front().second;
+        que.pop();//出队
+        for (int i = 0;i<=3;i++)//遍历方向
+        {
+            int wx = bx + walk[i][0];
+            int wy = by + walk[i][1];
+            if(wx>=1&&wx<=n&&wy>=1&&wy<=m&&vis[wx][wy] == false&&s.count({wx,wy}) == 0)//条件
+            {
+                if(mp[wx][wy] == '@')//如果是不能动点
+                {
+                    s.insert({wx,wy});//入标记
+                    continue;//跳过,因为不能动点不能入队
+                }
+                vis[wx][wy] = true;//标记
+                ans[x][y]++;//累加
+                que.push({wx,wy});//入队
+            }
+        }
+    }
+    ans[x][y] += s.size();//加上不能动点的答案
+}
+void Solve()
+{
+   cin>>n>>m;
+   for (int i = 1;i<=n;i++)//输入地图数组
+   {
+       for (int j = 1;j<=m;j++)
+       {
+           cin>>mp[i][j];
+       }
+   }
+   for (int i = 1;i<=n;i++)
+   {
+       for (int j = 1;j<=m;j++)
+       {
+           if(mp[i][j] == '#') continue;//注意磁铁不用处理,否则可能变成了@(调试1)
+           if(check(i,j)) mp[i][j] = '@';//标记
+       }
+   }
+   int maxn = 1;//初始化答案
+   for (int i = 1;i<=n;i++)//遍历BFS
+   {
+       for (int j = 1;j<=m;j++)
+       {
+           if(mp[i][j] == '#'||mp[i][j] == '@') continue;//跳过
+           if(vis[i][j]) continue;//跳过
+           BFS(i,j);//搜索
+           maxn = max(maxn,ans[i][j]);//取最大值
+       }
+   }
+   cout<<maxn<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--) Solve();
+    return 0;
+}

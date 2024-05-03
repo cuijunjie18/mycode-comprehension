@@ -1,0 +1,118 @@
+//背景:自己看Ol-wiki一下午才理解(云里雾里的理解)
+//时间复杂度:o(nlogn),较难给出证明
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边的结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[100001<<1];//双向边,开两倍数组
+int head[100001];
+int cnt;//边的编号
+int color[100001];//每个节点的颜色
+int colornumber;//当前颜色种类数
+int all[100001];//每种颜色出现的次数
+int big[100001];//以i为根节点的树的大小
+int son[100001];//以i为根的树的重儿子
+int ans[100001];//答案数组
+int l[100001];//存储i节点的DFS序
+int r[100001];//存储i节点所能遍历到的最大DFS序
+int Node[100001];//记录DFS序为i的节点
+int pos;//记录DFS序
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch >= '0'&&ch <= '9')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//建边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void addcolor(int x)//添加节点x的颜色贡献
+{
+    if(all[color[x]] == 0) colornumber++;
+    all[color[x]]++;
+}
+void delcolor(int x)//删除节点x的颜色贡献
+{
+    all[color[x]]--;
+    if(all[color[x]] == 0) colornumber--;
+}
+int getans()//获取当前颜色数目
+{
+    return colornumber;
+}
+void DFS1(int x,int fa)//预处理树,时间复杂度:o(n)
+{
+    big[x] = 1;//初始化树的大小
+    l[x] = ++pos;//更新DFS序,并记录节点x的DFS序
+    Node[pos] = x;//记录当前DFS序代表的节点
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS1(e[i].to,x);
+        big[x] += big[e[i].to];//更新大小
+        if(son[x] == 0||big[e[i].to] > big[son[x]]) son[x] = e[i].to;//更新节点x的重儿子
+    }
+    r[x] = pos;//记录当前节点所能到达的最大DFS序
+}
+void DFS2(int x,int fa,bool keep)//keep含义为此次DFS是否要保留(该函数用先到底理解)
+{
+    for (int i = head[x];i;i = e[i].next)//计算轻儿子的答案
+    {
+        if(e[i].to == fa||e[i].to == son[x]) continue;
+        DFS2(e[i].to,x,false);
+    }
+    if(son[x])//计算重儿子的答案并保留数据(用于继承)
+    {
+        DFS2(son[x],x,true);//keep改为true
+    }
+    for (int i = head[x];i;i = e[i].next)//再次计算轻儿子
+    {
+        if(e[i].to == fa||e[i].to == son[x]) continue;
+        for (int j = l[e[i].to];j<=r[e[i].to];j++)//子树节点的DFS序构成连续区间,直接遍历(省了很多递归函数的编写及简化理解)
+        {
+            addcolor(Node[j]);//添加颜色贡献
+        }
+
+    }
+    addcolor(x);//加上自己
+    ans[x] = getans();//获取答案,记录
+    if(!keep)//如果不保留
+    {
+        for (int i = l[x];i<=r[x];i++)//删掉整棵以x为节点的树的贡献(因为keep == false,说明此节点是某节点的轻儿子的第一次遍历,可删)
+        {
+            delcolor(Node[i]);//删除贡献
+        }
+    }
+}
+int main()
+{
+    int n = read();//读入节点个数
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    for (int i = 1;i<=n;i++) color[i] = read();//读入每个节点颜色
+    DFS1(1,0);//预处理树
+    DFS2(1,0,false);//计算答案!!!核心函数(难理解)
+    int q = read();//读入询问数
+    for (int i = 1;i<=q;i++)//依次处理每次询问
+    {
+        int ask = read();
+        printf("%d\n",ans[ask]);//o(1)输出答案
+    }
+    return 0;
+}

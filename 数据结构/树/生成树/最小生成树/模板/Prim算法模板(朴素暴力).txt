@@ -1,0 +1,68 @@
+//原理:贪心
+//时间复杂度:o(n^2+m),n为点,m为边
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next,value;
+}EDGE;
+//边相关数组
+EDGE e[200001<<1];
+int head[5001];
+int cnt;
+//Prim相关数组
+int dis[5001];//记录当前节点到连通区域的最近距离
+bool vis[5001];//标记节点是否已经在连通块里
+int ans,finish,now = 1;//ans为最小生成树权值和,finish为已完成的边(其实对于Prim算法,用点计数更合理),now为当前加入的点
+//初始变量,n为点数,m为边数
+int n,m;
+void add(int x,int y,int v)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].value = v;
+    head[x] = cnt;
+}
+void Prim()//朴素Prim算法
+{
+    memset(dis,127,sizeof(dis));//初始化dis数组,如果一直为无穷大,则认为图不连通,无解
+    for (int i = head[1];i;i = e[i].next)//以1为根开始计算
+    {
+        dis[e[i].to] = min(dis[e[i].to],e[i].value);//取最小值
+    }
+    while(++finish < n)//树最多n-1条边
+    {
+        int minn = 99999999;//初始化到当前连通块的最小距离(可用于判断无解)
+        vis[now] = true;//当前节点加入了连通块
+        for (int i = 1;i<=n;i++)//遍历所有点,找到距离当前连通块最近的点
+        {
+            if(vis[i]) continue;//如果已经在连通块中,不必考虑,跳过
+            if(dis[i] < minn)
+            {
+                minn = dis[i];
+                now = i;
+            }
+        }
+        ans += minn;//累加权值(!!!如果minn还是9999999,则可退出循环,因为无解了)
+        for (int i = head[now];i;i = e[i].next)//由新连接的点去更新与之相连的点到连通块的最近距离
+        {
+            if(vis[e[i].to]) continue;
+            if(dis[e[i].to] > e[i].value) dis[e[i].to] = e[i].value;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int x,y,v;
+    cin>>n>>m;//输入点与边个数
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        add(x,y,v);
+        add(y,x,v);
+    }
+    Prim();
+    cout<<ans<<"\n";//输出
+    return 0;
+}

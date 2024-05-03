@@ -1,0 +1,84 @@
+//背景:一道小小的排序题,卡了快排,标准解答为归并排序,而此处出现了一种每次操作都要排序的双队列维护做法
+//时间复杂度:排序做法o(nlogn),队列做法o(n)
+//原理:双队列均是有序的
+//细节:注意队列溢出,故需要再函数中操作
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct person//选手结构体
+{
+    int number,score;
+}PERSON;
+PERSON p[200001];
+int w[200001];//记录每个编号选手的能力
+int n,r,q,x;//基本数组
+bool cmp(PERSON x,PERSON y)//初始自定义比较
+{
+    if(x.score == y.score) return x.number<y.number;
+    else return x.score > y.score;
+}
+void Solve()//解决函数
+{
+    queue<PERSON> a;//函数中创建队列可以防止队列溢出
+    queue<PERSON> b;
+    for (int j = 1;j<=2*n-1;j += 2)//遍历选手比赛,注意循环条件
+    {
+        if(w[p[j].number] > w[p[j+1].number])//如果j更优
+        {
+            p[j].score++;//得分
+            a.push(p[j]);//入胜利队
+            b.push(p[j+1]);//入败队(正是这神来一笔使得队列有序)
+        }
+        else//相反
+        {
+            p[j+1].score++;
+            a.push(p[j+1]);
+            b.push(p[j]);
+        }
+    }
+    int now = 0;//计数变量
+    while((!a.empty())||(!b.empty()))//如果队列未空
+    {
+        if(a.empty())//有a为胜利队可知,一定是a先空,故仅需判断a
+        {
+            while(!b.empty())//剩余的b全部加入到比赛
+            {
+                p[++now] = b.front();//取出
+                b.pop();//弹出
+            }
+        }
+        else
+        {
+            PERSON x = a.front();
+            PERSON y = b.front();
+            if((x.score == y.score&&x.number < y.number)||x.score > y.score)//比较
+            {
+                p[++now] = x;
+                a.pop();
+            }
+            else
+            {
+                p[++now] = y;
+                b.pop();
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n>>r>>q;//输入选手对数,比赛轮次,查询的排名
+    for (int i = 1;i<=2*n;i++)//输入数据
+    {
+        cin>>x;
+        p[i].number = i;
+        p[i].score = x;
+    }
+    for (int i = 1;i<=2*n;i++) cin>>w[i];//输入能力
+    sort(p+1,p+2*n+1,cmp);//初始化排序
+    for (int i = 1;i<=r;i++)//模拟r轮比赛
+    {
+        Solve();//核心函数
+    }
+    cout<<p[q].number<<"\n";//输出答案
+    return 0;
+}

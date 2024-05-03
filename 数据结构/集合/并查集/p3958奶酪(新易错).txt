@@ -1,0 +1,60 @@
+//背景:我以为我的并查集已经不会错了,没想到又有收获
+#include <bits/stdc++.h>
+using namespace std;
+int f[1001];
+long long x[1001],y[1001],z[1001];//long long坐标,忌用double,精度会丢失
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()//解题函数
+{
+    long long n,h,r;
+    cin>>n>>h>>r;//输入个数,高度及半径
+    for (int i = 1;i<=1000;i++) f[i] = i;//并查集初始化
+    int below[n+1],top[n+1],cnt1 = 0,cnt2 = 0;//数组
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x[i]>>y[i]>>z[i];
+        if(z[i] - r <= 0&&z[i] + r >= 0) below[++cnt1] = i;//与下界通(我的判断比题解严谨)
+        if(z[i] + r >= h&&z[i] - r <= h) top[++cnt2] = i;//与上界通
+    }
+    for (int i = 1;i<=n;i++)//枚举两两球是否交
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            if((x[j]-x[i])*(x[j]-x[i]) + (y[j]-y[i])*(y[j]-y[i]) + (z[j]-z[i])*(z[j]-z[i]) <= 4*r*r)//这样判断相交减少sqrt带来的精度损失
+            {
+            !!!注意这里一定要是先判断原本的是否相交再合并祖先,而不是先找祖先再用祖先判断相交
+                int f1 = Find(i);
+                int f2 = Find(j);
+                if(f1 == f2) continue;
+                f[f1] = f2;
+            }
+        }
+    }
+    for (int i = 1;i<=cnt1;i++)//枚举底部球
+    {
+        for (int j = 1;j<=cnt2;j++)//枚举顶部球
+        {
+            if(Find(top[j]) == Find(below[i]))//判断连通
+            {
+                cout<<"Yes"<<"\n";//输出
+                return;//返回
+            }
+        }
+    }
+    cout<<"No"<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

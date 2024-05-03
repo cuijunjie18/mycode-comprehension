@@ -1,0 +1,43 @@
+//背景:无语了,想了多种方法,用了3个小时
+//过程:选择排序->快排->归并->堆排加快排(nlogn,感觉没问题,就是TLE)->map
+/*分析:题目关于排序,且要输出交换的位置,故既要考虑交换次数的多少,又要考虑排序的效率.而交换次数少显然是选择排序的特点,故离不开选择排序过程,而堆排序是建立在选择排序
+上的排序,想当然可行(只是我不知道为什么TLE).而我们似乎忽略了一个重要信息,即给定的某一打乱的全排列,故可以o(1)为每个数找到其对应位置,并交换,过程用map维护,显然时间复杂度为o(n)*/
+#include <bits/stdc++.h>
+using namespace std;
+unordered_map<int,int> locate;//代表x数在哪个位置
+unordered_map<int,int> p;//代表了i位置上的数是谁
+pair<int,int> ans[200001];//答案数组,即交换的i,j
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x,y,k = 0;
+    cin>>n;//输入数量
+    for (int i = 1;i<=n;i++)//依次输入n个数,并记录必要信息
+    {
+        cin>>x;
+        locate[x] = i;//x数的位置在i
+        p[i] = x;//i位置的数为x
+    }
+    for (int i = 1;i<=n;i++)//顺序将i数回归到当前位置,即i,即完成了排列过程
+    {
+        if(p[i] == i) continue;//如果已经位置正确了,跳过
+        else
+        {
+            int temp = p[i];//查询当前位置上的数
+            int need = locate[i];//找到待回归的数的位置
+            ans[++k] = {i,need};//交换
+            p[i] = i;//改变,即回归
+            p[need] = temp;//把被交换的位置的数置为原本当前位置的数
+            locate[i] = i;//回归
+            locate[temp] = need;//对应改变
+        }
+    }
+    cout<<k<<"\n";//先输出交换次数
+    for (int i = 1;i<=k;i++)//依次输出
+    {
+        x = min(ans[i].first,ans[i].second);
+        y = max(ans[i].first,ans[i].second);
+        cout<<x<<" "<<y<<"\n";//左小右大输出
+    }
+    return 0;
+}

@@ -1,0 +1,59 @@
+//背景:本题比赛时用的滑动窗口,现在用一种简单的思路方法
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    int b[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++) cin>>b[i];
+    int l = 1,r = n;//初始化头尾指针(用于找前后第一个a与b不同的位置)
+    for (int i = 1;i<=n;i++)//找前面不同
+    {
+        if(a[i] == b[i]) continue;
+        l = i;
+        break;
+    }
+    for (int i = n;i>=1;i--)//找后面不同
+    {
+        if(a[i] == b[i]) continue;
+        r = i;
+        break;
+    }
+    int minn = 99999999,maxn = 0;//初始化最大值最小值,将指针尽可能往两边扩展
+    for (int i = l;i<=r;i++)//先在原找到的区间取最值
+    {
+        minn = min(minn,b[i]);
+        maxn = max(maxn,b[i]);
+    }
+    for (int i = l-1;i>=1;i--)//往左扩展
+    {
+        if(b[i]<=minn)//注意可以等
+        {
+            minn = b[i];
+            l = i;
+        }
+        else break;
+    }
+    for (int i = r+1;i<=n;i++)//往右扩展
+    {
+        if(b[i]>=maxn)
+        {
+            maxn = b[i];
+            r = i;
+        }
+        else break;
+    }
+    cout<<l<<" "<<r<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--) Solve();
+    return 0;
+}

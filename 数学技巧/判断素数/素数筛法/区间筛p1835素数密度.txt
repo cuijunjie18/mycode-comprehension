@@ -1,0 +1,41 @@
+//理解:最小质因数原理,为什么可用素数极限为50000,因为10e9开根号接近50000
+#include <bits/stdc++.h>
+using namespace std;
+long long prime[5001];//可以用的素数
+bool number[50001];//判断素数1
+bool vis[1000005];//判断素数2
+int cnt;//预处理出的素数个数
+void prework()//欧拉筛筛选出可用的质数
+{
+    number[1] = 1;
+    for (int i = 2;i<=50000;i++)
+    {
+        if(!number[i]) prime[++cnt] = i;
+        for (int j = 1;j<=cnt&&i*prime[j]<=50000;j++)
+        {
+            number[i*prime[j]] = 1;
+            if(i%prime[j] == 0) break;
+        }
+    }
+}
+int main()
+{
+    prework();//欧拉筛准备工作
+    int l,r;
+    cin>>l>>r;
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=cnt;i++)//区间筛
+    {
+        long long p = prime[i];
+        long long start = max((long long)(2),(l + p - 1)/p)*p;//难点:(l+p-1)/p为ceil(l/p),即向上取整,max为2的作用防止出现1将自己筛掉
+        for (long long j = start;j<=r;j += prime[i]) vis[j-l+1] = true;//标记为合数
+    }
+    for (int i = 1;i<=r-l+1;i++)
+    {
+        if(vis[i]) continue;
+        ans++;
+    }
+    if(l == 1) ans--;//特判1,因为上述过程中无法筛掉1
+    cout<<ans<<endl;
+    return 0;
+}

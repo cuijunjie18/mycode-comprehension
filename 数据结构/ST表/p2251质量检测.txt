@@ -1,0 +1,34 @@
+//背景:学完ST表后的第一道非模板题(好吧,其实几乎就是模板题)
+//时间复杂度:o(nlogn + n + m)
+#include <bits/stdc++.h>
+using namespace std;
+int lg[100001];//log2对数数组
+int f[100001][30];//倍增dp数组
+void prework()//预处理log2数组
+{
+    lg[1] = 0;
+    for (int i = 2;i<=100000;i++) lg[i] = lg[i/2] + 1;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    prework();//一定不要忘了预处理
+    memset(f,127,sizeof(f));//求区间最小值,应该初始化为最大值
+    int n,m;
+    cin>>n>>m;//输入数组大小及窗口(区间)长度
+    for (int i = 1;i<=n;i++) cin>>f[i][0];//初始化
+    for (int i = n;i>=1;i--)//我的倍增模板,倒着来
+    {
+        for (int j = 1;i+(1<<j)-1<=n;j++)
+        {
+            f[i][j] = min(f[i][j-1],f[i+(1<<(j-1))][j-1]);//之前已经算过了,故可以dp
+        }
+    }
+    for (int i = 1;i+m-1<=n;i++)//依次处理n-m+1个区间
+    {
+        int s = lg[m];//取出最大跳跃距离
+        int ans = min(f[i][s],f[i+m-1-(1<<s)+1][s]);//左右区间重叠求解ST核心思想
+        cout<<ans<<"\n";//输出
+    }
+    return 0;
+}

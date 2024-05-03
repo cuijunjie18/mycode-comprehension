@@ -1,0 +1,76 @@
+//时间复杂度:o(mlogn)
+//背景:不会进阶c++类,重载等!!哭,手打堆,调了1个半小时,依次检查,且vector的偏移(-1)折磨人
+//堆方法可以的原理:保证开始时间输入的递增,即还在堆里的就是还在执行的,同时只要求出给出任务时的结果
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct compute//定义存储在堆里的结构体
+{
+    int e,d;//e为结束时间,d为该任务消耗对应计算机的算力
+}COMPUTE;
+vector<COMPUTE> f[200001];//动态数组防止MLE
+int v[200001];//存储每台计算机对应时刻的算力
+void up(int x,int t)//向上调整,注意vector的偏移即可.x代表的是哪台计算机(哪个堆),t对应的是堆中节点的编号
+{
+    while(t>1&&f[x][t-1].e<f[x][(t/2)-1].e)
+    {
+        swap(f[x][t-1],f[x][(t/2)-1]);
+        t /= 2;
+    }
+}
+void down(int x,int temp)//向下调整(辅助删除)
+{
+    int s = f[x].size();
+    while(temp*2<=s)
+    {
+        int t = temp*2;
+        if(t+1<=s&&f[x][t].e<f[x][t-1].e) t++;
+        if(f[x][t-1].e<f[x][temp-1].e)
+        {
+            swap(f[x][t-1],f[x][temp-1]);
+            temp = t;
+        }
+        else break;
+    }
+}
+bool Empty(int x)//检查堆是否空
+{
+    return (f[x].size()) == 0;
+}
+void Erase(int x)//删除堆顶
+{
+    int s = f[x].size();
+    f[x][0] = f[x][s-1];
+    f[x].pop_back();//vector的删除尾部操作,减少size但不减少内存开销
+    down(x,1);向下调整维护堆
+}
+COMPUTE gettop(int x)//获取堆顶
+{
+    return f[x][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,a,b,c,d;
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++) cin>>v[i];//输入每台计算机的初始算力
+    for (int i = 1;i<=m;i++)//依次处理m个任务指示
+    {
+        cin>>a>>b>>c>>d;
+        while(!Empty(b)&&gettop(b).e<=a)//清除对应堆中不影响当前任务的任务,即结束时间<=当前任务开始时间的任务失效
+        {
+            v[b] += gettop(b).d;//先恢复算力
+            Erase(b);//再删除
+        }
+        if(v[b]<d) cout<<-1<<"\n";//如果不够,输出-1
+        else
+        {
+            cout<<v[b]-d<<"\n";//输出剩余算力
+            v[b] -= d;//算力减少!!!一开始忘了
+            COMPUTE temp = {a+c,d};
+            f[b].push_back(temp);//入堆
+            int s = f[b].size();//计算大小
+            up(b,s);//向上调整维护堆
+        }
+    }
+    return 0;
+}

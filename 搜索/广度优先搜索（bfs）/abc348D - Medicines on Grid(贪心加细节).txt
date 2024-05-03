@@ -1,0 +1,78 @@
+//背景:比赛时调了40分钟,先用了DFS超时且错误,之前做过类似的,正解为BFS
+//原理:BFS + 贪心
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct position//位置结构体
+{
+    int x,y,e;//x,y坐标,能量值
+}POSITION;
+char mp[201][201];//存储地图信息
+int medicine[201][201];//存储药品信息
+int n,m;//地图长宽
+int bx,by;//起点坐标
+int vis[201][201];//贪心标记数组,含义为曾经到这个位置的最多能量
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++)//输入地图信息
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>mp[i][j];
+            if(mp[i][j] == 'S')//记下起点
+            {
+                bx = i;
+                by = j;
+            }
+        }
+    }
+    int number,x,y,t;
+    cin>>number;
+    for (int i = 1;i<=number;i++)//输入药品信息
+    {
+        cin>>x>>y>>t;
+        medicine[x][y] = t;
+    }
+    memset(vis,-1,sizeof(vis));//初始化vis数组为-1
+    vis[bx][by] = medicine[bx][by];//初始化
+    POSITION temp = {bx,by,medicine[bx][by]};
+    if(medicine[bx][by] == 0)//特判
+    {
+        cout<<"No"<<"\n";
+        return 0;
+    }
+    //cout<<"\n";
+    queue<POSITION>que;
+    que.push(temp);//起点入队
+    while(!que.empty())
+    {
+        temp = que.front();//取出队头
+        que.pop();//弹出
+        //cout<<temp.x<<" "<<temp.y<<" "<<temp.e<<"\n";
+        if(mp[temp.x][temp.y] == 'T')//如果到了终点
+        {
+            cout<<"Yes"<<"\n";//输出
+            return 0;//结束程序
+        }
+        if(temp.e == 0) continue;//如果为0,无法动了,跳过
+        for (int i = 0;i<=3;i++)//遍历各个方向
+        {
+            int wx = temp.x + walk[i][0];
+            int wy = temp.y + walk[i][1];
+            if(wx>=1&&wx<=n&&wy>=1&&wy<=m&&mp[wx][wy]!='#')//判断可以到达
+            {
+               int e = max(temp.e-1,medicine[wx][wy]);//到达的能量取最大值
+               if(vis[wx][wy] < e)//贪心,如果能量大于之前到达这位置的,入队
+               {
+                   vis[wx][wy] = e;
+                   POSITION save = {wx,wy,e};
+                   que.push(save);
+               }
+            }
+        }
+    }
+    cout<<"No"<<"\n";//输出
+    return 0;
+}

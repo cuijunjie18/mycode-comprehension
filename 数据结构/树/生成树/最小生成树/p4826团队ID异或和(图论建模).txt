@@ -1,0 +1,58 @@
+//背景:我是废物,看了题解才会
+/*题解: 对于每一头牛，除了最后的赢家，有且仅有一个战胜自己的牛
+	   对于每一头牛，可能会战胜大于等于0,小于n头牛
+       对于最后的赢家，没有人会战胜它（这不废话吗)
+       共有n−1场比赛
+
+以上四点，分别与树的父亲结点、儿子结点、根结点、边的数量对应,所以是比赛流程是一棵树*/
+//原理:Kruskal算法
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge
+{
+    int a,b;
+    long long value;
+}EDGE;
+EDGE e[4000005];
+int f[2001];
+long long v[2001];
+bool cmp(EDGE x,EDGE y)
+{
+    return x.value>y.value;
+}
+int Find(int x)
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) f[i] = i;
+    for (int i = 1;i<=n;i++) cin>>v[i];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            e[(i-1)*n + j].a = i;
+            e[(i-1)*n + j].b = j;
+            e[(i-1)*n + j].value = v[i]^v[j];
+        }
+    }
+    sort(e+1,e+n*n+1,cmp);
+    int finish = 0;
+    long long ans = 0;
+    for (int i = 1;i<=n*n;i++)
+    {
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;
+        f[x] = y;
+        finish++;
+        ans += e[i].value;
+    }
+    cout<<ans<<"\n";
+    return 0;
+}

@@ -1,0 +1,18 @@
+//向上调整
+void up(int x) {
+  while (x > 1 && h[x] > h[x / 2]) {
+    swap(h[x], h[x / 2]);
+    x /= 2;
+  }
+}
+
+//向下调整(通常辅助于删除操作),每次向下时选择最大的交换以维持二叉堆的性质
+void down(int x) {
+  while (x * 2 <= n) {
+    t = x * 2;
+    if (t + 1 <= n && h[t + 1] > h[t]) t++;
+    if (h[t] <= h[x]) break;
+    std::swap(h[x], h[t]);
+    x = t;
+  }
+}

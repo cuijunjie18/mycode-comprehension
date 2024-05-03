@@ -1,0 +1,77 @@
+#include <bits/stdc++.h>
+using namespace std;
+vector <int> g[50001];//邻接表存图
+int f[50001][30];//x的倍增父亲数组
+int depth[50001];//每个点的深度
+int force[50001];//过程中表示x到根节点的这条路被加压了几次，求答案时代表每个点的压力值
+int ans;//最终答案
+void DFS(int x,int fa)//模板预处理
+{
+    f[x][0] = fa;
+    depth[x] = depth[fa] + 1;
+    for (int i = 1;(1<<i)<=depth[x];i++)
+    {
+        f[x][i] = f[f[x][i-1]][i-1];
+    }
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        if(g[x][i] == fa) continue;
+        DFS(g[x][i],x);
+    }
+}
+void LCA(int a,int b)//模板倍增LCA
+{
+    if(depth[a]<depth[b]) swap(a,b);
+    force[a]++;//a到根节点的路径压力加1
+    force[b]++;//b到根节点的路径压力加1
+    while(depth[a]>depth[b])//跳到同样深度
+    {
+        a = f[a][(int)(log(depth[a]-depth[b])/log(2))];
+    }
+    if(a == b)//如果a = b
+    {
+        force[a]--;//LCA点到根节点路径压力减1
+        force[f[a][0]]--;//LCA父亲点到根节点路径压力减1    这样确保了LCA点只被加了一次，其他非a到b路径点压力加减抵消了
+        return;//返回
+    }
+    for (int i = (int)(log(depth[a])/log(2));i>=0;i--)//倍增找LCA
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    force[f[a][0]]--;//同上原理
+    force[f[f[a][0]][0]]--;
+}
+void Solve(int x,int fa)//核心求解函数，回溯求和思想
+{
+    for (int i = 0,s = g[x].size();i<s;i++)
+    {
+        if(g[x][i] == fa) continue;
+        Solve(g[x][i],x);//这里递归一定要Solve，不要写成DFS了！
+        force[x] += force[g[x][i]];//这一点的压力加上所有连通它的路径压力和(抽象难点，可以多看题解，原理好像叫差分)
+    }
+    ans = max(force[x],ans);//取最大值
+}
+int main()
+{
+    int n,k,a,b;
+    scanf("%d%d",&n,&k);
+    for (int i = 1;i<=n-1;i++)//建图
+    {
+        scanf("%d%d",&a,&b);
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    depth[0] = -1;//初始化深度
+    DFS(1,0);//不妨设1为根节点，开始预处理
+    for (int i = 1;i<=k;i++)//求LCA
+    {
+        scanf("%d%d",&a,&b);
+        LCA(a,b);
+    }
+    Solve(1,0);//求答案，用回溯来解
+    printf("%d\n",ans);
+}
