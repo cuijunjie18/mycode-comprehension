@@ -1,0 +1,65 @@
+//背景:Bellman-Ford算法的优化,一般来说很快,但是最坏依旧为o(nm),稠密图时必为o(nm)
+//实现:队列 + 最短路
+/*理解:很显然，只有上一次被松弛的结点，所连接的边，才有可能引起下一次的松弛操作。
+      那么我们用队列来维护[哪些结点可能会引起松弛操作],就能只访问必要的边了*/
+//判断负环:SPFA 也可以用于判断 s 点是否能抵达一个负环，只需记录最短路经过了多少条边，当经过了至少 n 条边时，说明 s 点可以抵达一个负环
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星结构
+{
+    int to,value;
+}EDGE;
+vector<EDGE> e[500001];//邻接表存图
+int cnt[10001];//用于判断负环的
+int dis[10001];//单源最短路数组
+bool vis[10001];//入队数组,防止重复入队
+const int INF = 0x3f3f3f3f;//无穷大
+const int no = ((long long)(1)<<31) - 1;//无解值
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,s,x,y,v;
+    cin>>n>>m>>s;
+    memset(dis,0x3f,sizeof(dis));//初始化
+    dis[s] = 0;//初始化
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});
+    }
+    vis[s] = true;//标记入队了
+    queue<int> que;
+    que.push(s);
+    while(!que.empty())//SPFA算法
+    {
+        int now = que.front();
+        que.pop();
+        vis[now] = false;//出队后取消标记
+        for (auto d:e[now])//遍历边
+        {
+            x = d.to,
+            y = d.value;
+            if(dis[x] > dis[now] + y)//更新最短路
+            {
+                dis[x] = dis[now] + y;
+                cnt[x] = cnt[now] + 1;
+                if(cnt[x] >= n)//如果超过了n-1条边,说明有负环
+                {
+                    cout<<"Have negative cycle!"<<"\n";//输出
+                    return 0;//结束程序
+                }
+                if(!vis[x])//如果之前没有入队
+                {
+                    que.push(x);//在这一次入
+                    vis[x] = true;//标记
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//输出
+    {
+        if(dis[i] == INF) cout<<no<<" ";
+        else cout<<dis[i]<<" ";
+    }
+    return 0;
+}

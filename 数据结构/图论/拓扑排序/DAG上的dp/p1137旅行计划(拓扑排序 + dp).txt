@@ -1,0 +1,53 @@
+//背景:刷拓扑排序水题,发现了有趣的事,别人题解的DAG上的dp对于边权为1的来说即是我的层级理论
+//Hack题面:题目保证了输入的边包括了每个点
+//原理:DAG上的dp,拓扑排序,DAG上的dp可以用来求DAG上的最长(短)路问题
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,m,x,y;
+    cin>>n>>m;
+    vector<int> e[n+1];//邻接表存图
+    int in[n+1];//记录入度
+    int pos[n+1];//记录对应城市的层级
+    memset(in,0,sizeof(in));//初始化为0
+    memset(pos,0,sizeof(pos));//初始化为0
+    for (int i = 1;i<=m;i++)//构建拓扑图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        in[y]++;//累加入度
+    }
+    queue<pair<int,int>> que;
+    for (int i = 1;i<=n;i++)//遍历找起点,即入度为0的点
+    {
+        if(in[i] == 0) que.push({i,1});
+    }
+    while(!que.empty())//Kahn算法
+    {
+        x = que.front().first;
+        y = que.front().second;
+        que.pop();
+        pos[x] = y;//记录当前城市的层级
+        for (auto v:e[x])//遍历边
+        {
+			//本来这里应该是f[v] = max(f[v],f[x] + d[k]),其中d[k]为这条边的边权,这里为1,该方法有一般性,而层级理论没有
+            in[v]--;
+            if(in[v] == 0) que.push({v,y+1});//其实这里是我的层级dp,能确保使它入度为0的y是最大的,因为队列的性质
+        }
+    }
+    for (int i = 1;i<=n;i++)//遍历每个城市
+    {
+        cout<<pos[i]<<"\n";//输出它的层级
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

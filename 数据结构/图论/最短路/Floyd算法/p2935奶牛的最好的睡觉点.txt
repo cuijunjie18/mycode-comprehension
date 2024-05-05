@@ -1,0 +1,54 @@
+//背景:最短路水题,不过有收获
+//原理:枚举 + Floyd算法求最短路
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,love,m,x,y,t;
+    cin>>n>>love>>m;//输入点数,喜欢的点数,边数
+    int f[love+1];//记录喜欢点的编号
+    int e[n+1][n+1];//邻接矩阵存边,方便Floyd算法
+    memset(e,0x3f,sizeof(e));//初始化边全部为无穷大
+    for (int i = 1;i<=n;i++) e[i][i] = 0;//!!!细节:一定不要忘记,自己到自己的最短路为0
+    for (int i = 1;i<=love;i++) cin>>f[i];//输入喜欢的点的编号
+    for (int i = 1;i<=m;i++)//建立每条边
+    {
+        cin>>x>>y>>t;
+        e[x][y] = t;//本质上如果存在重边要dp取小值,但是这题不会(Acmer的严谨)
+        e[y][x] = t;
+    }
+    for (int k = 1;k<=n;k++)//Floyd算法求两节点的最短路
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++) e[i][j] = min(e[i][j],e[i][k] + e[k][j]);
+        }
+    }
+    long long ans = 1e18;//初始化答案
+    int p = 0;//初始化答案的点
+    for (int i = 1;i<=n;i++)//注意!!不一定是在喜欢的点睡觉最短,所以要枚举全部点
+    {
+        long long temp = 0;//初始化和为0
+        for (int j = 1;j<=love;j++)//累加到喜欢的点距离和
+        {
+            temp += e[i][f[j]];
+        }
+        if(temp<ans)//如果小
+        {
+            ans = temp;//更新
+            p = i;//记录
+        }
+    }
+    cout<<p<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

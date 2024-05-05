@@ -1,4 +1,4 @@
-//背景:第二次做这道题,上一次是用反向建图,这一次直接拓扑排序
+//背景:第二次做这道题,上一次是用反向建图,这一次直接拓扑排序 + DAG上的dp
 //时间复杂度:o(n+m)
 #include <bits/stdc++.h>
 using namespace std;
@@ -37,7 +37,7 @@ int main()
         for (auto v:e[x])
         {
             in[v]--;
-            ans[v] = max(ans[v],ans[x] + times[x]);//每次更新最大值
+            ans[v] = max(ans[v],ans[x] + times[x]);//每次更新最大值,dp
             if(in[v] == 0) que.push(v);//如果入度为0了,入队
         }
     }

@@ -1,0 +1,67 @@
+//背景:自己做的时候想到边会走两次,但是点权的分析却看了题解,是到思维好题
+/*思路:假设拆完路后剩下了一棵树,则从任意一个点出发,遍历整个树,最后回到起点,
+      发现规律(我的):某点的访问次数等于它的儿子数加1,最后发现我这个思路是要在选择定了一个起点下才会有儿子概念,所以要遍历不同根节点,思路错误
+      发现规律(题解):某点一般访问次数等于它的入度,即连接它的边数,而起点要多加1次,因为要回到起点
+      由上规律可以把点权并入边权,Kruskal求出新边权下的MST,最后加上最小的点权值(即以它为起点)即可*/
+//原理:Kruskal求MST
+//时间复杂度:o(an),a为并查集查找
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal存边,直接存边
+{
+    int a,b,value;
+}EDGE;
+int f[10001];//并查集数组
+bool cmp(EDGE x,EDGE y)//自定义排序
+{
+    return x.value < y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()
+{
+    int n,m;
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    int c[n+1];
+    EDGE e[m+1];
+    int minn = 99999999;//初始化最小值
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>c[i];
+        minn = min(minn,c[i]);//获取最小点权,即起点点权
+    }
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>e[i].a>>e[i].b>>e[i].value;
+        e[i].value = e[i].value*2 + c[e[i].a] +c[e[i].b];//生成新边
+    }
+    sort(e+1,e+m+1,cmp);//排序
+    int finish = 0;//初始化完成的边数
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=m;i++)//Kruskal求MST
+    {
+        if(finish == n-1) break;
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;
+        f[x] = y;
+        ans += e[i].value;
+        finish++;
+    }
+    ans += minn;//答案加上起点点权
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

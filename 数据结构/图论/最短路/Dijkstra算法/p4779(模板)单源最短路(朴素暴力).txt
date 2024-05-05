@@ -1,0 +1,49 @@
+//背景:暴力做法虽然在此题超时,但是它的价值仍然不可忽略
+//原理:贪心 + 暴力
+//时间复杂度:o(n^2)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to;
+    long long value;
+}EDGE;
+vector<EDGE> e[100001];//邻接表存图
+long long dis[100001];//最短路数组
+bool vis[100001];//标记数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,s,x,y;
+    long long v;
+    cin>>n>>m>>s;
+    memset(dis,0x3f,sizeof(dis));//初始化
+    dis[s] = 0;//初始化起点为0
+    long long INF = dis[0];//获取无穷大值
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});
+    }
+    for (int i = 1;i<=n;i++)//每次放一个点进最短路数组,一共n个点
+    {
+        long long d = INF;//初始化
+        int p = 0;//初始化
+        for (int j = 1;j<=n;j++)//遍历找最短路的点
+        {
+            if(vis[i]) continue;//已经有过了,跳过
+            if(dis[i] < d)//更新
+            {
+                d = dis[i];//更新
+                p = i;//记录
+            }
+        }
+        vis[p] = true;//标记
+        for (auto v:e[p])//松弛与它相关的边
+        {
+            if(dis[v.to] > dis[p] + v.value) dis[v.to] = dis[p] + v.value;//更新最短路
+        }
+    }
+    for (int i = 1;i<=n;i++) cout<<dis[i]<<" ";//输出
+    return 0;
+}

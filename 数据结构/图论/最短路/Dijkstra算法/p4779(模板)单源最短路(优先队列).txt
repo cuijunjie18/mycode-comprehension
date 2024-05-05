@@ -1,0 +1,59 @@
+//背景:在Bellman-Ford算法及其优化算法SPFA算法均效率低下时,Dijkstra算法来了!!!
+//适用条件:仅适用于正边权
+//数据结构:单调队列
+//时间复杂度:o(mlogm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to;
+    long long value;
+}EDGE;
+typedef struct node//单调队列数据类型
+{
+    int u;//编号
+    long long dis;//当前的最短路
+}NODE;
+struct cmp//自定义优先队列排序,维护小根堆
+{
+    bool operator()(NODE x,NODE y)
+    {
+        return x.dis > y.dis;
+    }
+};
+vector<EDGE> e[100001];//邻接表存图
+long long dis[100001];//最短路
+bool vis[100001];//标记数组
+priority_queue<NODE,vector<NODE>,cmp> heap;//优先队列
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,s,x,y;
+    long long v;
+    cin>>n>>m>>s;
+    memset(dis,0x3f,sizeof(dis));//初始化为无穷
+    dis[s] = 0;//初始化为0
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});
+    }
+    heap.push({s,dis[s]});//起点入队
+    while(!heap.empty())//Dijkstra算法
+    {
+        x = heap.top().u;//获取堆顶,即目前未算出最短路的集合中的最小值对应的点
+        heap.pop();//弹出
+        if(vis[x] == true) continue;//如果之前已经加入了最短路集合中,跳过它(因为不可能更优)
+        vis[x] = true;//标记
+        for (auto t:e[x])//松弛与该点有关的边
+        {
+            if(dis[t.to] > dis[x] + t.value)//如果更优
+            {
+                dis[t.to] = dis[x] + t.value;//更新
+                heap.push({t.to,dis[t.to]});//入队
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++) cout<<dis[i]<<" ";//输出
+    return 0;
+}

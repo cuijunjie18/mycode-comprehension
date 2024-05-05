@@ -1,0 +1,85 @@
+//背景:比赛时没做出来,打完做了3个小时
+//原理:贪心 + RMQ + St表
+//细节:map可以稳定过的尽量不要用unordered_map,对于CF的数据容易TLE
+#include <bits/stdc++.h>
+using namespace std;
+int logn[200001];
+void prework()//预处理对数数组
+{
+    logn[1] = 0;
+    for (int i = 2;i<=200000;i++) logn[i] = logn[i/2] + 1;
+}
+void Solve()
+{
+    int n,m,x;
+    cin>>n;
+    int a[n+1];
+    int f[n+1][30];//St表维护区间最值
+    bool flag = false;//标记理想头发是否长于现在头发
+    map<int,vector<int>> hair;//记录对应理想头发长度的每个位置(unordered_map过不了!!!)
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入原始数据
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>f[i][0];
+        if(f[i][0] > a[i])
+        {
+            flag = true;
+        }
+        if(f[i][0] == a[i]) continue;//相等的不用剪,跳过
+        hair[f[i][0]].push_back(i);//入map
+    }
+    cin>>m;
+    map<int,int> s;//记录对应长度的刀子数目
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x;
+        s[x]++;
+    }
+    if(flag)//如果有理想头发长于原头发的
+    {
+        cout<<"NO"<<"\n";
+        return;
+    }
+    for (int i = n;i>=1;i--)//ST表初始化
+    {
+        for (int j = 1;(1<<j) + i - 1 <= n;j++)
+        {
+            f[i][j] = max(f[i][j-1],f[i+(1<<(j-1))][j-1]);
+        }
+    }
+    for (auto v:hair)//遍历对应长度要剪头发的
+    {
+        int now = 1;//至少要一把
+        int big = v.second.size();
+        for (int i = 0;i<=big-2;i++)//注意范围
+        {
+            int x = v.second[i];
+            int y = v.second[i+1];
+            int temp = logn[y - x + 1];
+            //cout<<x<<" "<<y<<"\n";
+            int ans = max(f[x][temp],f[y-(1<<temp)+1][temp]);
+            //cout<<ans<<"\n";
+            if(ans <= v.first) continue;//贪心,即每当不能一起剪的时候,必然要用多一把
+            now++;
+        }
+        //cout<<v.first<<" "<<now<<"\n";
+        if(s[v.first] < now)//如果已经不够了
+        {
+            cout<<"NO"<<"\n";
+            return;
+        }
+    }
+    cout<<"YES"<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

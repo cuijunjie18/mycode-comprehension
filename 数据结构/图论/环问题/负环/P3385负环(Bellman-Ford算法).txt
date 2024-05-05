@@ -1,0 +1,77 @@
+//背景:求从一定点出发是否可以到达一个负环模板题,但是细节多
+//原理:Bellman-Ford算法判断负环
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//直接存边
+{
+    int a,b,value;
+}EDGE;
+const int INF = 0x3f3f3f3f;//无穷大
+void Solve()
+{
+    int n,m,x,y,v;
+    cin>>n>>m;
+    int dis[n+1];
+    EDGE e[2*m+1];
+    memset(dis,0x3f,sizeof(dis));//初始化
+    dis[1] = 0;//初始化
+    int cnt = 0;//边数初始化
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y>>v;
+        if(v>=0)//权值大于0为双向
+        {
+            e[++cnt].a = x;
+            e[cnt].b = y;
+            e[cnt].value = v;
+            e[++cnt].a = y;
+            e[cnt].b = x;
+            e[cnt].value = v;
+        }
+        else//否则为单向
+        {
+            e[++cnt].a = x;
+            e[cnt].b = y;
+            e[cnt].value = v;
+        }
+    }
+    bool flag = false;//判断是否有成功松弛,同时用于判断负环的存在
+    for (int i = 1;i<=n;i++)
+    {
+        flag = false;//初始化标记
+        for (int j = 1;j<=cnt;j++)
+        {
+            x = e[j].a;
+            y = e[j].b;
+            v = e[j].value;
+            if(dis[x] == INF) continue;//这个跳过一定不能少,因为对于负边权 + 无穷大,下面的式子一直成立,导致flag = true,误判负环,故一定要跳过
+            if(dis[y] > dis[x] + v)//松弛操作
+            {
+                flag = true;
+                dis[y] = dis[x] + v;
+            }
+        }
+        if(!flag) break;//如果没有成功的松弛,退出
+    }
+    if(flag) cout<<"YES"<<"\n";//有负环,输出
+    else cout<<"NO"<<"\n";//没负环,输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*Hack:
+ 1
+4 3 
+2 3 -1
+3 4 -1
+4 2 -1
+输出:NO
+*/

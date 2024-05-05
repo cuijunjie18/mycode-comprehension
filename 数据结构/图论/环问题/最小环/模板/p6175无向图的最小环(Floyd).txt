@@ -1,0 +1,65 @@
+//背景:学习Floyd算法了解到的求最小环的应用
+//理解1:暂时未完全理解
+//理解2:已理解,如果图中存在某环(自己画一个或者重环),环中必然有一个点编号最大,所以每次可以让最大编号为k,可以减少重复计算
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+int e[101][101];//原始边邻接矩阵
+int f[101][101];//最短路数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,u,v,d;
+    cin>>n>>m;//输入点个数及边数
+    for (int i = 1;i<=n;i++)
+        for (int j = 1;j<=n;j++) e[i][j] = 1e8,f[i][j] = 1e8;//初始化的技巧
+    for (int i = 1;i<=n;i++) e[i][i] = 0;//特殊处理
+    for (int i = 1;i<=n;i++) f[i][i] = 0;
+    for (int i = 1;i<=m;i++)//建立边
+    {
+        cin>>u>>v>>d;
+        e[u][v] = min(e[u][v],d);//防止重边的dp
+        e[v][u] = min(e[v][u],d);
+        f[u][v] = e[u][v];//初始化
+        f[v][u] = e[v][u];
+    }
+    int ans = 1e8;//初始化答案的细节
+    for (int k = 1;k<=n;k++)//Floyd算法
+    {
+        for (int i = 1;i<k;i++)//在跑最短路之前dp最小环,这种遍历方式(不太理解i<k)保证了环是由三个不同点组成的
+        {
+            for (int j = 1;j<i;j++)
+            {
+                ans = min(ans,f[i][j] + e[i][k] + e[j][k]);
+                //注意是最短路+两个原始边,因为如果两个用了最短路,不一定是环了,而Floyd算法保证了是环(自己画x,y,k想想,此时的xy最短路未包括k)
+                //因为这里说3个相加的,一方面无边值不能过大,防止相加溢出为负数
+                //另一方面,3个中一个不存在,即整个假设的环便不存在,所以要保证每一个的无边值初始>=ans初始值
+            }
+        }
+        for (int i = 1;i<=n;i++)//最短路dp
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                f[i][j] = min(f[i][j],f[i][k] + f[k][j]);
+            }
+        }
+    }
+    if(ans == 1e8) cout<<"No solution."<<"\n";//无解
+    else cout<<ans<<"\n";//输出答案
+    return 0;
+}
+
+
+更好理解的Floyd求最小环方式:
+ for (int k = 1;k<=n;k++)
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++)
+            {
+				//在更新最短路之前求最小环
+                if(i != k&&j != k&&i != j) ans = min(ans,f[i][j] + e[i][k] + e[j][k]);//如果三个点不相等才能是环
+                f[i][j] = min(f[i][j],f[i][k] + f[k][j]);//可以更新了,因为这一次k已经用过了(i,j),不可能再用了
+            }
+        }
+    }

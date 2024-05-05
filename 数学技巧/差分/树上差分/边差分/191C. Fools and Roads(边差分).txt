@@ -1,0 +1,91 @@
+//背景:比赛不会英文,没看出是树上边差分
+//原理:LCA + 树上边差分
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge
+{
+    int to,next,num;//num为边的号码
+}EDGE;
+EDGE e[100001<<1];
+int head[100001];
+int cnt;
+int d[100001];//差分数组兼具前缀和数组
+int f[100001][30];
+int depth[100001];
+int logn[100001];
+int ans[100001];
+void prework()//预处理对数数组
+{
+    logn[1] = 0;
+    for (int i = 2;i<=100000;i++) logn[i] = logn[i/2] + 1;
+}
+void add(int x,int y,int c)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    e[cnt].num = c;
+    head[x] = cnt;
+}
+void DFS(int x,int fa,int d)//预处理LCA
+{
+    depth[x] = d;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        DFS(e[i].to,x,d+1);
+    }
+}
+void Count(int x,int fa,int pos)//差分求和
+{
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        Count(e[i].to,x,e[i].num);
+        d[x] += d[e[i].to];
+    }
+    ans[pos] = d[x];//记录对应边的答案
+}
+int LCA(int a,int b)
+{
+    if(a == b) return a;
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][logn[depth[a]-depth[b]]];
+    if(a == b) return a;
+    for (int i = logn[depth[a]];i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int n,k,x,y;
+    cin>>n;
+    for (int i = 1;i<=n-1;i++)
+    {
+        cin>>x>>y;
+        add(x,y,i);
+        add(y,x,i);
+    }
+    DFS(1,0,0);
+    cin>>k;
+    for (int i = 1;i<=k;i++)
+    {
+        cin>>x>>y;
+        int lca = LCA(x,y);
+        d[x]++;
+        d[y]++;
+        d[lca] -= 2;
+    }
+    Count(1,0,0);
+    for (int i = 1;i<=n-1;i++) cout<<ans[i]<<" ";//依次输出答案
+    return 0;
+}

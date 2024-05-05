@@ -1,0 +1,53 @@
+//背景:学了Bellman-Ford算法后的应用,本题是弱化数据版,且只有正边权
+//原理:Bellman-Ford求单源最短路
+//时间复杂度:o(nm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//直接存单向边
+{
+    int a,b,value;//由a指向b的边,长度为value
+}EDGE;
+EDGE e[500001];
+int dis[10001];//松弛,即dp数组,表示当前点到源点的最短路,INF时代表无路
+const int INF = 0x3f3f3f3f;//初始化INF,为无穷大
+const int no = ((long long)(1)<<31)-1;//无解输出
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,s,x,y,v;
+    cin>>n>>m>>s;//输入点数,边数,源点
+    memset(dis,0x3f,sizeof(dis));//初始化无穷大
+    dis[s] = 0;//初始化为0
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[i].a = x;
+        e[i].b = y;
+        e[i].value = v;
+    }
+    bool flag = false;//是否有边松弛标记
+    for (int i = 1;i<=n;i++)//对于无负环的最多n-1次松弛,第n次主要是用于判断负环
+    {
+        flag = false;//每次松弛所有边前重新标记为无松弛
+        for (int j = 1;j<=m;j++)
+        {
+            x = e[j].a;
+            y = e[j].b;
+            v = e[j].value;
+            if(dis[x] == INF) continue;//如果还没有路,跳过(其实不用跳过也可以比较,只是没有意义)!!!对于判断负环时不能没有
+            if(dis[y] > dis[x] + v)//取最短值
+            {
+                flag = true;//标记松弛
+                dis[y] = dis[x] + v;//更新,即dp
+            }
+        }
+        if(!flag) break;//如果已经没有松弛了,退出循环
+    }
+    if(flag) cout<<"Have negative cycle!"<<"\n";//如果最后还松弛,即存在负环,输出
+    for (int i = 1;i<=n;i++)//输出单源最短路
+    {
+        if(dis[i] == INF) cout<<no<<" ";//无解输出
+        else cout<<dis[i]<<" ";//有解输出
+    }
+    return 0;
+}

@@ -1,0 +1,74 @@
+//背景:判断单源起点负环是否存在模板题
+//时间复杂度:优化版的Bellman-Ford,但是一般快不了多少
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,value;
+}EDGE;
+const int INF = 0x3f3f3f3f;//无穷大,SPFA算法用不上,因为无穷大的出现只会在还无路的时候存在,而SPFA算法中入队的一定是有路到达的了
+void Solve()
+{
+    int n,m,x,y,v;
+    cin>>n>>m;
+    int dis[n+1];
+    vector<EDGE> e[n+1];
+    bool vis[n+1];//标记数组,防止重复入队,TLE
+    int cnt[n+1];//记录最短路包含的边数,最多为n-1,否则就说明有负环
+    memset(dis,0x3f,sizeof(dis));//一系列初始化
+    memset(vis,0,sizeof(vis));
+    memset(cnt,0,sizeof(cnt));
+    dis[1] = 0;//初始化
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        if(v>=0)
+        {
+           e[x].push_back({y,v});
+           e[y].push_back({x,v});
+        }
+        else
+        {
+            e[x].push_back({y,v});
+        }
+    }
+    queue<int> que;
+    que.push(1);
+    vis[1] = true;//标记
+    while(!que.empty())
+    {
+        x = que.front();
+        que.pop();
+        vis[x] = false;//取消标记
+        for (auto v:e[x])//遍历与当前点连接的边
+        {
+            if(dis[v.to] > dis[x] + v.value)//更新最短路
+            {
+                dis[v.to] = dis[x] + v.value;
+                cnt[v.to] = cnt[x] + 1;//累加包含的边
+                if(cnt[v.to] >= n)//判断负环
+                {
+                    cout<<"YES"<<"\n";//存在输出
+                    return;//返回
+                }
+                if(!vis[v.to])//如果没入队
+                {
+                    vis[v.to] = true;//标记
+                    que.push(v.to);//入队
+                }
+            }
+        }
+    }
+    cout<<"NO"<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

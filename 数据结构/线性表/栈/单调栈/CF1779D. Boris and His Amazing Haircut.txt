@@ -1,0 +1,65 @@
+//背景:ST表做出了时间复杂度大且空间复杂度高,现在用单调栈切了
+//原理:单调栈
+//时间复杂度:o(n)
+//空间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,m,x;
+    cin>>n;
+    int a[n+1],b[n+1];
+    bool flag = false;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>b[i];
+        if(b[i] > a[i]) flag = true;//如果理想头发长于现在头发,不合法了
+    }
+    cin>>m;
+    map<int,int> have;//记录对应长度的剪刀的数量
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x;
+        have[x]++;
+    }
+    if(flag)//判断合法
+    {
+        cout<<"NO"<<"\n";
+        return;
+    }
+    stack<int> s;//STL栈维护单调栈
+    for (int i = n;i>=1;i--)//我的单调栈习惯倒着来
+    {
+        while(!s.empty()&&b[i] > s.top()) s.pop();//如果当前大于之前的,弹出(先处理,可以防止a[i] == b[i]的特殊性干扰)
+        if(a[i] == b[i]) continue;//如果等于原来的头发,不用处理
+        if(s.empty())//如果空了,说明要用一把
+        {
+            have[b[i]]--;
+        }
+        else//不空
+        {
+            int temp = s.top();//获取最近的大于等于它的值
+            if(temp>b[i]) have[b[i]]--;//如果大于,说明不能连着一起剪,要多用一把
+        }
+        if(have[b[i]] < 0)//如果不够了
+        {
+            cout<<"NO"<<"\n";//输出
+            return;
+        }
+        s.push(b[i]);//入栈
+    }
+    cout<<"YES"<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

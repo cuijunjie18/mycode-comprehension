@@ -1,0 +1,66 @@
+//背景:这道题做的时候没有一点思路,看了题解才发现A[i] < 10,故可以在每次拓扑时进行dp了
+//dp方法:dp[x][i]代表拓扑到编号为x时以i结尾(i为一个数值,1<=i<=10)的最长不降子序列
+//原理:dp + 拓扑排序
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,m,x,y;
+    cin>>n>>m;
+    int a[n+1];//原始数组
+    int dp[n+1][11];//dp数组
+    int in[n+1];//记录入度
+    vector<int> e[n+1];//邻接表存图
+    memset(dp,0,sizeof(dp));//初始化dp数组为0
+    memset(in,0,sizeof(in));//初始化入度
+    for (int i = 1;i<=n;i++) cin>>a[i];//输入原始数据
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        in[y]++;//累加入度
+    }
+    queue<int> que;
+    for (int i = 1;i<=n;i++)//找起点
+    {
+        if(in[i] == 0)//如果入度为0
+        {
+            que.push(i);//入队
+            dp[i][a[i]] = 1;//!!!!细节初始化,对应的结尾值初始化为1,否则最后的ans可能少1
+        }
+    }
+    while(!que.empty())//Kahn算法
+    {
+        x = que.front();
+        que.pop();
+        for (auto v:e[x])
+        {
+            in[v]--;
+            for (int i = 1;i<=10;i++)//先继承之前的
+            {
+                dp[v][i] = max(dp[v][i],dp[x][i]);
+            }
+            for (int i = 1;i<=a[v];i++)//处理以当前编号的对应值为结尾的情况
+            {
+                dp[v][a[v]] = max(dp[v][a[v]],dp[x][i] + 1);
+            }
+            if(in[v] == 0) que.push(v);//入队
+        }
+    }
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//遍历找最大值
+    {
+        ans = max(dp[i][a[i]],ans);
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
