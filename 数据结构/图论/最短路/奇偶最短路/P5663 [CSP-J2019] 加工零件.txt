@@ -1,0 +1,51 @@
+//背景:无言,掌握模板后豁然开朗
+//原理:BFS最短路 + 奇偶判断
+//时间复杂度:o(m + q)
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,m,q,x,y;
+    cin>>n>>m>>q;
+    vector<int> e[n+1];
+    bool vis[n+1][2];
+    int dis[n+1][2];
+    memset(dis,0x3f,sizeof(dis));//初始化奇偶最短路数组
+    memset(vis,0,sizeof(vis));//初始化vis标记数组
+    const int INF = dis[0][0];//获取无穷大值
+    for (int i = 1;i<=m;i++)//建立双向图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    dis[1][0] = 0;//初始化起点偶数最短路
+    vis[1][0] = true;//标记起点偶数
+    queue<pair<int,int>> que;
+    que.push({1,0});//入队
+    while(!que.empty())//跑BFS
+    {
+        x = que.front().first;
+        y = que.front().second;
+        que.pop();
+        for (auto v:e[x])//判断奇偶即可
+        {
+            if(vis[v][y^1]) continue;
+            vis[v][y^1] = true;
+            dis[v][y^1] = dis[x][y] + 1;
+            que.push({v,y^1});
+        }
+    }
+    while(q--)//回答q次问题
+    {
+        cin>>x>>y;
+        if(dis[x][y%2] == INF) cout<<"No"<<"\n";//没有路必然不用提供零件(其实没有也无所谓,因为y不会比无穷大更大)
+        else
+        {
+            if(dis[x][y%2] <= y) cout<<"Yes"<<"\n";//奇偶性相同的最短路小于要求的长度,输出
+            else cout<<"No"<<"\n";
+        }
+    }
+    return 0;
+}

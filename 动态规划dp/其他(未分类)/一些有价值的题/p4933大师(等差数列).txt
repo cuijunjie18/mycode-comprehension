@@ -1,0 +1,28 @@
+//背景:看ZZW在做想看看自己会不会,看了题解还懵逼,思考了一会才会
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 998244353;//模数
+const int p = 20000;//偏移量,防负数下标(公差可能为负)
+int f[1001][40001];//dp数组,表示以i结尾,公差为x的方案数
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//遍历
+    {
+        ans++;//自己单独,符合情况,答案加1
+        for (int j = i-1;j>=1;j--)//枚举之前的数
+        {
+            int temp = a[i] - a[j] + p;//计算当前数与该数的公差(加上了偏移)
+            f[i][temp] = (f[i][temp] + f[j][temp] + 1)%md;//之前的所以情况f[j][temp]连上i,和j单独与i(两个也满足情况,+1的缘故),注意公差会重复,故累
+														  //加要包含自己,并取模
+            ans = (ans + f[j][temp] + 1)%md;//注意这里是加f[j][temp],而不是f[i][temp],(因为f[i][temp]会重复),并且加1
+        }
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

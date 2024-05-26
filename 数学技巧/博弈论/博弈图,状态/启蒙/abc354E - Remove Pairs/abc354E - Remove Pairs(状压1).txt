@@ -1,0 +1,57 @@
+//背景:状压1尝试
+#include <bits/stdc++.h>
+using namespace std;
+int dp[1<<18];
+int g[19];
+int k[19][19];
+int a[19],b[19];
+int num[19];
+int n;
+void Transform(int x)
+{
+    for (int i = n;i>=1;i--)
+    {
+        num[i] = x%2;
+        x /= 2;
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>n;
+    for (int i = 1;i<=n;i++) g[i] = (1<<(i-1));
+    for (int i = 1;i<=n;i++) cin>>a[i]>>b[i];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            if(a[i] == a[j]||b[i] == b[j])
+            {
+                k[i][j] = 1;
+                k[j][i] = 1;
+            }
+        }
+    }
+    for (int t = ((1<<n)-1);t>=0;t--)
+    {
+        bool flag = false;
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = i+1;j<=n;j++)
+            {
+                if(k[i][j] == 0) continue;
+                if(t&g[i]) continue;
+                if(t&g[j]) continue;
+                if(dp[t|(g[i]|g[j])] == 0)
+                {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        dp[t] = flag;
+    }
+    if(dp[0]) cout<<"Takahashi"<<"\n";
+    else cout<<"Aoki"<<"\n";
+    return 0;
+}

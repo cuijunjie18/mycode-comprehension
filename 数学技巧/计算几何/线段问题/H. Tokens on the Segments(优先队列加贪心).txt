@@ -1,0 +1,58 @@
+//背景:比赛时和队友想了3个小时,其实队友的思路早就对了,只是我代码能力太弱了,无法实现
+//原理:贪心 + 优先队列
+//时间复杂度:o(n*logn*logn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//存储线段左右端点
+{
+    int l,r;
+}EDGE;
+struct cmp//优先队列自定义排序
+{
+    bool operator()(EDGE x,EDGE y)//左端点小的在前面,若相同,右端点小的在前面
+    {
+        if(x.l == y.l) return x.r > y.r;
+        else return x.l > y.l;
+    }
+};
+void Solve()
+{
+    priority_queue<EDGE,vector<EDGE>,cmp> que;
+    set<int> s;//将已经放了标记的坐标存入,用于判断某时刻是否还能放标记
+    int n,l,r;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//输入边并放入优先队列里
+    {
+        cin>>l>>r;
+        EDGE temp = {l,r};
+        que.push(temp);
+    }
+    int ans = 0;//初始化答案
+    while(!que.empty())//计算答案
+    {
+        EDGE temp = que.top();//获取当前的最优线段
+        que.pop();//弹出
+        if(s.count(temp.l) == 0)//如果该点可以放标记
+        {
+            ans++;//累加答案
+            s.insert(temp.l);//标记该点不可放了
+        }
+        else//如果不行
+        {
+            temp.l++;//左边移动一格
+            if(temp.r>=temp.l) que.push(temp);//如果还至少有一个位置,入优先队列
+        }
+    }
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cin.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

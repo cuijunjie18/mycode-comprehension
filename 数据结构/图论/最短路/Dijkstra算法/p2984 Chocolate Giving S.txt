@@ -1,0 +1,70 @@
+//背景:此题乃是Floyd算法无法解决的,诱导我去学了Bellman-Ford算法,SPFA算法,Dijkstra算法,上赏!!
+//原理:Dijkstra算法求单源最短路
+//数据结构:优先队列
+//时间复杂度:o(mlogm),本题的数据下跑不过SPFA算法
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,value;
+}EDGE;
+typedef struct situation//优先队列存储节点信息
+{
+    int u,d;//d为当前到源点的最短路
+}SI;
+struct cmp//自定义优先队列比较,按d的小根堆
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.d > y.d;
+    }
+};
+void Solve()
+{
+    int n,m,q,x,y,v;
+    cin>>n>>m>>q;
+    bool vis[n+1];
+    int dis[n+1];
+    vector<EDGE> e[n+1];
+    memset(dis,0x3f,sizeof(dis));//初始化
+    memset(vis,0,sizeof(vis));//初始化
+    dis[1] = 0;//初始化源点最短路为0
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});
+        e[y].push_back({x,v});
+    }
+    priority_queue<SI,vector<SI>,cmp> que;//建立优先队列
+    que.push({1,dis[1]});//源点入队
+    while(!que.empty())//Dijkstra算法
+    {
+        x = que.top().u;
+        que.pop();
+        if(vis[x] == true) continue;//如果已经在最短路的集合中了,跳过,因为不可能更优
+        vis[x] = true;//进入最短路集合
+        for (auto v:e[x])//松弛与它相关的边
+        {
+            if(dis[v.to] > dis[x] + v.value)//更新最短路
+            {
+                dis[v.to] = dis[x] + v.value;
+                que.push({v.to,dis[v.to]});//入队
+            }
+        }
+    }
+    while(q--)//回答q次询问
+    {
+        cin>>x>>y;
+        cout<<dis[x] + dis[y]<<"\n";//输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

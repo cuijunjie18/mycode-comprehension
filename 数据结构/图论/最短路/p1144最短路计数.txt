@@ -1,0 +1,72 @@
+//背景:学长题单题,本题的特点及双向边及边权均为1
+//思路:简单的动态规划和最短路
+//原理:DP + Dijkstra算法
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 100003;//模数
+typedef struct situation//优先队列元素
+{
+    int u,d;
+}SI;
+struct cmp//优先队列自定义排序
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.d > y.d;
+    }
+};
+void Solve()
+{
+    int n,m,x,y;
+    cin>>n>>m;
+    int dis[n+1];
+    int ans[n+1];
+    bool vis[n+1];
+    vector<int> e[n+1];
+    memset(dis,0x3f,sizeof(dis));//初始化最短路
+    memset(ans,0,sizeof(ans));//初始化答案
+    memset(vis,0,sizeof(vis));//初始化标记
+    for (int i = 1;i<=m;i++)//建立无向图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    priority_queue<SI,vector<SI>,cmp> que;//建立优先队列
+    dis[1] = 0;//初始化
+    ans[1] = 1;//初始化
+    que.push({1,0});//起点如队
+    while(!que.empty())//跑Dijkstra算法
+    {
+        x = que.top().u;
+        y = que.top().d;
+        que.pop();
+        if(vis[x]) continue;//如果已经有最短路了,后面涉及它的所有情况都不可能更优了
+        vis[x] = true;
+        for (auto v:e[x])
+        {
+            if(dis[v] > dis[x] + 1)//比原先的还要优
+            {
+                dis[v] = dis[x] + 1;
+                ans[v] = ans[x];//重新赋值,x已经是求出最短路的了,所有ans[x]固定了
+                que.push({v,dis[v]});//更优入队
+            }
+            else if(dis[v] == dis[x] + 1)//如果等于最优解
+            {
+                ans[v] = (ans[v] + ans[x])%md;//dp转移
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++) cout<<ans[i]<<"\n";//输出答案
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

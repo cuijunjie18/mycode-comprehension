@@ -1,0 +1,92 @@
+//背景:bitset优化,抱歉,这个是个假的优化
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,x;
+    cin>>n;
+    bitset<101> f[101];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cin>>x;
+            if(x) f[i].set(j);
+        }
+    }
+    for (int k = 1;k<=n;k++)
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                if(f[i][k]&&f[k][j]) f[i].set(j);//这里操作本质还是o(1),故未体现bitset性能
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            if(f[i][j]) cout<<1<<" ";
+            else cout<<0<<" ";
+        }
+        cout<<"\n";
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+//真优化
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,x;
+    cin>>n;
+    bitset<101> f[101];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cin>>x;
+            if(x) f[i].set(j);//设置
+        }
+    }
+    for (int k = 1;k<=n;k++)
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            if(f[i][k]) f[i] |= f[k];//取并,把原来的o(n)变为了o(n/w),即变成了位运算操作
+                                     //原理:i点有路到k了,那么k可以到的点i全部可以到达,故取并
+        }
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cout<<f[i][j]<<" ";//输出
+        }
+        cout<<"\n";
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+

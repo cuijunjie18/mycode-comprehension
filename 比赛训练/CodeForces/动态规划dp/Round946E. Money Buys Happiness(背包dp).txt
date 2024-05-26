@@ -1,0 +1,90 @@
+方法一:
+//背景:DP题,我做不出来且滚动写了却错了,不理解,看了题解写了非滚动的
+//收获:当非滚动不MLE时尽量用非滚动而不轻易去滚动数组
+//状态设置:dp[i][h],i个月的时候拥有h的幸福剩余的最大价值
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    long long x;
+    cin>>n>>x;//输入物品数量及每月工资数
+    long long c[n+1],h[n+1];
+    int sum = 0;//初始化所有的幸福和,用于定义数组大小,防止每次处理极限1e5,TLE
+    for (int i = 1;i<=n;i++) cin>>c[i]>>h[i],sum += h[i];//输入且累加幸福
+    long long dp[n+1][sum+1];//定义dp数组
+    memset(dp,-0x3f,sizeof(dp));//初始化为负无穷,说明对应状态不存在
+    dp[1][0] = 0;//第一个月时候拥有幸福0剩余最大价值为0,注意不能写成x,因为是在这个月,而不是结束时候(这时候还没发工资)
+    if(c[1] == 0) dp[1][h[1]] = 0;//如果第一个月是免费的,初始化
+    for (int i = 2;i<=n;i++)//从第二个月开始dp
+    {
+        for (int j = 0;j<=sum-h[i];j++)//非滚动,正着倒着都行,注意不要越界
+        {
+            if(dp[i-1][j] >= 0) dp[i][j] = max(dp[i][j],dp[i-1][j] + x);//如果之前这个状态存在才能获得工资
+            if(dp[i-1][j] - c[i] + x>=0) dp[i][j+h[i]] = max(dp[i][j+h[i]],dp[i-1][j] - c[i] + x);//用当前幸福值去填表
+        }
+    }
+    for (int i = sum;i>=0;i--)//在最后一个月找到第一个剩余价值>=0的幸福值,即为最大值
+    {
+        if(dp[n][i] >=0)
+        {
+            cout<<i<<"\n";
+            return;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+方法二:
+//背景:更容易理解的背包滚动dp
+//状态设置:拥有幸福值为x时的最小花费
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    long long x;
+    cin>>n>>x;
+    long long c[n+1],h[n+1];
+    int sum = 0;
+    for (int i = 1;i<=n;i++) cin>>c[i]>>h[i],sum += h[i];
+    long long dp[sum+1];
+    memset(dp,0x3f,sizeof(dp));//最小花费,初始化为正无穷
+    dp[0] = 0;//初始化为0,拥有幸福值为0时不需要花费
+    int ans = 0;//初始化最大幸福值
+    for (int i = 1;i<=n;i++)//枚举月份
+    {
+        for (int j = sum;j>=h[i];j--)//倒着dp
+        {
+            if((i-1)*x >= dp[j-h[i]] + c[i])//如果当前拥有的钱能买下当前月份的幸福
+            {
+                dp[j] = min(dp[j],dp[j-h[i]] + c[i]);//更新最小花费
+                ans = max(ans,j);//更新答案
+            }
+        }
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+

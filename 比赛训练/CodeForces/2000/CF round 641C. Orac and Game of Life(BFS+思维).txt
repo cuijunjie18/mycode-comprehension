@@ -1,0 +1,78 @@
+//背景:没看答案之前完全不会,我的思维是真的差
+//思路:判断某个点什么时候开始变化,一但变化什么周围有相同的颜色,此后大家会一起变,且奇偶变
+//原理:BFS
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 1e9;//一个无穷大参考值
+char mp[1001][1001];//记录地图信息
+int ans[1001][1001];//判断地图什么时候连通,及周围有相同的颜色(有相同的颜色后连通块里的元素会一起变化),讨论奇偶性即可
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};//方向数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,t,x,y;
+    long long p;
+    cin>>n>>m>>t;//输入地图大小及t次询问
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>mp[i][j];
+            ans[i][j] = md;//初始化为都没有
+        }
+    }
+    queue<pair<int,int>> que;//队列
+    for (int i = 1;i<=n;i++)//遍历找一开始就连通的
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            for (int k = 0;k<=3;k++)
+            {
+                x = i + walk[k][0];
+                y = j + walk[k][1];
+                if(x >= 1&&x <= n&&y >= 1&&y <= m&&mp[i][j] == mp[x][y])//判断
+                {
+                    ans[i][j] = 0;//它开始变化的时间为一开始(有相同的就会变化)
+                    que.push({i,j});//入队
+                }
+            }
+        }
+    }
+    while(!que.empty())//BFS
+    {
+        x = que.front().first;
+        y = que.front().second;
+        que.pop();
+        for (int i = 0;i<=3;i++)
+        {
+            int wx = x + walk[i][0];
+            int wy = y + walk[i][1];
+            if(wx>=1&&wx<=n&&wy>=1&&wy<=m&&ans[wx][wy] == md)//判断讲要到的点是否未连通
+            {
+                ans[wx][wy] = ans[x][y] + 1;//记录它开始变化的时间
+                que.push({wx,wy});//入队
+            }
+        }
+    }
+    while(t--)//依次回答t次询问
+    {
+        cin>>x>>y>>p;
+        if(ans[x][y] == md||p<=ans[x][y])//如果询问没到它变化的时间,或者它永远是孤立的
+        {
+            cout<<mp[x][y]<<"\n";//输出自己
+        }
+        else
+        {
+            long long temp = p - ans[x][y];//计算要变化几次
+            if(temp%2 == 0)//如果是偶数
+            {
+                cout<<mp[x][y]<<"\n";//输出自己,即不变
+            }
+            else
+            {
+                cout<<(mp[x][y] == '0'?1:0)<<"\n";//否则输出相反的
+            }
+        }
+    }
+    return 0;
+}

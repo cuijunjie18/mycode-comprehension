@@ -1,0 +1,31 @@
+//背景:字典树模板,本质上字母是边权,也可以理解为点
+//核心:树的根节点是0
+const int N = 1000050;
+int trie[N][26];//字典树,N应该为所有字符串的总长度,理解1:为编号为i的节点通过字母x连向了编号j
+				//							   理解2:编号为i的节点连向了下一个节点字母为x,且下一个节点的编号为j
+int cnt[N];//表示以编号i结尾的字符串存储了几次
+int id;//id表示了字典树中已经产生的节点数
+
+void insert(string s)//插入函数
+{
+	int p = 0;
+	for (int i = 0; i < s.size(); i++)
+	{
+		int x = s[i] - 'a';
+		if (trie[p][x] == 0) trie[p][x] = ++id;
+		p = trie[p][x];
+	}
+	cnt[p]++;
+}
+
+int  find(string s)//查找函数
+{
+	int p = 0;
+	for (int i = 0; i < s.size(); i++)
+	{
+		int x = s[i] - 'a';
+		if (trie[p][x] == 0)return 0;//没找到了,返回0
+		p = trie[p][x];
+	}
+	return cnt[p];//返回字符串出现次数
+}

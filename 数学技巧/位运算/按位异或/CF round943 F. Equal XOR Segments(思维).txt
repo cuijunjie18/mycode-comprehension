@@ -1,0 +1,60 @@
+//背景:CF的F题当真恐怖,思维题加边界处理,还有异或的运用
+//原理:(知乎)https://zhuanlan.zhihu.com/p/695771564, 讲得是真的好
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,q,l,r,x;
+    cin>>n>>q;
+    int sum[n+1];//异或和的前缀和
+    sum[0] = 0;//!!!一定要有,用于前缀和初始化
+    map<int,vector<int>> s;//核心结构,记录对应异或前缀和为某值的位置有谁
+    for (int i = 1;i<=n;i++)//先处理异或前缀和数组
+    {
+        cin>>x;
+        sum[i] = sum[i-1]^x;//类异或
+    }
+    for (int i = 0;i<=n;i++) s[sum[i]].push_back(i);//一定要从位置0开始处理s,因为后面会有sum[l-1],而l可能为1
+                                                    //同时上述操作保证了s[x]具有单调性
+    for (auto &v:s)//收获干货,不加&是副本,修改无法同步到原数组,故加个&(之前在Exgcd中有类似函数调用)
+    {
+        v.second.push_back(n+1);//放入边界,防止下面二分查不到
+    }
+    while(q--)//回答q次询问
+    {
+        cin>>l>>r;
+        int k = sum[r]^sum[l-1];//先求一次区间异或和
+        if(k == 0) cout<<"YES"<<"\n";//如果为0,随便分成两边都区间异或和都相等(异或的性质)
+        else//否则一定是奇数区间段(5个与3个没有区别,故全部统一为3个)
+        {
+            k = sum[r];//获取右边
+            int p1 = *lower_bound(s[k].begin(),s[k].end(),l);//查找大于等于l的最小位置
+            if(p1>=r)//如果超出范围
+            {
+                cout<<"NO"<<"\n";//无解
+                continue;
+            }
+            k = sum[l-1];//获取左边
+            int p2 = *upper_bound(s[k].begin(),s[k].end(),p1);//查找大于p1的最小位置,因为p2 != p1
+            if(p2>=r)//如果超过范围
+            {
+                cout<<"NO"<<"\n";//无解
+                continue;
+            }
+            cout<<"YES"<<"\n";//有解
+        }
+    }
+    cout<<"\n";//换行
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

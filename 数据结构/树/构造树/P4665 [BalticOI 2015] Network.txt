@@ -1,0 +1,56 @@
+//背景:高难,尝试了几天了
+/*思路:使树上的每一个点都至少被一个环包括,肯定连接叶子节点(广义的,即边数为1,可能包含根节点),能连接的路径一定可以被两个叶子节点路径连接
+       故答案为叶子节点数/2的上取整,接下来就是构造了,自己想一下,应该让不同子树之间的叶子节点连接才能尽可能多的包含点,而相同子树的叶子节点的DFS序一定连续,
+       故可以通过与i 与 i+k/2的叶子节点间进行匹配可以最大程度的使叶子外连,具体证明间洛谷题解*/ 
+//原理:贪心 + 构造
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next;
+}EDGE;
+EDGE e[500001<<1];
+int head[500001];
+int cnt;
+int ans[500001];//记录叶子节点,按DFS序升序排序
+int pos;//记录叶子节点的数量
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//处理叶子
+{
+    bool flag = true;
+    for (int i = head[x];i;i = e[i].next)
+    {
+        if(e[i].to == fa) continue;
+        flag = false;
+        DFS(e[i].to,x);
+    }
+    if(flag) ans[++pos] = x;//如果没有边,是叶子
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y;
+    cin>>n;
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        cin>>x>>y;
+        add(x,y);
+        add(y,x);
+    }
+    int t = 0;//判断根节点1是否为广义叶子
+    for (int i = head[1];i;i = e[i].next) t++;
+    if(t == 1) ans[++pos] = 1;//如果只有一条边,为叶子,记录
+    DFS(1,0);//DFS求叶子
+    cout<<(pos+1)/2<<"\n";//输出答案
+    for (int i = 1;i<=pos/2;i++)//输出前一半与后一半配对
+    {
+        cout<<ans[i]<<" "<<ans[i+pos/2]<<"\n";
+    }
+    if(pos%2) cout<<ans[1]<<" "<<ans[pos]<<"\n";//如果还有剩余的,与相隔最远的配对,保证叶子外连
+    return 0;
+}

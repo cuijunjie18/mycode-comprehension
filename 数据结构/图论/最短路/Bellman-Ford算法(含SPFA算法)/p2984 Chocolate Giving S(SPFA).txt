@@ -1,0 +1,61 @@
+//背景:本题正解应该是Dijkstra算法,但是想复习一下SPFA算法(不稳定算法),但是过了
+//时间复杂度:最坏o(nm),最佳o(n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to,value;
+}EDGE;
+void Solve()
+{
+    int n,m,q,x,y,v;
+    cin>>n>>m>>q;
+    bool vis[n+1];
+    int dis[n+1];
+    vector<EDGE> e[n+1];
+    memset(vis,0,sizeof(vis));//初始化
+    memset(dis,0x3f,sizeof(dis));//初始化
+    dis[1] = 0;//源点初始化为0
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});
+        e[y].push_back({x,v});
+    }
+    queue<int> que;
+    que.push(1);
+    vis[1] = true;
+    while(!que.empty())//跑SPFA算法
+    {
+        x = que.front();
+        que.pop();
+        vis[x] = false;//取消标记
+        for (auto v:e[x])//对与其关联的边进行松弛操作
+        {
+            if(dis[v.to] > dis[x] + v.value)
+            {
+                dis[v.to] = dis[x] + v.value;
+                if(!vis[v.to])
+                {
+                    vis[v.to] = true;
+                    que.push(v.to);
+                }
+            }
+        }
+    }
+    while(q--)//依次回答q个问题
+    {
+        cin>>x>>y;
+        cout<<dis[x] + dis[y]<<"\n";//输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

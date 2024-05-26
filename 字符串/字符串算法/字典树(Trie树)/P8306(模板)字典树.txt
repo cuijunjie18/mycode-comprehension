@@ -1,0 +1,63 @@
+//背景:字典树的第一次应用,查找以某字符串为前缀的字符串的数量,数据保证输入的全部字符串长度<=3e6
+//坑点:本题字符串中涉及的字符包括大小写,数字
+//收获:时间优化,Trie的细节,数组的大小细节
+#include <bits/stdc++.h>
+using namespace std;
+int trie[3000001]['z'-'0'+1];//Trie树数组,!!!注意这里要加1才能保证整型'z'-'0'能够在数组中
+int cnt[3000001];//标记数组,即标记对应编号的节点被多少个字符串经过
+int id;//编号变量
+void Insert(string s)//插入函数
+{
+    int p = 0;//初始化指针
+    for (int i = 0;i<s.size();i++)//遍历字符串
+    {
+        int k = s[i] - '0';//转换为整型
+        if(trie[p][k] == 0) trie[p][k] = ++id;//如果没有则建立
+        p = trie[p][k];//移动指针
+        cnt[p]++;//对应编号经过的字符串数量+1
+    }
+}
+int Find(string s)//查找以s为前缀的字符串数量
+{
+    int p = 0;//初始化指针
+    for (int i = 0;i<s.size();i++)//遍历前缀
+    {
+        int k = s[i] - '0';//转换为整型
+        if(trie[p][k] == 0) return 0;//如果没有了,说明没有字符串以它为前缀,返回0
+        p = trie[p][k];//移动指针
+    }
+    return cnt[p];//最后返回对应位置数量
+}
+void Solve()
+{
+    for (int i = 0;i<=id;i++)//每日时间优化技巧,只处理上次改变的,即上一轮的id(如果用memset一次就超时了!!!)
+    {
+        for (int j = 0;j<='z'-'0';j++) trie[i][j] = 0;
+    }
+    for (int i = 0;i<=id;i++) cnt[i] = 0;//初始化
+    id = 0;//重置id
+    int n,q;
+    string s;
+    cin>>n>>q;//输入模板字符串数量及询问次数
+    for (int i = 1;i<=n;i++)//建立字典树
+    {
+        cin>>s;
+        Insert(s);
+    }
+    while(q--)//回答询问
+    {
+        cin>>s;
+        cout<<Find(s)<<"\n";//查找并输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

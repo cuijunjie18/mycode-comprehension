@@ -1,0 +1,48 @@
+前缀函数的理解:即前缀对应长度的字符串子串等于后缀对应长度的字符子串的最长长度,即Longest Prefixion String,简称LPS
+1,字符串的下标是从0开始的
+2,字符串的前缀与后缀均是真的(即不能是自己)
+3,初始化Pi[0] = 0
+4,计算前缀函数算法是一个在线算法,可以一边输入字符串一边处理
+
+
+
+
+迭代版本(自己查看理解领悟)
+(1)朴素算法 o(n^3):
+vector<int> prefix_function(string s) {
+  int n = (int)s.length();
+  vector<int> pi(n);
+  for (int i = 1; i < n; i++)
+    for (int j = i; j >= 0; j--)
+      if (s.substr(0, j) == s.substr(i - j + 1, j)) {
+        pi[i] = j;
+        break;
+      }
+  return pi;
+}
+
+(2)相邻的前缀函数值至多增加1优化 o(n^2):
+vector<int> prefix_function(string s) {
+  int n = (int)s.length();
+  vector<int> pi(n);
+  for (int i = 1; i < n; i++)
+    for (int j = pi[i - 1] + 1; j >= 0; j--)  // improved: j=i => j=pi[i-1]+1
+      if (s.substr(0, j) == s.substr(i - j + 1, j)) {
+        pi[i] = j;
+        break;
+      }
+  return pi;
+}
+
+(3)最终算法 o(n),目前无法合理的分析:
+vector<int> prefix_function(string s) {
+  int n = (int)s.length();
+  vector<int> pi(n);
+  for (int i = 1; i < n; i++) {
+    int j = pi[i - 1];
+    while (j > 0 && s[i] != s[j]) j = pi[j - 1];
+    if (s[i] == s[j]) j++;
+    pi[i] = j;
+  }
+  return pi;
+}

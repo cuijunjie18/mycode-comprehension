@@ -1,0 +1,180 @@
+//背景:图论紫题,调了两天,数据范围判断真的玄学,空间复杂度也玄学
+//难点:Kruskal重构树的空间复杂度分析
+//收获:有阈值的最短路的判断,通常思路为构造Kruskal重构树
+//原理:DFS + Dijkstra最短路 + Kruskal重构树 + 倍增求LCA
+//时间复杂度:o(nlogn + mlogm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge1//链式前向星边结构体
+{
+    int to,next,length,height;
+}EDGE1;
+typedef struct edge2//Kruskal贪心比较的直接存边结构体
+{
+    int a,b,length,height;
+}EDGE2;
+typedef struct situation//Dijkstra最短路优先队列的元素
+{
+    int u,d;
+}SI;
+struct cmp//优先队列自定义排序
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.d > y.d;
+    }
+};
+bool cmpke(EDGE2 x,EDGE2 y)//Kruskal求最大生成树的贪心排序
+{
+    return x.height > y.height;
+}
+const int maxn = 800080;//数组的极限
+int n,m,q,k,s;//n为点数,m为边数,q为询问,k,s为对应强制在线的约束
+EDGE2 e[maxn<<1];//直接存的边
+
+//Kruskal重构树的相关变量及数组
+EDGE1 ke[maxn<<1];//用两次的链式前向星边,第一次求最短路,第二次为重构Kruskal树
+int head[maxn];
+int cnt;//边编号
+int val[maxn];//点权,仅重构出来的点有点权
+
+int depth[maxn<<1];//深度,用于LCA
+int dp[maxn<<1][29];//LCA数组
+int minn[maxn<<1];//以i为节点的子树的中的所有点到1的最短路
+
+int f[maxn<<1];//并查集数组
+
+int dis[maxn<<1];//最短路数组
+
+int Find(int x)//并查集查找加路径合并
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void add(int x,int y,int length,int height)//链式前向星建边
+{
+    ke[++cnt].to = y;
+    ke[cnt].next = head[x];
+    ke[cnt].length = length;
+    ke[cnt].height = height;
+    head[x] = cnt;
+}
+void init()//!!!!重置核心
+{
+    memset(head,0,sizeof(head));//重置
+    cnt = 0;//重置Kruskal树
+    memset(dp,0,sizeof(dp));//LCA重置
+    memset(minn,0x3f,sizeof(minn));//无穷大设置
+    memset(dis,0x3f,sizeof(dis));//无穷大设置
+}
+void Dijkstra()//预处理1到其他的点的最短路
+{
+    bool vis[n+1];//标记数组
+    memset(vis,0,sizeof(vis));//初始化为0
+    dis[1] = 0;//初始化
+    priority_queue<SI,vector<SI>,cmp> que;//建立Dijkstar优先队列
+    que.push({1,0});//起点入队
+    while(!que.empty())//跑Dijkstra
+    {
+        int x = que.top().u;
+        que.pop();
+        if(vis[x]) continue;
+        vis[x] = true;
+        for (int i = head[x];i;i = ke[i].next)
+        {
+            if(dis[ke[i].to] > dis[x] + ke[i].length)
+            {
+                dis[ke[i].to] = dis[x] + ke[i].length;
+                que.push({ke[i].to,dis[ke[i].to]});
+            }
+        }
+    }
+}
+void DFS(int x,int fa,int d)//DFS求minn及LCA(从最后一个重构出来的点开始)
+{
+    depth[x] = d;//记录深度
+    minn[x] = dis[x];//初始化最短路
+    dp[x][0] = fa;//初始化第一个LCA,即父节点
+    for (int i = 1;(1<<i)<=depth[x];i++)//处理倍增LCA
+    {
+        dp[x][i] = dp[dp[x][i-1]][i-1];
+    }
+    for (int i = head[x];i;i = ke[i].next)//遍历子树(没有双向边,不用判断父节点)
+    {
+        DFS(ke[i].to,x,d+1);//递归子树
+        minn[x] = min(minn[x],minn[ke[i].to]);//取最小值
+    }
+}
+void Kruskal()//难点!!!Kruskal重构树
+{
+    for (int i = 1;i<=n;i++) f[i] = i;//!!!并查集重置,初始化
+    sort(e+1,e+m+1,cmpke);//贪心排序,为了建最大生成树,height为关键字
+    cnt = 0;//重置树
+    memset(head,0,sizeof(head));//重置边
+    int finish = 0;//初始化建完的边
+    int tot = n;//初始化重构新点的编号
+    for (int i = 1;i<=m;i++)//Kruskal重构树求解
+    {
+        if(finish == n-1)  break;//完成,退出
+        int x = Find(e[i].a);
+        int y = Find(e[i].b);
+        if(x == y) continue;
+        tot++;//新建节点编号
+        val[tot] = e[i].height;//记录点权
+        f[x] = f[y] = f[tot] = tot;//更新并查集,不要忘了新建节点的初始化
+        finish++;//完成边加1
+        add(tot,x,0,0);//建边
+        add(tot,y,0,0);//建边
+    }
+    DFS(tot,0,0);//DFS处理,tot为最后一个重构点,及根节点开始
+}
+void Solve()
+{
+    init();
+    cin>>n>>m;//输入点与边数
+    int x,y,l,a;
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>l>>a;
+        add(x,y,l,a);//链式前向星存边
+        add(y,x,l,a);
+        e[i].a = x;//直接存边
+        e[i].b = y;
+        e[i].length = l;
+        e[i].height = a;
+    }
+    Dijkstra();//求最短路
+    Kruskal();//生成Kruskal重构树
+    cin>>q>>k>>s;//输入询问及约束
+    int v,p,ans = 0;//初始化答案
+    while(q--)
+    {
+        cin>>v>>p;//输入起始城市v,水位p
+        v = (v + k*ans - 1)%n + 1;//处理
+        p = (p + k*ans)%(s + 1);//处理
+        for (int i = 28;i>=0;i--)//倍增找最浅海拔大于p的点,其子树可以互相通达且不用消耗体力
+        {
+            if(dp[v][i]&&val[dp[v][i]] > p) v = dp[v][i];
+        }
+        ans = minn[v];//更新答案
+        cout<<ans<<"\n";//输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+1
+4 3
+1 2 50 1
+2 3 100 2
+3 4 50 1
+*/

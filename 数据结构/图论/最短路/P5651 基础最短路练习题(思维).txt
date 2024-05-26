@@ -1,0 +1,81 @@
+//背景:本题乍一看没有什么算法是可以用上的,因为对最短路及异或的性质不太了解
+/*题目重要信息:1,保证图中不存在简单环使得边权异或和不为0,即图中的所有环异或和都是0 
+             2,本题全是双向边(我的分析)*/
+/*思路分析(洛谷题解):从一条路径增广到另一条路径的必要条件是这两条路径能够成一个环(自己想象一下,如果两点间有两条不完全相同的路径,那么路径间必要部分构成环)
+                   而构成环的那两个部分异或和为0,即异或和值一样,等价,而公共部分显然等价,故图中两点任意路径异或和等价!!!*/
+//原理:生成树 + DFS + 位运算(其实可以用LCA但是没必要,具体见P2420我的题解)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge1//直接存边求生成树
+{
+    int a,b,value;
+}EDGE1;
+typedef struct edge2//链式前向星存边
+{
+    int to,next,value;
+}EDGE2;
+EDGE1 e1[200001];
+EDGE2 e2[200001];
+int head[100001];
+int cnt;
+int ans[100001];//表示生成树中的点到其根节点路径的异或和
+int f[100001];//并查集数组
+void add(int x,int y,int v)//加边
+{
+    e2[++cnt].to = y;
+    e2[cnt].next = head[x];
+    e2[cnt].value = v;
+    head[x] = cnt;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void DFS(int x,int fa)//DFS预处理生成树中每个点到根节点的异或和(以1为根节点)
+{
+    for (int i = head[x];i;i = e2[i].next)
+    {
+        if(e2[i].to == fa) continue;
+        ans[e2[i].to] = ans[x]^e2[i].value;//注意这里的异或和,不是ans[fa],而是ans[x],因为x才是e2[i].to的父节点
+        DFS(e2[i].to,x);
+    }
+}
+void Solve()
+{
+    int n,m,q,x,y;
+    cin>>n>>m>>q;
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=m;i++)//输入边
+    {
+        cin>>e1[i].a>>e1[i].b>>e1[i].value;
+    }
+    int finish = 0;//完成的边
+    for (int i = 1;i<=m;i++)//求生成树
+    {
+        if(finish == n-1) break;
+        x = Find(e1[i].a);
+        y = Find(e1[i].b);
+        if(x == y) continue;
+        f[x] = y;
+        finish++;
+        add(e1[i].a,e1[i].b,e1[i].value);
+        add(e1[i].b,e1[i].a,e1[i].value);
+    }
+    DFS(1,0);//处理异或和
+    while(q--)//回答q次询问
+    {
+        cin>>x>>y;
+        cout<<(ans[x]^ans[y])<<"\n";//输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

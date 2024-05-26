@@ -1,0 +1,40 @@
+//背景:博弈论对我来说还是太难了!!!
+//原理:https://www.luogu.com.cn/article/4don12d9
+#include <bits/stdc++.h>
+using namespace std;
+bool check(int a,int b,int c,int n)//判断黑色三角形一开始就在边上的情况
+{
+    int cnt = 0;
+    int x = abs(a-b);
+    if(x == 1||x == n-1) cnt++;
+    x = abs(c-a);
+    if(x == 1||x == n-1) cnt++;
+    x = abs(c-b);
+    if(x == 1||x == n-1) cnt++;
+    return cnt == 2;
+}
+void Solve()
+{
+    int n,a,b,c;
+    cin>>n;
+    cin>>a>>b>>c;
+    if(check(a,b,c,n))
+    {
+        cout<<"JMcat Win"<<"\n";
+        return;
+    }
+    for (int i = 1;i<=n-3;i++) cin>>a>>b>>c;
+    if((n-5)%2 == 0) cout<<"PZ Win"<<"\n";//判断奇偶性
+    else cout<<"JMcat Win"<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

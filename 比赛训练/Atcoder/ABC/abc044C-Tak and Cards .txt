@@ -1,0 +1,37 @@
+//背景:看了题解才会
+//坑点:不能设置状态f[x][y]表示选了x个数,平均数为y,因为平均数可能为浮点数!!!!!
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+int number[51];//记录数字
+long long f[51][2501];//第一维为选几个数,第二维为和
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,a;
+    cin>>n>>a;
+    for (int i = 1;i<=n;i++) cin>>number[i];
+    //f[0][0] = 1;//可以这样初始化后就不用我下面的了
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = i;j>=1;j--)//逆序枚举选了几个数
+        {
+            if(j == 1)//我的初始化
+            {
+                f[1][number[i]]++;
+                continue;//跳过
+            }
+            for (int k = 2500;k>=number[i];k--)
+            {
+                f[j][k] += f[j-1][k-number[i]];
+            }
+        }
+    }
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//枚举选了几个数
+    {
+        ans += f[i][i*a];//累加答案
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

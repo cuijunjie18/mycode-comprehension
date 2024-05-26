@@ -1,0 +1,82 @@
+//背景:我的BFS奇偶最短路尝试
+//思路:对于边权为1的情况,毫无疑问,这是我们最开始学BFS时的应用,对于单源最短路边权为1的最优解就是BFS,同时可以证明边权为1时SPFA算法也取最优时间
+//时间复杂度:o(nm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation
+{
+    int to,d,id;
+}SI;
+vector<int> e[5001];
+vector<SI> ask[5001];
+bool ans[1000001];
+int dis[5001][2];
+void bfs(int b)//主要看这里
+{
+    bool vis[5001][2];//奇偶标记数组
+    memset(vis,0,sizeof(vis));
+    memset(dis,0x3f,sizeof(dis));
+    vis[b][0] = true;
+    dis[b][0] = 0;//奇偶答案
+    queue<pair<int,int>> que;
+    que.push({b,0});
+    while(!que.empty())
+    {
+        int x = que.front().first;
+        int y = que.front().second;
+        que.pop();
+        for (auto v:e[x])//漂亮的奇偶处理
+        {
+            if(vis[v][y^1]) continue;
+            dis[v][y^1] = dis[x][y] + 1;
+            vis[v][y^1] = true;
+            que.push({v,y^1});
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    memset(dis,0x3f,sizeof(dis));
+    const int INF = dis[0][0];
+    int n,m,q,x,y,d;
+    cin>>n>>m>>q;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    for (int i = 1;i<=q;i++)
+    {
+        cin>>x>>y>>d;
+        ask[x].push_back({y,d,i});
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(ask[i].empty()) continue;
+        bfs(i);
+        for (auto v:ask[i])
+        {
+            x = v.to;
+            y = v.d;
+            int temp = v.id;
+            if(e[i].size() == 0) ans[temp] = false;
+            else
+            {
+                if(dis[x][y%2] == INF) ans[temp] = false;
+                else
+                {
+                    if(dis[x][y%2] <= y) ans[temp] = true;
+                    else ans[temp] = false;
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=q;i++)
+    {
+        if(ans[i]) cout<<"TAK"<<"\n";
+        else cout<<"NIE"<<"\n";
+    }
+    return 0;
+}

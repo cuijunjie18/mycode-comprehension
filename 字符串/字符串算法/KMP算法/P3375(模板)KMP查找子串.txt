@@ -1,0 +1,45 @@
+//背景:刚学LPS函数及其应用KMP,先来道模板题练习,结果发现细节多
+//注意:以后我的所有关于KMP的算法的字符串下标均是从0开始(便于与OI-wiki统一,好记忆)
+//原理:KMP匹配字符串
+//时间复杂度:o(n+m)
+#include <bits/stdc++.h>
+using namespace std;
+void Prefixion(int LPS[],string s)//求生成字符串的前缀函数
+{
+    LPS[0] = 0;//初始化前缀
+    for (int i = 1,big = s.size();i<big;i++)//遍历字符串
+    {
+        int j = LPS[i-1];//获取上一个位置的LPS
+        while(j>0&&s[j] != s[i]) j = LPS[j-1];//寻找第一个使得当前位置i的前缀性质仍满足的j
+        if(s[j] == s[i]) j++;//如果是因为相等退出循环的,j是位置,那么长度为j+1
+        LPS[i] = j;//记录当前位置的LPS
+    }
+}
+void KMP()//KMP算法
+{
+    string text,pattern;
+    cin>>text>>pattern;//输入文本字符串及模板字符串(待查找的字符串)
+    string cur = pattern + '#' + text;//生成新的字符串
+    int s1 = pattern.size();//计算模板字符串的长度
+    int s2 = text.size();//计算文本字符串的长度
+    int LPS[s2+s1+1];//注意这里LPS的数组大小,如果开小了退不出函数(我也不知道为什么)
+    Prefixion(LPS,cur);//求生成字符串的前缀函数
+    vector<int> occurrence;//记录文本字符串匹配成功的起始位置
+    for (int i = s1+1;i<=s2+s1;i++)//从生成字符串的文本位置开始遍历
+    {
+        if(LPS[i] == s1) occurrence.push_back(i-2*s1);//如果满足当前情况,即记录下成功匹配的位置(相对文本):当前位置 - 2*模板长度
+    }
+    for (auto v:occurrence) cout<<v+1<<"\n";//依次输出位置(相对文本的)
+    for (int i = 0;i<s1;i++) cout<<LPS[i]<<" ";//输出每个前缀的函数值
+    cout<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        KMP();
+    }
+    return 0;
+}

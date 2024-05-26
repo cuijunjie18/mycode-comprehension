@@ -1,0 +1,26 @@
+//背景:set的自定义排序,unordered_set也同理(以结构体为例)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//定义要排序的结构体
+{
+    int a,b;
+}EDGE;
+struct cmp//构建自定义比较函数
+{
+    bool operator()(EDGE x,EDGE y)
+    {
+        return x.a > y.a;//注意这里与优先队列的不同,是直观感受,即大的a先输出
+    }
+};
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    set<EDGE,cmp> s;
+    for (int i = 1;i<=10;i++) s.insert({i,-i});
+    for (auto v:s)
+    {
+        cout<<v.a<<" "<<v.b<<"\n";
+    }
+    cout<<"\n";
+    return 0;
+}

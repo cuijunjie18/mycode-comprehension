@@ -1,0 +1,125 @@
+//背景:Div3考了好几道容器题,学了一下set的自定义比较排序
+//原理:就维护,每次累加行或者列的时候把用过的删掉
+/*注意:(1)g++20编译错误,g++17过了,以后出现编译错误可以降低一下g++的版本,因为高版本可能还不够完善
+       (2)不可以用for(auto v:s)遍历set的时候进行删除操作,会出错 
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct position//位置结构体
+{
+    int x,y;//x为行坐标,y为列1坐标
+}PI;
+struct cmp1//自定义按行小的排序
+{
+    bool operator()(PI a,PI b)
+    {
+        if(a.x == b.x) return a.y < b.y;//如果没有这个,那么同样的行只有1个位置,导致错误(例如(1,2),(1,3),就存了(1,3),set的去重性)
+        return a.x < b.x;
+    }
+};
+struct cmp2//自定义按列小的排序
+{
+    bool operator()(PI a,PI b)
+    {
+        if(a.y == b.y) return a.x < b.x;
+        return a.y < b.y;
+    }
+};
+void Solve()
+{
+    int a,b,n,m,x,y;
+    cin>>a>>b>>n>>m;//输入地图范围axb,点的数量n及操作次数m
+    int u = 1,d = a,l = 1,r = b;//初始化现在的地图范围上下左右的大小
+    set<PI,cmp1> s1;//行set
+    set<PI,cmp2> s2;//列set
+    set<PI,cmp1>::iterator it1;//行set对应迭代器
+    set<PI,cmp2>::iterator it2;//列set对应迭代器
+    for (int i = 1;i<=n;i++)//输入n个坐标
+    {
+        cin>>x>>y;
+        s1.insert({x,y});
+        s2.insert({x,y});
+    }
+    char walk;//行动指令
+    int k;//切掉的行或列的数
+    int ans1 = 0,ans2 = 0;//初始化两个人的答案
+    int turn = 1;//第一个人先
+    for (int i = 1;i<=m;i++)//输入m此操作
+    {
+        cin>>walk>>k;
+        int temp = 0;//初始化此次操作获得的分数
+        if(walk == 'U')//如果是切上面的行
+        {
+            u += k;//地图上范围更新
+            while(!s1.empty())
+            {
+                it1 = s1.begin();//从上开始,及小行开始
+                x = it1->x;
+                y = it1->y;
+                if(x >= u) break;//注意这里是>=u,不是 == u
+                temp++;//累加分数
+                s1.erase(it1);//删除
+                s2.erase({x,y});//s2中也要对应删除
+            }
+        }
+        else if(walk == 'D')//切下面的行
+        {
+            d -= k;//更新下范围
+            while(!s1.empty())
+            {
+                it1 = s1.end();//获取尾部迭代器
+                it1--;//自减1
+                x = it1->x;
+                y = it1->y;
+                if(x <= d) break;//注意是 <= d
+                temp++;//累加
+                s1.erase(it1);//删除
+                s2.erase({x,y});//s2中也要删除对应的
+            }
+        }
+        else if(walk == 'L')//同理
+        {
+            l += k;
+            while(!s1.empty())
+            {
+                it2 = s2.begin();
+                x = it2->x;
+                y = it2->y;
+                if(y >= l) break;
+                temp++;
+                s2.erase(it2);
+                s1.erase({x,y});
+            }
+        }
+        else if(walk == 'R')//同理
+        {
+            r -= k;
+            while(!s1.empty())
+            {
+                it2 = s2.end();
+                it2--;
+                x = it2->x;
+                y = it2->y;
+                if(y <= r) break;
+                temp++;
+                s2.erase(it2);
+                s1.erase({x,y});
+            }
+        }
+        if(turn) ans1 += temp;//累加
+        else ans2 += temp;//累加
+        turn ^= 1;//换下一个人操作
+    }
+    cout<<ans1<<" "<<ans2<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

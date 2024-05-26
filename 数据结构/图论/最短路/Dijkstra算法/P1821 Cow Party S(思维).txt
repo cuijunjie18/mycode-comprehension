@@ -1,0 +1,92 @@
+//背景:最短路练习,水题!!!
+//思路:本题是单源与单终点结合,单源没什么好说的,但终点的话可以将边反转转换为单源,故跑两次Dijkstra即可
+//原理:思维 + Dijkstra算法
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//邻接表的边
+{
+    int to,value;
+}EDGE;
+typedef struct situation//优先队列元素
+{
+    int u,d;
+}SI;
+struct cmp//优先队列自定义比较
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.d > y.d;
+    }
+};
+void Solve()
+{
+    int n,m,p,x,y,v;
+    cin>>n>>m>>p;//输入点数边数,及源头
+    vector<EDGE> e1[n+1];//正边
+    vector<EDGE> e2[n+1];//反边
+    int dis1[n+1];//单源最短路数组
+    int dis2[n+1];//单终点最短路数组
+    bool vis[n+1];//Dijkstra标记数组
+    memset(dis1,0x3f,sizeof(dis1));//初始化
+    memset(dis2,0x3f,sizeof(dis2));//初始化
+    memset(vis,0,sizeof(vis));//初始化
+    dis1[p] = 0;//不要把p写成了x,初始化为0
+    dis2[p] = 0;//初始化为0
+    for (int i = 1;i<=m;i++)//正反向建边
+    {
+        cin>>x>>y>>v;
+        e1[x].push_back({y,v});
+        e2[y].push_back({x,v});
+    }
+    priority_queue<SI,vector<SI>,cmp> que;//初始化优先队列
+    que.push({p,0});//源点入队
+    while(!que.empty())//跑Dijkstra算法
+    {
+        x = que.top().u;
+        que.pop();
+        if(vis[x]) continue;
+        vis[x] = true;
+        for (auto t:e1[x])
+        {
+            if(dis1[t.to] > dis1[x] + t.value)
+            {
+                dis1[t.to] = dis1[x] + t.value;
+                que.push({t.to,dis1[t.to]});
+            }
+        }
+    }
+    memset(vis,0,sizeof(vis));//初始化vis数组为0,准备计算反图
+    while(!que.empty()) que.pop();//手动清空队列
+    que.push({p,0});//终点入队
+    while(!que.empty())//跑Dijkstra算法
+    {
+        x = que.top().u;
+        que.pop();
+        if(vis[x]) continue;
+        vis[x] = true;
+        for (auto t:e2[x])
+        {
+            if(dis2[t.to] > dis2[x] + t.value)
+            {
+                dis2[t.to] = dis2[x] + t.value;
+                que.push({t.to,dis2[t.to]});
+            }
+        }
+    }
+    int ans = 0;//初始化答案为0
+    for (int i = 1;i<=n;i++)
+    {
+        ans = max(ans,dis1[i] + dis2[i]);//题目保证了dis1与dis2存在,故不会出现ans = 2*0x3f的情况,直接转移
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

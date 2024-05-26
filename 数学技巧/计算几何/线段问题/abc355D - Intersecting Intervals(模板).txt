@@ -1,0 +1,104 @@
+方法一:优先队列法
+//背景:比赛时一开始没有思路,判断相交的直线有多少对,其实已经是模板题了
+//思路:对于判断直线相交的常用思路就是排序,就是设计左右端点的排序法
+//原理:优先队列
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//线段结构体
+{
+    int l,r;
+}EDGE;
+struct cmp//优先队列自定义排序(仅记录右端点)
+{
+    bool operator()(int x,int y)
+    {
+        return x > y;//小的在前面
+    }
+};
+bool cmp1(EDGE x,EDGE y)//自定义线段排序,左端点小的在前面
+{
+    return x.l < y.l;
+}
+void Solve()
+{
+    int n,a,b;
+    long long ans = 0;//初始化答案
+    cin>>n;
+    EDGE line[n+1];//线段数组
+    for (int i = 1;i<=n;i++) cin>>line[i].l>>line[i].r;//输入左右端点
+    sort(line+1,line+n+1,cmp1);//按左端点排序
+    priority_queue<int,vector<int>,cmp> que;//定义优先队列
+    for (int i = 1;i<=n;i++)//遍历
+    {
+        a = line[i].l;//获取当前处理线段的左右端点
+        b = line[i].r;
+        while(!que.empty()&&que.top() < a) que.pop();//先把之前右端点小于当前左端点的右端点弹出(即没有贡献了,减少一个线段代表)
+        ans += que.size();//此时累加还在队列里的右端点数(代表有贡献的线段数)
+        que.push(b);//同时当前右端点入队
+    }
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+方法二:排序 + 二分
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//线段结构体
+{
+    int l,r;
+}EDGE;
+bool cmp(EDGE x,EDGE y)//自定义排序先排左端点,左同右下的在前(经测试,其实无所谓,重点是左端点)
+{
+    if(x.l == y.l) return x.r < y.r;
+    return x.l< y.l;
+}
+void Solve()
+{
+    int n,a,b;
+    cin>>n;
+    vector<EDGE> line;
+    vector<int> l;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>a>>b;
+        line.push_back({a,b});
+        l.push_back(a);//单独记录左端点
+    }
+    sort(l.begin(),l.end());//左端点排序
+    sort(line.begin(),line.end(),cmp);//线段排序
+    long long ans = 0;//初始化答案
+    for (int i = 0;i<n;i++)//遍历
+    {
+        ans += (upper_bound(l.begin(),l.end(),line[i].r) - l.begin()) - i - 1;//二分查找第一个左端点大于当前右端点的位置,累加答案
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+3
+1 5
+7 8
+3 7
+*/
+
+

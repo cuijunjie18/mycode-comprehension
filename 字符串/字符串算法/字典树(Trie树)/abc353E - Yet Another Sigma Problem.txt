@@ -1,0 +1,44 @@
+//背景:赛后学算法,字典树的应用
+//思路:看到查询字符串公共前缀之类的想到字典树(其实更重要是字典树的变形处理应用,考思维)
+//原理:Trie树
+//时间复杂度:o(S),S为所有字符串的总长度
+#include <bits/stdc++.h>
+using namespace std;
+int trie[300001][26];//Trie树
+int id;//编号变量
+int cnt[300001];//记录某编号经过的字符串个数
+long long ans;//答案
+void Insert(string s)//插入字符串
+{
+    int p = 0;//初始化移动指针
+    for (int i = 0;i<s.size();i++)
+    {
+        int k = s[i] - 'a';
+        if(trie[p][k] == 0) trie[p][k] = ++id;
+        p = trie[p][k];//先移动
+        ans += cnt[p];//插入的过程中累加答案
+        cnt[p]++;//累加完答案后再累加(因为不能算法自己的贡献)
+    }
+}
+void Solve()
+{
+    int n;
+    string s;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//遍历字符串输入
+    {
+        cin>>s;
+        Insert(s);
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

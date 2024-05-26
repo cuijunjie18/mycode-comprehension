@@ -1,0 +1,38 @@
+//背景:单调栈的好题,有收获
+//思路:数据范围为1e6,则一般只能用o(n)算法,想到单调栈
+//原理:单调栈 + 异或和的性质 + 数据最大范围判断
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    unsigned long long h[n+1];//注意要开unsigned才能满足题目的数据范围
+    int ans[n+1];//答案数组
+    int sum = 0;//初始化异或和(是最大值坐标的异或和)
+    stack<int> s;
+    for (int i = 1;i<=n;i++) cin>>h[i];//输入
+    for (int i = 1;i<=n;i++)//正着开始
+    {
+        while(!s.empty()&&h[s.top()] <= h[i])//维护单调下降的单调栈,保证了前面的数一定是后缀最大值
+        {
+            sum ^= s.top();//异或的性质,去掉对应的异或值,原理:a^b^b = a
+            s.pop();//弹出
+        }
+        s.push(i);//因为自己也算,先入栈
+        sum ^= i;//计算新的异或和
+        ans[i] = sum;//记录答案
+    }
+    for (int i = 1;i<=n;i++) cout<<ans[i]<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

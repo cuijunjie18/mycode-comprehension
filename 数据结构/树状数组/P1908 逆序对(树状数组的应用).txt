@@ -1,0 +1,59 @@
+//背景:逆序对的再次求解,此次不同于归并排序的巧妙方法,现在用科技打败魔法,高级数据结构:树状数组
+/*思路:预处理为每个数找到它原本排好序时的位置(由小到大),去掉重复的数字,记录下每个数字的排位,然后将原数组正着放入树状数组中,
+      在放入之前,查询比它的大的有多少个数,由于能查询到的一定是比它先入数组的,所以符合逆序对的定义,累加答案即可,然后把当前的
+      数放入树状数组,动态维护区间和即可*/
+//原理:离散化 + 树状数组维护区间和
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation//数的信息结构体
+{
+    int num,pos;
+}SI;
+int tree[500001];//树状数组
+SI a[500001];//数据
+int n;//数据的大小
+int lowbit(int x)//截取低位1代表的10进制数
+{
+    return x&(-x);
+}
+void add(int p,int x)//单点修改
+{
+    while(p<=n)//注意范围
+    {
+        tree[p] += x;
+        p += lowbit(p);
+    }
+}
+int getsum(int x)//区间求和
+{
+    int ans = 0;
+    while(x>=1)
+    {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;//返回答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    set<int> s;
+    map<int,int> check;
+    long long ans = 0;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//预处理
+    {
+        cin>>a[i].num;
+        s.insert(a[i].num);//插入
+    }
+    int cnt = 0;//记录非重复数的数量
+    for (auto v:s) check[v] = ++cnt;//记录每个数的排位
+    for (int i = 1;i<=n;i++) a[i].pos = check[a[i].num];//将每个数获取它的位置
+    for (int i = 1;i<=n;i++)//顺序输入维护动态过程
+    {
+        ans += getsum(cnt) - getsum(a[i].pos);//放入新数之前累加答案
+        add(a[i].pos,1);//单点修改
+    }
+    cout<<ans<<"\n";//输出答案
+    return 0;
+}

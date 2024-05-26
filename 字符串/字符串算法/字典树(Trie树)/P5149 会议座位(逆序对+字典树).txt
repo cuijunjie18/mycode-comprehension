@@ -1,0 +1,99 @@
+//背景:刷字典树模板题,发现是逆序对模板
+//收获:字典树对字符串进行匹配时间复杂度优于map与unordered_map
+//原理:Trie树 + 归并排序求逆序对
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int trie[500001][60];//Trie树数组
+int cnt[500001];//对应结尾的编号
+int id;//移动变量
+long long ans;//逆序对答案,记得要开long long
+int temp[500001];//临时数组,用于归并排序
+void My_merge(int a[],int s1,int b[],int s2)//我的偏移式归并合并
+{
+    int p = 0,i = 0,j = 0;
+    while(i<s1&&j<s2)
+    {
+        if(b[j] < a[i])
+        {
+            temp[p] = b[j++];
+            ans += (s1 - i);//累加答案
+        }
+        else temp[p] = a[i++];
+        p++;
+    }
+    for (;i<s1;i++,p++) temp[p] = a[i];
+    for (;j<s2;j++,p++) temp[p] = b[j];
+}
+void Merge_sort(int a[],int l,int r)//归并排序
+{
+    if(r-l<=1)
+    {
+        if(l>=r) return;
+        if(a[r] < a[l])
+        {
+            ans++;
+            swap(a[r],a[l]);
+        }
+        return;
+    }
+    int mid = (l+r)>>1;
+    Merge_sort(a,l,mid-1);
+    Merge_sort(a,mid,r);
+    My_merge(&a[l],mid-l,&a[mid],r-mid+1);
+    for (int i = l;i<=r;i++) a[i] = temp[i-l];//合并
+}
+void Insert(string s,int num)//生成字典树
+{
+    int p = 0;
+    for (int i = 0;s[i] != '\0';i++)
+    {
+        int k = 0;
+        if(s[i]>='a'&&s[i]<='z') k = s[i] - 'a';//小写
+        else k = s[i] - 'A' + 26;//大写
+        if(trie[p][k] == 0) trie[p][k] = ++id;
+        p = trie[p][k];
+    }
+    cnt[p] = num;//记录结束位置的编号,便于匹配
+}
+int Find(string s)//查找,即进行字符串匹配,找到它的原位置
+{
+    int p = 0;
+    for (int i = 0;s[i] != '\0';i++)
+    {
+        int k = 0;
+        if(s[i]>='a'&&s[i]<='z') k = s[i] - 'a';
+        else k = s[i] - 'A' + 26;
+        p = trie[p][k];
+    }
+    return cnt[p];//返回
+}
+void Solve()
+{
+    string s;
+    int n;
+    cin>>n;
+    int num[n+1];
+    for (int i = 1;i<=n;i++)//生成字典树
+    {
+        cin>>s;
+        Insert(s,i);
+    }
+    for (int i = 1;i<=n;i++)//生成位置序列
+    {
+        cin>>s;
+        num[i] = Find(s);
+    }
+    Merge_sort(num,1,n);//求逆序对
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

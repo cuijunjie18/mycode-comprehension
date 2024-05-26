@@ -1,0 +1,55 @@
+//背景:字典树水题(题目确保无相同字符串)
+#include <bits/stdc++.h>
+using namespace std;
+int trie[200001][26];//Trie数组
+int cnt[200001];//记录对应编号是否为某个字符串的结束点
+int id;//编号变量
+void Insert(string s)//插入字符串
+{
+    int p = 0;
+    for (int i = 0,j = s.size();i<j;i++)
+    {
+        int k = s[i] - 'a';
+        if(trie[p][k] == 0) trie[p][k] = ++id;
+        p = trie[p][k];
+    }
+    cnt[p]++;//最后在其结尾处标记
+}
+int Find(string s)
+{
+    int p = 0;
+    int ans = 0;//初始化答案
+    for (int i = 0,j = s.size();i<j;i++)
+    {
+        int k = s[i] - 'a';
+        p = trie[p][k];//先移动,因为p = 0时肯定没有用
+        if(cnt[p]) ans++;//如果经过了某字符串结尾,即当前的搜索链包括了一个字符串,答案加1
+    }
+    return ans;//返回答案
+}
+void Solve()
+{
+   int n,ans = 0;
+   cin>>n;
+   string s[n+1];//字符串数组
+   for (int i = 1;i<=n;i++)//先建树
+   {
+       cin>>s[i];
+       Insert(s[i]);
+   }
+   for (int i = 1;i<=n;i++)//依次查找每个字符串,并顺便记录其经过了多少个字符串
+   {
+       ans = max(ans,Find(s[i]));//取最大值
+   }
+   cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

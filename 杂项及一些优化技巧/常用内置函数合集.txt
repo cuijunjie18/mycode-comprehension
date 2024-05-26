@@ -1,0 +1,51 @@
+1,求最大公因数
+__gcd(x,y)
+
+2,求对应数的二进制下1的个数
+__builtin_popcount(t)//注意前面两个下划线,后面一个
+
+3,二分查找(推荐均用vector好记忆),适用于已经排好序的情况
+lowerbound(First,last,k),其实是左闭右开区间
+lowerbound(起点地址,终点地址,参考值)为查找第一个大于等于某数的值
+upperbound(起点地址,终点地址,参考值)为查找第一个大于某数的值
+(1)注意两者均是返回对应的迭代器(指针),具体一点是返回与起始数组地址偏移的地址
+(2)如果查找不到,返回的是end的下一个位置,这时候里面的值一般为随机数,所以在用的时候要小心这里
+(3)注意地址不能为空,否则会死循环
+(4)注意,对于vector来说终点地址是vector.end(),但是对于给定大小的数组来说为结尾的下一位
+   例如,a[100],则终点地址为a+100,故给定a[100],要找a中下标区间为[5,9]的要lowerbound(a+5,a+9+1,k),查找不到返回的位置为9的下一个即10
+应用举例:
+    //如无序情况
+	vector<int> s;
+    s.push_back(9);
+    s.push_back(4);
+    s.push_back(6);
+    int ans = *lower_bound(s.begin(),s.end(),3);
+    cout<<ans<<"\n";
+    输出为9
+    
+    //有序情况
+    vector<int> s;
+    s.push_back(2);
+    s.push_back(4);
+    s.push_back(6);
+    int ans = *lower_bound(s.begin(),s.end(),3);
+    cout<<ans<<"\n";
+    输出为3
+    
+    //返回形象化
+    vector<int> s;
+    s.push_back(3);
+    s.push_back(4);
+    s.push_back(6);
+    int ans = lower_bound(s.begin(),s.end(),4) - s.begin();
+    cout<<ans<<"\n";
+    输出为1,因为起点下标为0,查找到4满足情况,而4对应下标为1
+    
+    //如果查找不到
+    vector<int> s;
+    s.push_back(3);
+    s.push_back(4);
+    s.push_back(6);
+    int ans = lower_bound(s.begin(),s.end(),8) - s.begin();
+    cout<<ans<<"\n";
+    输出为3,说明返回的数组下标为原数组结尾下标的下一个位置

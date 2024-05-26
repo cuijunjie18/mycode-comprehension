@@ -1,0 +1,29 @@
+//背景:字符串LIS问题,要求输出方案,而不是最值
+//我的感受:明明字符串更复杂,为什么输出方案可视化的时候却更简单了?
+#include <bits/stdc++.h>
+using namespace std;
+string s[1000001];//存储名字
+string ans[1000001];//记录对于长度的最小名字排序的答案
+string dp[1000001];//记录对应长度的最后一个名字的最小名字
+int len;//记录最大长度
+int cnt;//记录名字的个数
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    string all;
+    cin>>all;
+    for (int i = 0;all[i] != '\0';i++)//获取所有人的名字
+    {
+        if(isupper(all[i])) s[++cnt] = all[i];
+        else s[cnt] += all[i];
+    }
+    for (int i = 1;i<=cnt;i++)//LIS的dp
+    {
+        int pos = lower_bound(dp+1,dp+len+1,s[i]) - dp;//找到第一个大于等于当前字符串的位置下标,找不到返回len+1,即说明比之前的最长的大,可以接上
+        len = max(len,pos);//取最大值
+        dp[pos] = s[i];//更新
+        ans[pos] = ans[pos-1] + s[i];//神来一笔!!!为什么数字就不能这样呢?记录可视化的答案
+    }
+    cout<<ans[len]<<"\n";//输出
+    return 0;
+}

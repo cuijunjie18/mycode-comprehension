@@ -1,0 +1,19 @@
+//背景:博弈论题目,自己完全做不出来
+/*思路:1,2,3,4,5均是质数的k次方,而6不是,由数论可以知道6的倍数均不是素数的k次方
+      1,2,3,4,5可以一次取完,必胜,而当为6的倍数的时候,无论怎么取,无法取完,故想赢的人只要维持剩余数为6的倍数则最后
+      一定可以到达1,2,3,4,5状态,必赢*/  
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t,n;
+    cin>>t;
+    while(t--)
+    {
+        cin>>n;
+        if(n%6 == 0) cout<<"Roy wins!"<<"\n";//如果是6的倍数,后手胜利
+        else cout<<"October wins!"<<"\n";//不是6的倍数,先手必胜
+    }
+    return 0;
+}

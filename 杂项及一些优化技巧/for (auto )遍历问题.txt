@@ -1,0 +1,12 @@
+如:
+map<int,vector<int>> s;
+  for (auto v:s)
+    {
+        v.second.push_back(n+1);
+    }
+v只是s对应内容的副本,这样操作最后s[x]里面的vector<int> 并没有元素n+1
+正确做法:
+for (auto &v:s)
+{
+	v.second.push_back(n+1);
+}

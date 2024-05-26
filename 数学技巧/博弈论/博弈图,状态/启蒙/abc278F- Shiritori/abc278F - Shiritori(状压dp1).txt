@@ -1,0 +1,55 @@
+//背景:发现我是习惯dp倒着,此次用dp1试试
+//收获:其实两种dp方式理解都有好有不好,关键看题目情况,比如这题就是dp2好
+//原理:dp1
+#include <bits/stdc++.h>
+using namespace std;
+int dp[1<<16][17];
+int g[17];
+int k[17][17];
+string s[17];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) g[i] = (1<<(i-1));
+    for (int i = 1;i<=n;i++) cin>>s[i];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            if(s[i][s[i].size()-1] == s[j][0])
+            {
+                k[i][j] = 1;
+            }
+        }
+    }
+    for (int t = (1<<n)-1;t>=0;t--)//枚举状态
+    {
+        for (int i = 1;i<=n;i++)//枚举上一个选的字符串
+        {
+            bool flag = false;//初始化为必败
+            if((g[i]&t) == 0) continue;//如果不在状态中,跳过
+            for (int j = 1;j<=n;j++)//枚举可以接上且没有用过的字符串
+            {
+                if((g[j]&t)||k[i][j] == 0) continue;//如果用过或无法接上,跳过
+                if(dp[t|g[j]][j] == 0)//如果可以到达一个必败态
+                {
+                    flag = true;//当前必胜
+                    break;
+                }
+            }
+            dp[t][i] = flag;//记录
+        }
+    }
+    for (int i = 1;i<=n;i++)//遍历第一次出手
+    {
+        if(!dp[g[i]][i])//如果可以出完手后后面的人必败(发现也不是特别方便)
+        {
+            cout<<"First"<<"\n";//第一个人必胜
+            return 0;
+        }
+    }
+    cout<<"Second"<<"\n";
+    return 0;
+}

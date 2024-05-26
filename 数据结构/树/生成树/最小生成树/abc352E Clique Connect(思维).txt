@@ -1,0 +1,76 @@
+//背景:本题考的是Kruskal求最小生成树的思想,及贪心,将边排序
+//原理:Kruskal求MST
+#include <bits/stdc++.h>
+using namespace std;
+int f[200001];//并查集
+typedef struct situation//相同边权的连通块
+{
+    int num;//对应集合编号
+    long long value;//连通块的每个边的边权
+}SB;
+bool cmp(SB x,SB y)//自定义排序
+{
+    return x.value < y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()
+{
+   int n,m,k,x,c;
+   cin>>n>>m;//输入节点数及连通块数
+   for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+   vector<int> s[m+1];
+   SB a[m+1];
+   for (int i = 1;i<=m;i++)//输入m个连通块的信息
+   {
+       cin>>k>>c;
+       a[i].num = i;//记录编号
+       a[i].value = c;//记录权值
+       for (int j = 1;j<=k;j++)//输入连通块中的节点
+       {
+           cin>>x;
+           s[i].push_back(x);
+       }
+   }
+   sort(a+1,a+m+1,cmp);//按连通块边权排序(Kruskal算法思想)
+   int finish = 0;//初始化完成的边
+   long long ans = 0;//初始化答案,即MST的权值和
+   for (int i = 1;i<=m;i++)//遍历m个连通块(由小权值开始,贪心)
+   {
+       if(finish == n-1) break;//如果已经建完了树,退出
+       long long now_value = a[i].value;//获取当前连通块的边权
+       int pos = a[i].num;//获取编号
+       int fa = 0;//初始化连通块祖先
+       for (int j = 0,big = s[pos].size();j<big;j++)//遍历连通块
+       {
+           if(j == 0)//如果是第一个
+           {
+               fa = Find(s[pos][j]);//已它的祖先为参考
+               continue;//跳过
+           }
+           x = Find(s[pos][j]);//查找祖先
+           if(x == fa) continue;//相同,跳过
+           else
+           {
+               finish++;//边数加1
+               ans += now_value;//累加权值
+               f[x] = fa;//并查集合并
+           }
+       }
+   }
+   if(finish == n-1) cout<<ans<<"\n";//有MST,输出权值和
+   else cout<<-1<<"\n";//否则输出-1
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

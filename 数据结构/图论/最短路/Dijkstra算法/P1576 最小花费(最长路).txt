@@ -1,0 +1,72 @@
+//背景:说实话,这题有点考建模思想,及对Dijkstra算法的理解
+/*思路:因为转账间有手续费,即有一定损失比例,故边权均小于1(比例来说),而边的路权值非和,而是积,故边权相当于负(因为每次乘会使dis[i]变小)
+      而题目刚好求最大路,而边权又等价于全为负,不刚好是Dijkstra的逆运用吗?*/
+//原理:等价负权图,求最大路,Dijkstra算法
+//数据结构:优先队列
+//时间复杂度:o(mlogm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体
+{
+    int to;
+    double value;
+}EDGE;
+typedef struct situation//队列元素结构体
+{
+    int u;
+    double d;
+}SI;
+struct cmp//自定义优先队列比较
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.d < y.d;
+    }
+};
+void Solve()
+{
+    int n,m,x,y,a,b;
+    double v;
+    scanf("%d%d",&n,&m);//输入节点数及边数
+    double dis[n+1];
+    bool vis[n+1];
+    vector<EDGE> e[n+1];
+    memset(dis,0,sizeof(dis));//初始化为0!!!!(因为乘积)
+    memset(vis,0,sizeof(vis));//初始化
+    for (int i = 1;i<=m;i++)//建图
+    {
+        scanf("%d%d%lf",&x,&y,&v);
+        e[x].push_back({y,1-(v/100)});
+        e[y].push_back({x,1-(v/100)});
+    }
+    scanf("%d%d",&a,&b);//输入源点及终点
+    dis[a] = 1;//初速化源点为1
+    priority_queue<SI,vector<SI>,cmp> que;//建立优先队列
+    que.push({a,dis[a]});//源点入队
+    while(!que.empty())//Dijkstra算法
+    {
+        x = que.top().u;
+        que.pop();
+        if(vis[x]) continue;//如果已经在最大路集合中了,接下来不可能更优了,跳过
+        vis[x] = true;//入集合
+        for (auto v:e[x])//松弛与当前点有关的边
+        {
+            if(dis[v.to] < dis[x]*v.value)//注意这里的状态转移!!!乘积
+            {
+                dis[v.to] = dis[x]*v.value;//更新最大路
+                que.push({v.to,dis[v.to]});//入队
+            }
+        }
+    }
+    double ans = 100.0/dis[b];//计算答案(最大路为到b的钱为a给的钱的百分比),故100/比例
+    printf("%.8f\n",ans);//输出,保留8位小数
+}
+int main()
+{
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

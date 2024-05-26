@@ -1,0 +1,45 @@
+//背景:补充一篇记忆化搜索来加深对状压dp的理解,也加深对博弈图的理解
+//原理:记忆化搜索
+#include <bits/stdc++.h>
+using namespace std;
+bool vis[1<<16][17];//标记某状态是否已经搜索过了
+int f[1<<16][17];//某状态的胜负状态
+int g[17];//美化数组
+int k[17][17];//i是否可以与j连接
+string s[17];//字符串数组
+int n;
+int DFS(int x,int last)
+{
+    if(vis[x][last]) return f[x][last];//如果当前状态已经搜索过了,直接返回它的对应胜负状态
+    for (int i = 1;i<=n;i++)//枚举要连接的字符串
+    {
+        if(x&g[i]) continue;//如果已经在状态,跳过
+        if(k[last][i] == 0&&last != 0) continue;//如果接不上或者不是第一个,跳过
+        DFS(x|g[i],i);//往下搜索
+        if(f[x|g[i]][i] == 0)//只要能到达一个必败态,那么当前就会采取最优策略,让下一个状态为必败态
+        {
+            vis[x][last] = true;//标记到达过
+            return f[x][last] = 1;//记录对应状态为必胜态
+        }
+    }
+    vis[x][last] = true;//标记
+    return f[x][last] = 0;//之前都不能必胜,则必败
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>n;
+    for (int i = 1;i<=n;i++) g[i] = (1<<(i-1));
+    for (int i = 1;i<=n;i++) cin>>s[i];
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            if(i == j) continue;
+            if(s[i][s[i].size()-1] == s[j][0]) k[i][j] = 1;
+        }
+    }
+    if(DFS(0,0)) cout<<"First"<<"\n";
+    else cout<<"Second"<<"\n";
+    return 0;
+}

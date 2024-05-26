@@ -1,0 +1,64 @@
+//背景:比赛时候队友做出来了,羡慕佩服,我比完赛还要看题解才明白!!!
+//思路核心:有j个数与末状态相同,那么必然有n-j个数与末状态不同
+//原理:组合数 + dp
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 998244353;//模数
+long long c[101][101];//组合数
+void prework()//预处理出范围内的组合数
+{
+    for (int i = 0;i<=100;i++)
+    {
+        c[i][0] = 1;
+        c[i][i] = 1;
+    }
+    for (int i = 1;i<=100;i++)
+    {
+        for (int j = 1;j<i;j++)
+        {
+            c[i][j] = (c[i-1][j] + c[i-1][j-1])%md;
+        }
+    }
+}
+void Solve()
+{
+    int n,k,m;
+    cin>>n>>k>>m;
+    string b,e;
+    cin>>b>>e;
+    long long dp[k+1][n+1];//含义:经过i次操作后,有j个位置与末状态相同的方案数
+    memset(dp,0,sizeof(dp));//初始化dp数组
+    int temp = 0;//记录初始状态与末状态相同的个数
+    for (int i = 0;b[i] != '\0';i++)
+    {
+        if(b[i] == e[i]) temp++;
+    }
+    dp[0][temp] = 1;//难点,dp初始化,代表未经处理有只有这种情况,其他仍然为0
+    //此次dp采用填表法,即用上一轮的状态去填这一轮的状态
+    for (int i = 1;i<=k;i++)//枚举第几轮操作
+    {
+        for (int j = 0;j<=n;j++)//枚举上一轮操作与末状态相同的数
+        {
+            for (int d = 0;d<=min(j,m);d++)//枚举对与末状态相同的数的操作,不能超过本身存在的数量及最大操作次数,故取小值
+            {
+                if(n-j<m-d) continue;//m-d为对不相同数的操作,如果不相同数的个数,即n-j<m-d,跳过即可
+                //对j个相同数操作了d,对n-j个不同的数操作了m-d,则此次相同的数为j-d+m-d
+                dp[i][j-d+m-d] = (dp[i][j-d+m-d] + dp[i-1][j]*c[j][d]%md*c[n-j][m-d]%md)%md;//核心dp转移,注意取模
+            }
+        }
+    }
+    cout<<dp[k][n]<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    prework();
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

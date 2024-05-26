@@ -1,0 +1,142 @@
+//背景:超级恶心的题目,涉及奇偶最短路,且时间复杂度感觉过不了!且细节超级多
+//收获:SPFA求奇偶最短路,简单路是没有重复节点的路,题目求的不是简单路,所以应该要奇偶处理,而我发现SPFA的奇偶处理比Dijkstra好处理
+//原理:最短路 + 离线处理
+//时间复杂度:最优o(nm),最坏(n^2*m),一般来说跑的比较快(听说的)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation//离线处理结构体
+{
+    int to,id,d;//to为另一端点,id为询问的编号,d为要求的长度
+}SI;
+int n,m,k;
+int dis[5001][2];//如果不离线处理的话,开成全源最短路数组会MLE!这是为什么要离线处理的原因
+vector<int> e[5001];//邻接表存图
+void SPFA(int now)//跑奇偶SPFA算法
+{
+    memset(dis,0x3f,sizeof(dis));
+    bool vis[n+1];
+    memset(vis,0,sizeof(vis));
+    dis[now][0] = 0;
+    queue<int> que;
+    que.push(now);
+    vis[now] = true;
+    while(!que.empty())
+    {
+        int x = que.front();
+        que.pop();
+        vis[x] = false;
+        for (auto v:e[x])
+        {
+            if(dis[v][1] > dis[x][0] + 1)//奇偶判断
+            {
+                dis[v][1] = dis[x][0] + 1;
+                if(vis[v] == false)
+                {
+                    vis[v] = true;
+                    que.push(v);
+                }
+            }
+            if(dis[v][0] > dis[x][1] + 1)//奇偶判断
+            {
+                dis[v][0] = dis[x][1] + 1;
+                if(vis[v] == false)
+                {
+                    vis[v] = true;
+                    que.push(v);
+                }
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    memset(dis,0x3f,sizeof(dis));
+    const int INF = dis[0][0];//获取无穷大
+    int x,y,d;
+    cin>>n>>m>>k;
+    vector<SI> ask[n+1];//离线询问数组
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    bool ans[k+1];//记录对应询问编号的答案,注意这里数组大小是k+1
+    for (int i = 1;i<=k;i++)//离线处理
+    {
+        cin>>x>>y>>d;
+        ask[x].push_back({y,i,d});
+    }
+    for (int i = 1;i<=n;i++)//依次以每个点为源点进行最短路处理
+    {
+        if(ask[i].empty()) continue;//如果对应它没有询问,没必要跑最短路,跳过
+        SPFA(i);//跑SPFA最短路
+        for (auto v:ask[i])//遍历询问
+        {
+            if(e[i].size() == 0)//!!!!重中之重,如果是孤立点,一定无解,可能有疑惑,孤立点不就是没有路了吗?我下面的判INF操作明明可以处理啊
+							    //事实上,对于询问自己到自己的最短路时(对于孤立点的情况)可以Hack掉我的判断,所以这个还是要有的
+            {
+                ans[v.id] = false;//记录
+                continue;//跳过
+            }
+            if(v.d%2 == 0)//如果是偶数
+            {
+                if(dis[v.to][0] == INF) ans[v.id] = false;//无路情况
+                else
+                {
+                    if(dis[v.to][0] > v.d) ans[v.id] = false;//最短路大于询问,肯定不行
+                    else ans[v.id] = true;
+                }
+            }
+            else//奇数同理
+            {
+                if(dis[v.to][1] == INF) ans[v.id] = false;
+                else
+                {
+                    if(dis[v.to][1] > v.d) ans[v.id] = false;
+                    else ans[v.id] = true;
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=k;i++)//遍历询问
+    {
+        if(ans[i]) cout<<"TAK"<<"\n";//输出
+        else cout<<"NIE"<<"\n";
+    }
+    return 0;
+}
+
+
+
+
+//下面是漂亮版的奇偶dp
+//细节:vis[][]开二维
+void SPFA(int now)//跑奇偶SPFA算法
+{
+    memset(dis,0x3f,sizeof(dis));
+    bool vis[n+1][2];
+    memset(vis,0,sizeof(vis));
+    dis[now][0] = 0;
+    queue<pair<int,int>> que;
+    que.push({now,0});
+    vis[now][0] = true;
+    while(!que.empty())
+    {
+        int x = que.front().first;
+        int y = que.front().second;
+        que.pop();
+        vis[x][y] = false;
+        for (auto v:e[x])
+        {
+            if(dis[v][y^1] > dis[x][y] + 1)
+            {
+                dis[v][y^1] = dis[x][y] + 1;
+                if(vis[v][y^1]) continue;
+                vis[v][y^1] = true;
+                que.push({v,y^1});
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+//背景:自定义优先队列排序模板(以结构体为例)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//定义要排序的结构体
+{
+    int a,b;
+}EDGE;
+struct cmp//构建自定义排序的比较函数
+{
+    bool operator()(EDGE x,EDGE y)
+    {
+        return x.a < y.a;//注意这样是先输出a大的
+    }
+};
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    priority_queue<EDGE,vector<EDGE>,cmp> que;
+    for (int i = 1;i<=10;i++)
+    {
+        que.push({i,i*3});
+    }
+    while(!que.empty())
+    {
+        EDGE temp = que.top();
+        que.pop();
+        cout<<temp.a<<" "<<temp.b<<"\n";
+    }
+    return 0;
+}

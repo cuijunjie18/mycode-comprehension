@@ -1,0 +1,95 @@
+//背景:当Dijkstra算法求奇偶最短路归位时,终于我的全部方法求奇偶最短路均已实现
+//分析:对于边权为1的情况,显然是SPFA与BFS快,但是边权不为1,Dijkstra无敌,但是边权不为1的代码估计会难写
+//时间复杂度:o(nmlogm)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation
+{
+    int to,d,id;
+}SI;
+typedef struct dij
+{
+    int u,d,odd;//在原Dijkstra元素结构体的基础上加了奇偶判断
+}DIJ;
+struct cmp
+{
+    bool operator()(DIJ x,DIJ y)
+    {
+        return x.d > y.d;
+    }
+};
+vector<int> e[5001];
+vector<SI> ask[5001];
+bool ans[1000001];
+int dis[5001][2];
+void Dijkstra(int b)//主要差异
+{
+    bool vis[5001][2];
+    memset(vis,0,sizeof(vis));
+    memset(dis,0x3f,sizeof(dis));//这个初始化不要忘了
+    dis[b][0] = 0;//初始化
+    priority_queue<DIJ,vector<DIJ>,cmp> que;
+    que.push({b,0,0});//入队
+    while(!que.empty())
+    {
+        int x = que.top().u;
+        int odd = que.top().odd;
+        que.pop();//不要忘
+        if(vis[x][odd]) continue;
+        vis[x][odd] = true;
+        for (auto v:e[x])
+        {
+            if(dis[v][odd^1] > dis[x][odd] + 1)
+            {
+                dis[v][odd^1] = dis[x][odd] + 1;
+                que.push({v,dis[v][odd^1],odd^1});
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    memset(dis,0x3f,sizeof(dis));
+    const int INF = dis[0][0];
+    int n,m,q,x,y,d;
+    cin>>n>>m>>q;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    for (int i = 1;i<=q;i++)
+    {
+        cin>>x>>y>>d;
+        ask[x].push_back({y,d,i});
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(ask[i].empty()) continue;
+        Dijkstra(i);
+        for (auto v:ask[i])
+        {
+            x = v.to;
+            y = v.d;
+            int temp = v.id;
+            if(e[i].size() == 0) ans[temp] = false;
+            else
+            {
+                if(dis[x][y%2] == INF) ans[temp] = false;
+                else
+                {
+                    if(dis[x][y%2] <= y) ans[temp] = true;
+                    else ans[temp] = false;
+                }
+            }
+        }
+    }
+    for (int i = 1;i<=q;i++)
+    {
+        if(ans[i]) cout<<"TAK"<<"\n";
+        else cout<<"NIE"<<"\n";
+    }
+    return 0;
+}

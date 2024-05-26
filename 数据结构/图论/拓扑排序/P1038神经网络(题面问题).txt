@@ -1,0 +1,84 @@
+//背景:题目没说清楚输入的边是单向且由i指向j的边,如果明确了这个就直接拓扑排序,但是有细节
+//原理:拓扑排序
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边
+{
+    int to;
+    long long value;
+}EDGE;
+typedef struct situation//答案结构体
+{
+    int u;
+    long long out;
+}SI;
+bool cmp(SI x,SI y)//自定义排序,按编号来排
+{
+    return x.u < y.u;
+}
+void Solve()
+{
+    int n,m,x,y;
+    long long v;
+    cin>>n>>m;
+    long long c[n+1];
+    long long U[n+1];
+    vector<EDGE> e[n+1];//记录向谁传递信号
+    vector<EDGE> from[n+1];//记录信号可以来自谁
+    vector<SI> ans;//答案数组
+    int in[n+1];//入度数组
+    memset(in,0,sizeof(in));//初始化
+    queue<int> que;//拓扑队列
+    for (int i = 1;i<=n;i++)//输入网络节点的初始信息
+    {
+        cin>>c[i]>>U[i];
+        if(c[i]) que.push(i);//如果起始就有信号,必为输入层,入队
+    }
+    for (int i = 1;i<=m;i++)//建立单向图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back({y,v});//建立传递边
+        from[y].push_back({x,v});//建立接收边
+        in[y]++;//入度+1
+    }
+    while(!que.empty())//Kahn算法进行拓扑排序
+    {
+        x = que.front();
+        que.pop();
+        for (auto v:e[x])//传递信号
+        {
+            in[v.to]--;//入度-1
+            if(in[v.to] == 0)//所有的信号已接收
+            {
+                long long temp = 0;//初始化判断式
+                for (auto q:from[v.to])//遍历接收到的信号
+                {
+                    temp += c[q.to]*q.value;//累加判断式
+                }
+                if(temp > U[v.to]) c[v.to] = temp - U[v.to];//设置信号为对应的兴奋值
+                else c[v.to] = 0;//我的神来一笔,其它题解都没有,设置为0,等于不能传递,即在每次判断式中贡献为0
+                que.push(v.to);//入队
+            }
+        }
+        int big = e[x].size();//计算它传递图大小
+        if(big == 0&&c[x] != 0) ans.push_back({x,c[x]});//如果是输出层且有信号,入答案数组
+    }
+    int big = ans.size();//判断答案数组大小!!!
+    if(big == 0) cout<<"NULL"<<"\n";//输出无解
+    else
+    {
+		//一定要先判断大小再运行sort,因为如果vector为空时排序会出问题
+        sort(ans.begin(),ans.end(),cmp);
+        for (auto v:ans) cout<<v.u<<" "<<v.out<<"\n";//按编号小到大输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

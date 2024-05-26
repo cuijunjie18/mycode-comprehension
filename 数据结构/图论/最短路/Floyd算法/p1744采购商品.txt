@@ -1,0 +1,50 @@
+//背景:Floyd水题,但是与p2935比对发现关于Floyd初始化的细节及理解
+//原理:Floyd求最短路
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+double x[101];//x坐标
+double y[101];//y坐标
+double f[101][101];//i与j间最短路数组
+double Count(int i,int j)//计算i到j的距离
+{
+    return sqrt((x[i]-x[j])*(x[i]-x[j]) + (y[i]-y[j])*(y[i]-y[j]));
+}
+void Solve()
+{
+    memset(f,127,sizeof(f));//double类型初始化正无穷的方法,且相加不会爆double
+    int n,m,s,t;
+    cin>>n;//输入点数
+    for (int i = 1;i<=n;i++) cin>>x[i]>>y[i];//输入坐标
+    cin>>m;
+    for (int i = 1;i<=n;i++) f[i][i] = 0;//本题可以不用这个初始化,因为确保了最后不会问自己到自己的最短路,且不涉及自己到自己的相关计算
+                                         //但是要养成习惯,这个一定不能忘,能写则写
+    for (int i = 1;i<=m;i++)//存边
+    {
+        cin>>s>>t;
+        f[s][t] = min(f[s][t],Count(s,t));//取小值
+        f[t][s] = f[s][t];//注意!!!双向边
+    }
+    for (int k = 1;k<=n;k++)//跑Floyd算法
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                f[i][j] = min(f[i][j],f[i][k] + f[k][j]);
+            }
+        }
+    }
+    cin>>s>>t;
+    printf("%.2f\n",f[s][t]);//保留两位小数输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

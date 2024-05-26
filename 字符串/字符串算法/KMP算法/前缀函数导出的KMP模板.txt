@@ -1,0 +1,11 @@
+//原理:见OI-wiki
+vector<int> find_occurrences(string text, string pattern) {
+  string cur = pattern + '#' + text;//构造一个新的字符串,其中'#'是pattern与text均无的字符串
+  int sz1 = text.size(), sz2 = pattern.size();
+  vector<int> v;
+  vector<int> lps = prefix_function(cur);//计算生成字符串的LPS数组
+  for (int i = sz2 + 1; i <= sz1 + sz2; i++) {
+    if (lps[i] == sz2) v.push_back(i - 2 * sz2);//如果相等,记录位置
+  }
+  return v;
+}

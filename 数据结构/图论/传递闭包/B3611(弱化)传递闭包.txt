@@ -1,0 +1,44 @@
+//背景:Floyd算法的应用,只是边权为0,1. 0为有,1为无
+//原理:Floyd算法
+//注意:本题自己如果没有路径到自己也是0,不存在一开始就是1,即不能自己到自己
+//时间复杂度:o(n^3)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    bool f[n+1][n+1];
+    for (int i = 1;i<=n;i++)//输入初始邻接矩阵
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cin>>f[i][j];
+        }
+    }
+    for (int k = 1;k<=n;k++)//跑floyd传递闭包
+    {
+        for (int i = 1;i<=n;i++)
+        {
+            for (int j = 1;j<=n;j++)
+            {
+                f[i][j] |= (f[i][k]&&f[k][j]);//注意这里是并,且里面是&&,要都有路才是1
+            }
+        }
+    }
+    for (int i = 1;i<=n;i++)//输出答案矩阵
+    {
+        for (int j = 1;j<=n;j++) cout<<f[i][j]<<" ";
+        cout<<"\n";
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

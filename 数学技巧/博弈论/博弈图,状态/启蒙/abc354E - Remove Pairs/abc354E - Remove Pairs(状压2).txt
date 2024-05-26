@@ -1,0 +1,50 @@
+//背景:和程哥讨论了3个小时得出的理解,我的这种写法边界多且不易理解
+//原理:博弈图 + 状压dp
+//时间复杂度:o(2^n * n^2)
+#include <bits/stdc++.h>
+using namespace std;
+int dp[1<<18];//dp数组,代表到达这个状态的时候现在是必赢还是必输,而我的状压是1代表这个数被用了
+int g[19];//美化数组
+int k[19][19];//判断i与j是否可以一起remove
+int a[19],b[19];//a,b数组,即正反面数字
+int n;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>n;
+    for (int i = 1;i<=n;i++) g[i] = (1<<(i-1));//美化
+    for (int i = 1;i<=n;i++) cin>>a[i]>>b[i];//输入
+    for (int i = 1;i<=n;i++)//处理配对情况
+    {
+        for (int j = i+1;j<=n;j++)
+        {
+            if(a[i] == a[j]||b[i] == b[j])//如果有一面可以配对即可
+            {
+                k[i][j] = 1;
+                k[j][i] = 1;
+            }
+        }
+    }
+    for (int t = ((1<<n)-1);t>=0;t--)//我的倒着dp,要判断当前状态的胜负
+    {
+        bool flag = true;//默认一开始为必胜
+        for (int i = 1;i<=n;i++)//枚举不在状态的一个配对
+        {
+            for (int j = i+1;j<=n;j++)
+            {
+                if(k[i][j] == 0) continue;//无法配对,跳过
+                if(t&g[i]) continue;//已经在状态,跳过
+                if(t&g[j]) continue;//已经在状态,跳过
+                if(dp[t|(g[i]|g[j])])//如果能接上且下一个状态是必胜
+                {
+                    flag = false;//当前必败,因为下一个人一定会采取此最优解
+                    break;//退出
+                }
+            }
+        }
+        dp[t] = flag;//改变状态
+    }
+    if(!dp[0]) cout<<"Takahashi"<<"\n";//如果到达0(即什么都没选)的人必败,那么第一次先手的人必胜
+    else cout<<"Aoki"<<"\n";//否则败
+    return 0;
+}

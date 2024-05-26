@@ -1,0 +1,48 @@
+//背景:问有没有必胜策略,找规律然后判断,自己做出的第二道归纳简单博弈
+/*思路:核心是奇偶性的判断.观察发现每个人的最优策略都是一直往一个方向走,且把边权置为0,此时下一个人无法往回走,只能往同一个方向
+      那么如果他不把下一条边置零,那么上一个往回跳置零那就赢了,所以对下一个人而言,最优策略仍是置零下一条边.故最后的问题就是等价
+      于谁先到达下一边是0的边,谁输.显然是奇偶性.而由于是一个环,一开始的人有主导权,可以判断顺时针还是逆时针走,如果有其中一种情况
+      可以胜利,那就是必胜.*/
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    int e[n+1];
+    for (int i = 1;i<=n;i++) cin>>e[i];
+    bool flag = false;//标记为不能必胜
+    for (int i = 1;i<=n;i++)//顺时针判定
+    {
+        if(e[i] == 0)//如果到了0边
+        {
+            if(i%2 == 0) flag = true;//判断奇偶
+            break;//退出
+        }
+    }
+    for (int i = n;i>=1;i--)//逆时针判定
+    {
+        if(e[i] == 0)//如果到了0边
+        {
+            if((n-i+1)%2 == 0) flag = true;//判定奇偶
+            break;
+        }
+    }
+    bool positive = true;//判定是否原来无0边
+    for (int i = 1;i<=n;i++)
+    {
+        if(e[i] == 0)
+        {
+            positive = false;//否
+            break;//退出
+        }
+    }
+    if(positive)//无零边直接绕一圈判断奇偶
+    {
+        if(n%2 == 1) flag = true;//判断
+    }
+    if(flag) cout<<"YES"<<"\n";//必胜输出
+    else cout<<"NO"<<"\n";//否则
+    return 0;
+}
