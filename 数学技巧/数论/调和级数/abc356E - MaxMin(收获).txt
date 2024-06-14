@@ -1,0 +1,47 @@
+//背景:调和级数题,但是主要是long long问题卡了一个半小时
+//思路:例如除数是1,那么就会产生1/1,2/1,3/1不同答案,而2的话,就是2/2,4/2,6/2为区间,3就是3/3,6/3,9/3,显然是调和级数复杂度
+//时间复杂度:o(nlogn),n<=1e6
+#include <bits/stdc++.h>
+using namespace std;
+int cnt[1000010];//记录某个数出现的次数
+void Solve()
+{
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x;
+        cnt[x]++;//记录
+    }
+    for (int i = 1;i<=1000000;i++) cnt[i] += cnt[i-1];//记录前缀和
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<=1000000;i++)//枚举除数
+    {
+        long long temp = cnt[i] - cnt[i-1];//前缀和数组导出当前数量
+        if(temp == 0) continue;//为0无效
+        for (int j = 2;j*i<=1000000;j++)//从二开始
+        {
+            //ans += temp*j*(cnt[min(1000000,(j+1)*i-1)] - cnt[j*i-1]);
+            if((j+1)*i-1>=1000000) ans += temp*j*(cnt[1000000] - cnt[j*i-1]);//细节来了,temp为long long型一定要放前面,否则前面不会类型转换
+            else ans += temp*j*(cnt[(j+1)*i-1] - cnt[j*i-1]);
+        }
+        //特殊处理包含自己的那一段,即x/i = 1的一段
+        if(2*i-1<=1000000) ans += temp*(cnt[2*i-1]-cnt[i]);//区间不包含自己
+        else ans += temp*(cnt[1000000] - cnt[i]);
+        ans += temp*(temp-1)/2;//自己组合数
+        //ans -= temp*(temp+1)/2;
+    }
+    cout<<ans<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+

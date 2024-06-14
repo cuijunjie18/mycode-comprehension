@@ -1,0 +1,52 @@
+//背景:ABC的C题,有难度,先做了D题数论题再回来做的
+//原理:字符串 + 递归
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+string s[7][1000];//字符串数组,表示3^k次方型的字符串的i行的字符串
+//s[x][i] = s[x-1][(i-1)%temp + 1]
+void DFS(int x)//递归搜索
+{
+    if(x > n) return;//建立完了,返回
+    int temp = 1;//初始化当前范围
+    for (int i = 1;i<=x;i++) temp *= 3;//累乘
+    int before = temp/3;//记录之前的范围
+    //cout<<temp<<"\n";
+    for (int i = 1;i<=temp;i++)//按照当前范围建立新的字符串
+    {
+        //cout<<s[x-1][(i-1)%before + 1]<<"\n";
+        if(i>=before + 1&&i <= 2*before)//如果是在中间
+        {
+            s[x][i] = s[x-1][(i-1)%before + 1];
+            for (int j = 1;j<=before;j++) s[x][i] += ".";//加上before个全白
+            s[x][i] += s[x-1][(i-1)%before + 1];
+        }
+        else s[x][i] = s[x-1][(i-1)%before+ 1] + s[x-1][(i-1)%before + 1] + s[x-1][(i-1)%before + 1];//否则是3个之前的,注意我的取模操作(类数独)
+    }
+    DFS(x+1);
+}
+void Solve()//核心函数
+{
+    cin>>n;//输入3^n
+    int temp = 1;//初始化长宽
+    for (int i = 1;i<=n;i++) temp *= 3;//幂累积
+    if(n == 0)//如果是0
+    {
+        cout<<"#"<<"\n";//直接输出黑格
+        return;
+    }
+    s[0][1] = "#";//初始化黑格
+    DFS(1);//搜索
+    for (int i = 1;i<=temp;i++) cout<<s[n][i]<<"\n";//输出3^n范围的每一行
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

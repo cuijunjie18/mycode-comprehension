@@ -1,0 +1,52 @@
+//背景:刷拓扑排序模板题,发现bitset用法,加深了理解,问DAG中从每个点出发可以到达多少个点(像不像Floyd传递闭包)
+//原理:逆向建边 + 拓扑排序 + bitset优化
+//时间复杂度:o(m*(n/w)),w = 32;
+#include <bits/stdc++.h>
+using namespace std;
+const int maxn = 30005;//bitset含的最多位
+void Solve()
+{
+    int n,m,x,y;
+    cin>>n>>m;
+    vector<int> e[n+1];//邻接表逆向存边
+    //int ans[n+1];
+    bitset<maxn> ans[n+1];//bitset答案,代表谁可以到达i,1代表可以,0代表不行
+    //for (int i = 1;i<=n;i++) ans[i].set();//发现不用初始化,bitset自己初始化为0
+    int in[n+1];//入度数组
+    memset(in,0,sizeof(in));//初始化为0
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y;
+        e[y].push_back(x);//逆向建边
+        in[x]++;
+    }
+    queue<int> que;//拓扑排序队列
+    for (int i = 1;i<=n;i++)//寻找入度为0的入队
+    {
+        if(in[i] == 0) que.push(i);
+    }
+    while(!que.empty())//Kahn算法
+    {
+        x = que.front();
+        que.pop();
+        ans[x].set(x);//细节,自己肯定可以到达自己
+        for (auto v:e[x])
+        {
+            in[v]--;//入度减少
+            ans[v] |= ans[x];//每次取并
+            if(in[v] == 0) que.push(v);
+        }
+    }
+    for (int i = 1;i<=n;i++) cout<<ans[i].count()<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,50 @@
+//背景:KMP算法的第二种形式,不用生成新的字符串,没那么好理解,详见代码
+//优势:LPS数组的空间仅包含模板字符串,空间复杂度较小
+//时间复杂度:o(n),应该有常数
+#include <bits/stdc++.h>
+using namespace std;
+void Prefixion(int LPS[],string s)//获取模板串的前缀函数
+{
+    LPS[0] = 0;
+    for (int i = 1;s[i] != '\0';i++)
+    {
+        int j = LPS[i-1];//其实可以不用这一步的,j一定自己满足这个条件
+        while(j&&s[i] != s[j]) j = LPS[j-1];
+        if(s[i] == s[j]) j++;
+        LPS[i] = j;
+    }
+}
+void Solve()
+{
+    string text;
+    string pattern;
+    cin>>text>>pattern;
+    int s1 = pattern.size();
+    int s2 = text.size();
+    int LPS[s1];//模板串前缀函数数组
+    Prefixion(LPS,pattern);//获取模板串前缀函数
+    vector<int> ans;//答案,记录在文本中匹配成功的字符串起点位置
+    for (int i = 0,j = 0;i<s2;i++)//对文本串进行一次扫描
+    {
+        while(j&&text[i] != pattern[j]) j = LPS[j-1];//如果失配了,跳指针j到可以重新匹配的位置
+        if(text[i] == pattern[j]) j++;//如果成功匹配新的位置,移动j指针
+        if(j == s1)//如果已经超过模板串的结尾
+        {
+            ans.push_back(i-s1+1+1);//i-s1+1为成功匹配的起点位置,而题目要求偏移1,入数组
+            j = LPS[j-1];//重新在此位置移动匹配,这里是赋予长度(等于j在成功匹配的串的后面一个位置,所以是可以继续匹配的)
+        }
+    }
+    for (auto v:ans) cout<<v<<"\n";//依次输出成功匹配的起点位置
+    for (int i = 0;i<s1;i++) cout<<LPS[i]<<" ";//输出模板串的前缀函数
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

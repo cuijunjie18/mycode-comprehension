@@ -1,0 +1,66 @@
+//背景:想了两天两夜才搞懂一点点,其中发现每个人的KMP都不太一样,题目要求每个前缀字符串的不重叠border数量
+//原理:我的KMP,LPS数组,下标0开始,非next数组
+//理解帮助:https://www.cnblogs.com/dedicatus545/p/8900494.html
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+const int MAXN = 1e6+1;//以后要习惯这样处理,否则本地debug恶心,会死循环
+const int md = 1e9 + 7;
+int LPS[MAXN];//前缀函数
+int num[MAXN];//高难理解的数组,表示通过切割到达长度为i的border数量,而不是i位置结尾的字符串的border数量,例子见下面
+void Solve()
+{
+    string s;
+    cin>>s;
+    int s1 = s.size();
+    memset(num,0,sizeof(num));
+    LPS[0] = 0;
+    num[0] = 1;//初始化为1,例子:aa,此时j = 1,那么当前字符串的border数量为1,如果num表示以i结尾的字符串的border数量,那么我要知道i,而显然有困难
+               //想到用j来等价求i,那么i切割到j时,即可以切割一次,即包含一个border,故用num[j]表示以i结尾字符串的border数量,所以要初始化为1
+    for (int i = 1;i<s1;i++)
+    {
+        int j = LPS[i-1];
+        while(j&&s[j] != s[i]) j = LPS[j-1];
+        if(s[j] == s[i]) j++;
+        LPS[i] = j;
+        if(j == 0) num[i] = 1;//初始化为1
+        else num[i] = num[j-1] + 1;//累加border
+    }
+    long long ans = 1;//初始化答案
+    int j = 0;//同求前缀函数一样,用一个j去代替下面的递归
+    for (int i = 1;i<s1;i++)
+    {
+        while(j&&s[j] != s[i]) j = LPS[j-1];
+        if(s[i] == s[j]) j++;
+        while(2*j>i+1) j = LPS[j-1];//如果重叠,跳到不重叠为止,因为2如果不跳,下次也要跳,这样操作避免每次都重新跳,显然超时
+        ans = ans*(num[j-1]+1)%md;//累乘答案,+1是题目要求,num[j-1]意思是某字符串跳到长度为j的border的含border数量
+    }
+    cout<<ans<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*0 1 1 2 2 2 2 3 3 3 1*/
+
+/*超时写法,num含义为i结尾的字符串的border数量
+long long ans = 1;
+    for (int i = 0;i<s1;i++)
+    {
+        int j = LPS[i];//其实不用每次重新跳,用上面的思路
+        int p = i;
+        while(j*2 > i + 1)
+        {
+            p = j - 1;
+            j = LPS[j-1];
+        }
+        ans = ans*(num[p]+1)%md;
+    }
+*/

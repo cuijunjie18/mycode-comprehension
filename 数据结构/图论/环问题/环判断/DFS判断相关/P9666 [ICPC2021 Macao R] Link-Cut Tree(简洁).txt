@@ -1,0 +1,92 @@
+//背景:看题解的美丽代码
+//适用条件:知道了环上的两个点,即确定了谁是环上
+//解题流程:跑Kruskal生成树过程,并查集判断是否有环,有的话DFS找环
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge
+{
+    int to,pos;
+}EDGE;
+const int maxn = 100005;
+int f[maxn+1];
+bool flag;
+vector<int> ans;
+vector<EDGE> e[maxn+1];
+int Find(int x)
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void DFS(int root,int x,int fa)
+{
+    if(x == root)//如果已经闭环了
+    {
+        flag = true;//记录标记
+        return;//返回
+    }
+    for (int i = 0,big = e[x].size();i<big;i++)
+    {
+        if(e[x][i].to == fa) continue;//特判父节点
+        ans.push_back(e[x][i].pos);//当前边入答案
+        DFS(root,e[x][i].to,x);//往下搜索
+        if(flag) return;//如果有了,直接返回
+        ans.pop_back();//否则恢复边,即该边不是环上的
+    }
+}
+void Solve()
+{
+    flag = false;
+    ans.clear();
+    int n,m,x,y;
+    cin>>n>>m;
+    for (int i = 1;i<=n;i++)
+    {
+        f[i] = i;
+        e[i].clear();
+    }
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        if(flag) continue;
+        e[x].push_back({y,i});
+        e[y].push_back({x,i});
+        int fx = Find(x);
+        int fy = Find(y);
+        if(fx == fy)
+        {
+            ans.push_back(i);//注意当前边也要加入答案
+            DFS(y,x,0);//以y为根,因为已经知道了x,y都是环上的点
+        }
+        f[fx] = fy;
+    }
+    if(!flag) cout<<-1<<"\n";
+    else
+    {
+        sort(ans.begin(),ans.end());
+        for (auto v:ans) cout<<v<<" ";
+        cout<<"\n";
+    }
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+6 8
+1 2
+2 3
+5 6
+3 4
+2 5
+5 4
+5 1
+4 2
+*/

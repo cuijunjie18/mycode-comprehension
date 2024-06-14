@@ -1,0 +1,80 @@
+//背景:学了KMP算法后的真正自己做的CF题,本题是简单版
+//思路:统计某个字符串在文本中出现的严格次数,即不能与之前出现的有重叠部分,例子:ababa,aba严格出现一次,即原字符串分成aba与ba,而不严格的出现两次,起点为0,2
+//原理:KMP匹配 + 二分答案
+//时间复杂度:o((n+m)logn),logn为二分,n+m为KMP算法匹配
+#include <bits/stdc++.h>
+using namespace std;
+string text;//文本串,即输入的字符串
+void Prefixion(int LPS[],string s)//求生成串的前缀函数
+{
+    LPS[0] = 0;
+    for (int i = 1;s[i] != '\0';i++)
+    {
+        int j = LPS[i-1];
+        while(j > 0&&s[i] != s[j]) j = LPS[j-1];
+        if(s[i] == s[j]) j++;
+        LPS[i] = j;
+    }
+}
+bool check(int x,int k)//KMP算法求字符串出现次数
+{
+    string s;
+    s = text.substr(0,x);//先截取对应字符串作为最大公共前缀,x为长度
+    string cur = s + '#' + text;//生成新串
+    int s1 = s.size();//计算大小
+    int s2 = text.size();//计算大小
+    int LPS[s1+s2+1];//建立前缀函数
+    Prefixion(LPS,cur);//生成前缀函数
+    int ans = 0;//初始化答案
+    int b = 0;//初始化上一个匹配成功的终点,用于求严格出现次数
+    for (int i = s1+1;i<=s1+s2;i++)//KMP字符串匹配
+    {
+        if(LPS[i] == s1&&i-b>=s1)//如果成功匹配,且严格
+        {
+            ans++;//答案累加
+            b = i;//指针移动
+        }
+    }
+    return ans >= k;//返回可分出的数量是否满足条件
+}
+void Solve()
+{
+    int n,k;
+    cin>>n>>k>>k;//输入字符串长度及要求分成的段数
+    cin>>text;//输入原字符串
+    int l = 0;//二分最大公共前缀的长度
+    int r = n/k;//最大公共前缀的极限,注意不要 + 1了,因为substr(0,x),当x超界的时候默认保留原串,可能会产生错误
+    int ans = 0;//初始化最大公共前缀
+    while(l<=r)//二分答案
+    {
+        int mid = (l+r)>>1;
+        if(check(mid,k))//如果该长度可以获得>=k段
+        {
+            ans = mid;//记录
+            l = mid + 1;
+        }
+        else r = mid - 1;
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*Hack1(对是否r要加1):
+10 1 1
+codeforces
+*/
+
+/*Hack2(对严格出现次数的判断):
+9 3 3
+abafababa
+*/
+

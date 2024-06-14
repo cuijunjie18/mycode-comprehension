@@ -1,0 +1,50 @@
+//背景:一个星期后才补的比赛题,比赛时看出了是动态最小生成树,好像用LCT(Link-cut-tree)维护,但是不用
+//原理:并查集
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+int f[11][200001];//表示某点在边权<=depth的并查集
+int Find(int x,int depth)//带边权的并查集查找
+{
+    if(x == f[depth][x]) return x;
+    else return f[depth][x] = Find(f[depth][x],depth);
+}
+void Solve()
+{
+    int n,q,x,y,w;
+    cin>>n>>q;
+    for (int i = 1;i<=10;i++)//初始化并查集
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            f[i][j] = j;
+        }
+    }
+    int ans = (n-1)*10;//初始化答案,即全部是以最大边权连接
+    for (int i = 1;i<=n+q-1;i++)
+    {
+        cin>>x>>y>>w;//输入新边连接的节点及边权
+        for (int j = w;j<=9;j++)//往上更新边权(10已经是最坏解了,不用遍历到)
+        {
+            int fx = Find(x,j);//在当前边权范围j的连通块下判断连通
+            int fy = Find(y,j);
+            if(fx != fy)//如果没有连通
+            {
+                f[j][fx] = f[j][fy];//连通
+                ans--;//减去之前的贡献
+            }
+            else break;//如果已经连通了,则后面全部连通,直接跳过
+        }
+        if(i>=n) cout<<ans<<"\n";
+    }
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+}

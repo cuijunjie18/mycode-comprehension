@@ -1,0 +1,123 @@
+//背景:思路是自己想出来的,美中不足的是对比了题解代码才AC(细节问题)
+//难点:修改懒标记与加懒标记的下放分析
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long//宏定义
+using namespace std;
+ll tree[4000005];//对应区间的最大值
+ll laz[4000005];//累加标记
+ll re[4000005];//修改标记
+bool v[4000005];//是否修改标记
+ll a[1000005];//原始数组
+void up(int pos)//向上更新
+{
+    int l = pos<<1;
+    int r = (pos<<1)|1;
+    tree[pos] = max(tree[l],tree[r]);//取区间最值
+}
+void pd(int s,int t,int pos)//下放标记
+{
+    int l = pos<<1;
+    int r = (pos<<1)|1;
+    if(v[pos])//先处理修改的,因为有修改在先,就要先对下面的进行修改
+    {
+        v[l] = true;//下放是否修改标记
+        v[r] = true;
+        re[l] = re[pos];//下放修改标记
+        re[r] = re[pos];
+        laz[l] = 0;//因为修改了,之前的累加清空!!!
+        laz[r] = 0;
+        tree[l] = re[pos];//区间最值等于修改值
+        tree[r] = re[pos];
+        v[pos] = false;//去除修改下放标记
+     }
+     if(laz[pos])//如果修改后还有累加标记
+     {
+         laz[l] += laz[pos];//累加
+         laz[r] += laz[pos];
+         tree[l] += laz[pos];//区间最值也累加
+         tree[r] += laz[pos];
+         laz[pos] = 0;//清空当前累加
+     }
+}
+void Build(int s,int t,int pos)//建立线段树
+{
+    if(s == t)
+    {
+        tree[pos] = a[s];
+        return;
+    }
+    int mid = (s+t)>>1;
+    Build(s,mid,pos<<1);
+    Build(mid+1,t,(pos<<1)|1);
+    up(pos);
+}
+void revise(int l,int r,int s,int t,int pos,ll k)//区间修改
+{
+    if(l<=s&&r>=t)//核心重点
+    {
+        tree[pos] = k;//区间最值修改
+        v[pos] = true;//有修改标记true
+        laz[pos] = 0;//修改了,累加数组无效了,清空
+        re[pos] = k;//修改数组赋值
+        return;//一定要返回
+    }
+    int mid = (s+t)>>1;
+    pd(s,t,pos);//下放标记
+    if(l <= mid) revise(l,r,s,mid,pos<<1,k);
+    if(r >= mid + 1) revise(l,r,mid+1,t,(pos<<1)|1,k);
+    up(pos);
+}
+void add(int l,int r,int s,int t,int pos,ll k)//区间加
+{
+    if(l<=s&&r>=t)
+    {
+        tree[pos] += k;//区间最值累加
+        laz[pos] += k;//下放累加
+        return;
+    }
+    int mid = (s+t)>>1;
+    pd(s,t,pos);
+    if(l <= mid) add(l,r,s,mid,pos<<1,k);
+    if(r >= mid + 1) add(l,r,mid+1,t,(pos<<1)|1,k);
+    up(pos);
+}
+ll getsum(int l,int r,int s,int t,int pos)//区间最值查询
+{
+    if(l<=s&&r>=t) return tree[pos];
+    pd(s,t,pos);//!!!不要忘记,查询也要有下放操作
+    int mid = (s+t)>>1;
+    ll ans = -9e18;//初始化当前查询的最大值为无穷小
+    if(l <= mid) ans = max(ans,getsum(l,r,s,mid,pos<<1));
+    if(r >= mid + 1) ans = max(ans,getsum(l,r,mid+1,t,(pos<<1)|1));
+    return ans;//返回最大值
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,c,x,y;
+    ll k;
+    cin>>n>>q;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    Build(1,n,1);
+    while(q--)
+    {
+        cin>>c;
+        if(c == 1)
+        {
+            cin>>x>>y>>k;
+            revise(x,y,1,n,1,k);
+        }
+        else if(c == 2)
+        {
+            cin>>x>>y>>k;
+            add(x,y,1,n,1,k);
+        }
+        else if(c == 3)
+        {
+            cin>>x>>y;
+            cout<<getsum(x,y,1,n,1)<<"\n";
+        }
+    }
+    return 0;
+}

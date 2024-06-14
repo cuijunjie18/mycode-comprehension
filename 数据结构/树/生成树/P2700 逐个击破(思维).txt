@@ -1,0 +1,53 @@
+//背景:看了题解才会
+//题目简述:给出一颗带权的树，删除任意条边，求出使得给定的点不连通的最小权值。
+//原理:并查集 + 贪心
+//思路:将最后的图分为k个连通块,都含有敌军阵营的连通块不能连通,即该边不能建立(将摧毁改为建立,最后剩下没用上的边的和即为答案)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//直接存边
+{
+    int a,b,value;
+}EDGE;
+EDGE e[100005];
+int f[100005];//并查集数组
+bool flag[100005];//并查集标记连通块内是否有敌军阵营
+bool cmp(EDGE x,EDGE y)//自定义大到小排序
+{
+    return x.value > y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,k,x,y,v;
+    long long ans = 0;//初始化答案
+    cin>>n>>k;
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=k;i++)//输入敌军阵营的编号
+    {
+        cin>>x;
+        flag[x] = true;//标记对应祖先连通块有敌军阵营
+    }
+    for (int i = 1;i<=n-1;i++)//输入树的n-1条边
+    {
+        cin>>x>>y>>v;
+        e[i] = {x,y,v};
+        ans += v;//累加答案(即一开始全部摧毁)
+    }
+    sort(e+1,e+n,cmp);//排序
+    for (int i = 1;i<=n-1;i++)//遍历边
+    {
+        x = Find(e[i].a);
+        y = Find(e[i].b);
+        if(flag[x] == true&&flag[y] == true) continue;//如果都有敌军阵营,则这条边是一定要删除的,不能添加,跳过
+        f[x] = y;//并查集合并
+        if(flag[x]) flag[y] = true;//细节,新的连通块要更新是否有敌军阵营
+        ans -= e[i].value;//答案减去
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

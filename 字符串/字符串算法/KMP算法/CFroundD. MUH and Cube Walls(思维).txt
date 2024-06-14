@@ -1,0 +1,62 @@
+//背景:Oi-wiki推荐的KMP题,CF1800,div2 D题,是校队的选拔标准,加油!
+//收获:虽然不是字符串,但是仍然可以用KMP思想,且会下标从1开始的做法,本质一样的
+//思路:寻找即相对关系一样的个数,对于1的情况需要特殊判断,因为没有相对关系
+#include <bits/stdc++.h>
+using namespace std;
+void Prefixion(int LPS[],int s[],int n)//获取前缀函数
+{
+    LPS[1] = 0;//第一个位置的LPS为0
+    for (int i = 2;i<=n;i++)//遍历求LPS
+    {
+        int j = LPS[i-1];//获取上个位置的LPS
+        while(j&&s[j+1] != s[i]) j = LPS[j];//直到可以接上
+        if(s[i] == s[j+1]) j++;//如果可以接上
+        LPS[i] = j;//记录
+    }
+}
+void Solve()
+{
+    int n,m;
+    cin>>n>>m;
+    if(m>n)//特判
+    {
+        cout<<0<<"\n";
+        return;
+    }
+    if(m == 1)//特判1
+    {
+        cout<<n<<"\n";
+        return;
+    }
+    int temp[n+1];//临时数组
+    int text[n+1];//文本数组
+    int pattern[m+1];//模板数组
+    for (int i = 1;i<=n;i++) cin>>temp[i];//输入文本
+    for (int i = 2;i<=n;i++) text[i-1] = temp[i] - temp[i-1];//记录文本相对关系,即差值
+    for (int i = 1;i<=m;i++) cin>>temp[i];//输入模板
+    for (int i = 2;i<=m;i++) pattern[i-1] = temp[i] - temp[i-1];//记录模板相对关系,即差值
+    int LPS[n+1];//LPS数组,即前缀函数
+    Prefixion(LPS,pattern,m-1);//获取模板的前缀函数
+    int ans = 0;//初始化答案
+    for (int i = 1,j = 0;i<=n-1;i++)//进行匹配
+    {
+        while(j&&text[i] != pattern[j+1]) j = LPS[j];//直到可以匹配
+        if(text[i] == pattern[j+1]) j++;//如果成功匹配,j移动
+        if(j == m-1)//如果已经匹配完一次了
+        {
+            ans++;//答案累加
+            j = LPS[j];//换下一个位置
+        }
+    }
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

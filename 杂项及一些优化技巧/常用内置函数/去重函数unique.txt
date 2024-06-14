@@ -1,0 +1,31 @@
+//去重函数的用法
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    vector<int> s;
+    
+    for (int i = 5;i>=1;i--) s.push_back(i),s.push_back(i);
+    
+    sort(s.begin(),s.end());//去重前要排序
+    cout<<s.size()<<"\n";
+    for (auto v:s) cout<<v<<" ";
+    cout<<"\n";
+    
+    int ans = unique(s.begin(),s.end()) - s.begin();//去重并计算去重后不同数的个数
+    cout<<s.size()<<"\n";
+    for (auto v:s) cout<<v<<" ";
+    cout<<"\n";
+    
+    cout<<ans<<"\n";
+    return 0;
+}
+输出:
+10
+1 1 2 2 3 3 4 4 5 5
+10
+1 2 3 4 5 3 4 4 5 5
+5
+
+说明去重并没有真的删除,而是放到了数组后面,所以num.size()仍旧不变,所以在用去重数组的时候要先知道大小

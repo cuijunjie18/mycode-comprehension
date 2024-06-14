@@ -1,0 +1,61 @@
+//背景:情景题,要求每次给出操作,可以反转某个区间的二进制的每一位,然后询问某时刻某位是1还是0,初始整个区间为0
+//原理:树状数组维护差分数组,查询时判断这个位置反转了几次(如果不是知道标签,我可能不会)
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;
+int sum[100005];//差分树状数组
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void add(int x,int v)
+{
+    while(x<=n)
+    {
+        sum[x] += v;
+        x += lowbit(x);
+    }
+}
+int getsum(int x)
+{
+    int temp = 0;
+    while(x)
+    {
+        temp += sum[x];
+        x -= lowbit(x);
+    }
+    return temp;
+}
+void Solve()
+{
+    cin>>n>>m;
+    int x,l,r;
+    while(m--)
+    {
+        cin>>x;
+        if(x == 1)
+        {
+            cin>>l>>r;
+            add(l,1);//差分单点修改
+            add(r+1,-1);
+        }
+        else
+        {
+            cin>>l;
+            int temp = getsum(l);//对差分数组求前缀和就是当前反转次数
+            if(temp%2 == 0) cout<<0<<"\n";//偶数不变
+            else cout<<1<<"\n";//奇数为1
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

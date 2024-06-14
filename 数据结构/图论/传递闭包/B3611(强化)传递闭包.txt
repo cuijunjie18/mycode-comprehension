@@ -1,4 +1,4 @@
-//背景:bitset优化,抱歉,这个是个假的优化
+//背景:bitset优化,抱歉,这个是个假的优化(真的在下面)
 #include <bits/stdc++.h>
 using namespace std;
 void Solve()

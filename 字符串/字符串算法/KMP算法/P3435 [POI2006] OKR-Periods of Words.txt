@@ -1,0 +1,51 @@
+//背景:KMP好题,看题解没看懂,自己分析出来了,但是忘记记忆化了,超时
+//思路:直接给个例子吧 abababab,尽量让后面短,然后前面的整体就长,在后面就接的更长,所以找最短的LPS[i]
+//必要证明:当出现前缀与后缀有重叠部分的时候,前缀一定还可以有前缀函数(自己画图证明),所以不用判断这种情况了,具体可加我的提交代码
+//原理;KMP算法 + 记忆化搜索 + 贪心
+#include <bits/stdc++.h>
+using namespace std;
+void Prefixion(int LPS[],string s)//求前缀函数
+{
+    LPS[0] = 0;
+    for (int i = 1;s[i] != '\0';i++)
+    {
+        int j = LPS[i-1];
+        while(j > 0&&s[i] != s[j]) j = LPS[j-1];
+        if(s[i] == s[j]) j++;
+        LPS[i] = j;
+    }
+}
+void Solve()
+{
+    int n;
+    string s;
+    cin>>n>>s;
+    int LPS[n];
+    Prefixion(LPS,s);
+    long long ans = 0;//初始化答案
+    for (int i = 1;i<n;i++)
+    {
+        int j = LPS[i];//获取前缀函数
+        while(j)
+        {
+            if(LPS[j-1] == 0) break;//如果不能再小了,退出
+            j = LPS[j-1];
+        }
+        if(j)//如果不为0,防止一开始就没有前缀函数情况的干扰
+        {
+            ans += (i+1-j);//累加答案
+            LPS[i] = j;//记忆化搜索,下次再跳到当前位置的时候,直接可以到最小前缀
+        }
+    }
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

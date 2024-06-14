@@ -1,0 +1,48 @@
+//背景:初次看了题解感觉代码很简单,但是发现理解贪心有问题,和大佬们果然还是有差距的
+//收获:对于这种可以删除或者其他操作的,肯定最后会有剩下的,必然存在枚举谁剩下的最优/差情况,有点像1821C. Tear It Apart(字符串),枚举剩下的字母是谁
+//原理:贪心
+#include <bits/stdc++.h>
+using namespace std;
+const long long INF = 1e12 + 1;
+void Solve()
+{
+    string s;
+    cin>>s;
+    int n = s.size();
+    int toz = 0;
+    for (int i = 0;i<n;i++)//计算字符串中0的个数
+    {
+        if(s[i] == '0') toz++;
+    }
+    if(toz == 0||toz == n)//如果全为1或全为0
+    {
+        cout<<0<<"\n";//直接输出
+        return;//返回
+    }
+    int now = 0;//初始化当前位置0的个数
+    long long ans = 5e18;//初始化答案,取正无穷
+    for (int i = 0;i<n;i++)//!!!!一定要从0开始,枚举以当前位置的数为分界点,即它一定保留
+    {
+        int l = i - now;//先计算当前位置之前1的个数:长度减去0的个数
+        if(s[i] == '0') now++;//判断0
+        int r = toz-now;//计算当前位置后的0的个数
+        //cout<<l<<" "<<r<<"\n";
+        long long temp = l*INF + r*INF;//先把左边的1右边的0全部删除,是一种合理的做法
+        if(s[i] == '0'&&s[i-1] == '1') temp--;//唯一一种可以通过换来更优的,其他情况必然交换次数大于1,可能不如直接删了
+        ans = min(ans,temp);//取最小值
+    }
+    cout<<ans<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+//hack:110

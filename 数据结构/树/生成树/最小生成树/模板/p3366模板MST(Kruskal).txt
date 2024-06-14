@@ -1,7 +1,7 @@
 //原理:贪心
 //所用的操作:排序
 //特定的数据结构维护:并查集
-//时间复杂度:o(nlogn+(a)n),主要来自于排序及并查集查询
+//时间复杂度:o(mlogm+(a)n),主要来自于排序及并查集查询,m为边数,n为点数
 #include <bits/stdc++.h>
 using namespace std;
 typedef struct edge//Kruskal边结构体

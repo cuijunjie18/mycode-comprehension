@@ -53,3 +53,29 @@ int main()
     cout<<maxl<<endl;//输出答案
     return 0;
 }
+
+
+//另一种好看的解法:
+void Solve()
+{
+    int n,x;
+    cin>>n;
+    int low[n+1];
+    memset(low,0,sizeof(low));
+    int ans = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x;
+        if(x > low[ans])
+        {
+            ans++;
+            low[ans] = x;
+        }
+        else
+        {
+            int p = lower_bound(low+1,low+ans+1,x) - low;
+            low[p] = x;
+        }
+    }
+    cout<<ans<<"\n";
+}

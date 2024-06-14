@@ -1,0 +1,50 @@
+//背景:树状数组维护逆序对的题
+//性质:交换两数满足排序,最小交换次数即逆序对数量
+//题解的证明:任意两个逆序对都要交换，并且每次交换后逆序对数都会减少1，最终的逆序对数是0，那么肯定要交换的个数就是全部逆序对的个数。
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+int sum[500001];
+int lowbit(int x){return x&(-x);}
+void add(int x)
+{
+    while(x <= n)
+    {
+        sum[x]++;
+        x += lowbit(x);
+    }
+}
+int getsum(int x)
+{
+    int temp = 0;
+    while(x)
+    {
+        temp += sum[x];
+        x -= lowbit(x);
+    }
+    return temp;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>n;
+    int save[n+1];
+    set<int> s;
+    map<int,int> check;
+    int cnt = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>save[i];
+        s.insert(save[i]);
+    }
+    for (auto v:s) check[v] = ++cnt;
+    long long ans = 0;
+    for (int i = 1;i<=n;i++)
+    {
+        int p = check[save[i]];
+        ans += getsum(n) - getsum(p);
+        add(p);
+    }
+    cout<<ans<<"\n";
+    return 0;
+}

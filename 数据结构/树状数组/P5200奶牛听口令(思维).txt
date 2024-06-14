@@ -1,0 +1,62 @@
+//背景:思维真的不行
+//原理:分块 + 排序思想 + 树状数组
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+int sum[100005];
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void add(int x)
+{
+    while(x<=n)
+    {
+        sum[x]++;
+        x += lowbit(x);
+    }
+}
+int getsum(int x)
+{
+    int temp = 0;
+    while(x)
+    {
+        temp += sum[x];
+        x -= lowbit(x);
+    }
+    return temp;
+}
+void Solve()
+{
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    int b = a[n];
+    add(a[n]);//入数组
+    for (int i = n-1;i>=1;i--)//找到不满足单调下降第一个倒着的位置
+    {
+        if(a[i] > b)
+        {
+            b = i;
+            break;//退出
+        }
+        b = a[i];
+        add(a[i]);//入数组
+    }
+    cout<<b<<"\n";//输出最少命令次数
+    for (int i = 1;i<=b;i++)
+    {
+        cout<<b-i+getsum(a[i])<<" ";//某次操作的答案
+        add(a[i]);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

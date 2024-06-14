@@ -1,0 +1,127 @@
+//背景:学了基本的区间加线段树,来做区间乘区间和线段树,调了半天,难
+//理解:在区间乘与区间和的时候,有种把原区间与累加区间分开的思想
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll md = 1;//初始化模数,防止某些意外除零报错!!!
+ll tree[4*100005];//4倍大小的线段树数组
+ll mul[4*100005];//4倍大小的区间乘懒标记数组(记得要初始化为1)
+ll laz[4*100005];//4倍大小的区间加懒标记数组
+ll a[4*100005];//原数组
+//由儿子更新当前的向上更新函数
+void up(int pos) {tree[pos] = (tree[pos<<1] + tree[(pos<<1)|1])%md;}
+
+void pd(int s,int t,int pos)//下放懒标记函数
+{
+    int mid = (s+t)>>1;//二分区间,用于计算区间长度,下放和标记
+    int l = pos<<1;//先获取左右子树节点编号,简化代码
+    int r = (pos<<1)|1;
+    if(mul[pos] != 1)//有乘法懒标记未下放
+    {
+        mul[l] = mul[l]*mul[pos]%md;
+        mul[r] = mul[r]*mul[pos]%md;
+        laz[l] = laz[l]*mul[pos]%md;//注意把乘与和分开,把那部分和的单独乘
+        laz[r] = laz[r]*mul[pos]%md;
+        tree[l] = tree[l]*mul[pos]%md;//不要忘了更新左右子树的和,仅对原和数组进行乘操作(下面可能还要有和操作)
+        tree[r] = tree[r]*mul[pos]%md;
+        mul[pos] = 1;//清空乘法标记
+    }
+    if(laz[pos])//下放和懒标记
+    {
+        laz[l] = (laz[l] + laz[pos])%md;//更新儿子的单调的和标记
+        laz[r] = (laz[r] + laz[pos])%md;
+        tree[l] = (tree[l] + laz[pos]*(mid-s+1))%md;//这里才开始累加和部分,注意与乘法区分
+        tree[r] = (tree[r] + laz[pos]*(t-mid))%md;//注意要乘于对于区间长度
+        laz[pos] = 0;
+    }
+    return;//返回
+}
+
+void Build(int s,int t,int pos)//建立线段树
+{
+    mul[pos] = 1;//初始化乘法懒标记
+    if(s == t)//到底了
+    {
+        tree[pos] = a[s]%md;//记录
+        return;//一定要返回
+    }
+    int mid = (s+t)>>1;//二分
+    Build(s,mid,pos<<1);//建立左右子树
+    Build(mid+1,t,(pos<<1)|1);
+    up(pos);//利用儿子更新当前
+}
+
+void chen(int l,int r,int s,int t,int pos,ll k)//区间乘操作
+{
+    if(l<=s&&r>=t)//找到了极大区间
+    {
+        tree[pos] = tree[pos]*k%md;//坑点,记得不要乘于标记,因为标记可能是当前一直累积的乘,会重复!!一定要乘k
+        mul[pos] = mul[pos]*k%md;//更新乘标记
+        laz[pos] = laz[pos]*k%md;//更新和标记
+        return;//一定要返回
+    }
+    int mid = (s+t)>>1;//二分区间
+    pd(s,t,pos);//不是极大区间,下放懒标记
+    if(l <= mid) chen(l,r,s,mid,pos<<1,k);//处理左子树
+    if(r >= mid + 1) chen(l,r,mid+1,t,(pos<<1)|1,k);//处理右子树
+    up(pos);//利用儿子更新当前节点
+}
+
+void add(int l,int r,int s,int t,int pos,ll k)//区间和操作
+{
+    if(l<=s&&r>=t)//找到了极大区间
+    {
+        tree[pos] = (tree[pos] + k*(t-s+1))%md;//和操作
+        laz[pos] = (laz[pos] + k)%md;//更新和标记
+        return;//一定要返回
+    }
+    int mid = (s+t)>>1;//二分区间
+    pd(s,t,pos);//下放标记
+    if(l <= mid) add(l,r,s,mid,pos<<1,k);//递归左子树
+    if(r >= mid + 1) add(l,r,mid+1,t,(pos<<1)|1,k);//递归右子树
+    up(pos);//更新当前节点
+}
+
+ll getsum(int l,int r,int s,int t,int pos)//区间求和
+{
+    if(l<=s&&r>=t) return tree[pos]%md;//极大区间直接返回
+    int mid = (s+t)>>1;//二分区间
+    pd(s,t,pos);//下放标记
+    ll sum = 0;//初始化和
+    if(l <= mid) sum = (sum + getsum(l,r,s,mid,pos<<1))%md;//左右累加
+    if(r >= mid + 1) sum = (sum + getsum(l,r,mid+1,t,(pos<<1)|1))%md;
+    return sum;//返回
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,c,x,y;
+    ll k;
+    cin>>n>>m>>md;//输入数据量,询问次数,模数
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    Build(1,n,1);//建树
+    while(m--)//处理m次询问
+    {
+        cin>>c;
+        if(c == 1)//区间乘操作
+        {
+            cin>>x>>y>>k;
+            chen(x,y,1,n,1,k);
+        }
+        else if(c == 2)//区间和操作
+        {
+            cin>>x>>y>>k;
+            add(x,y,1,n,1,k);
+        }
+        else if(c == 3)//回答
+        {
+            cin>>x>>y;
+            cout<<getsum(x,y,1,n,1)<<"\n";//输出
+        }
+    }
+    getchar();
+    getchar();
+    return 0;
+}

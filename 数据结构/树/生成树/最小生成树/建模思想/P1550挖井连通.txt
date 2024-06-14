@@ -1,0 +1,67 @@
+//背景:第一次做时候连黄题都做不了,以为思路不行,第二次看题解才会
+//思路:把地下水也当成一个节点,因为每个农田都要有水,那么每个农田与地下水的边权为挖井的费用,完成了四川省建模
+//原理:Kruskal求最小生成树
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//Kruskal直接存边
+{
+    int a,b,value;
+}EDGE;
+int f[305];//并查集数组
+bool cmp(EDGE x,EDGE y)//边权比较
+{
+    return x.value < y.value;
+}
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void Solve()
+{
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n+1;i++) f[i] = i;//初始化并查集
+    vector<EDGE> e;
+    for (int i = 1;i<=n;i++)//建立连接地下水的边
+    {
+        cin>>x;
+        e.push_back({i,n+1,x});
+    }
+    for (int i = 1;i<=n;i++)//建立农场的边
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            cin>>x;
+            e.push_back({i,j,x});
+        }
+    }
+    sort(e.begin(),e.end(),cmp);//排序
+    int finish = 0;//初始化完成的边数
+    int ans = 0;//初始化答案
+    for (auto v:e)//Kruskal小到大遍历边
+    {
+        if(finish == n) break;//如果已经生成了完整的树
+        int x = v.a;
+        int y = v.b;
+        int k = v.value;
+        int f1 = Find(x);
+        int f2 = Find(y);
+        if(f1 == f2) continue;//已经连通,跳过
+        f[f1] = f2;//并查集合并
+        ans += k;//答案累加
+        finish++;//完成边加1
+    }
+    cout<<ans<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

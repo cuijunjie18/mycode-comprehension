@@ -1,0 +1,40 @@
+//背景:刷树状数组的题,结果正解不是树状数组,而是思维题
+//原理:区间修改不会改变区间内部的差值情况,仅改变两端点,消除两端点相关的贡献后改变差值再计算
+#include <bits/stdc++.h>
+using namespace std;
+long long dp[1000005];//差值数组
+long long a[1000005];//原始数组,一开始wa了就是数组开小了,却没有提示RE
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,x,y;
+    long long s,t,k,ans = 0;//初始化答案
+    cin>>n>>q>>s>>t;
+    for (int i = 0;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++) dp[i] = a[i] - a[i-1];//计算差值
+    for (int i = 1;i<=n;i++)//计算初始ans
+    {
+        if(dp[i] > 0) ans -= s*abs(dp[i]);
+        else ans += t*abs(dp[i]);
+    }
+    while(q--)
+    {
+        cin>>x>>y>>k;
+        //先处理左端点跟它的左边
+        if(dp[x] > 0) ans += s*abs(dp[x]);//消去贡献
+        else ans -= t*abs(dp[x]);
+        dp[x] += k;//改变差值,注意谁再左谁在右
+        if(dp[x] > 0) ans -= s*abs(dp[x]);//重新计算贡献
+        else ans += t*abs(dp[x]);
+        if(y != n)//如果y不在右端点
+        {
+            if(dp[y+1] > 0) ans += s*abs(dp[y+1]);//消去下一个位置的贡献
+            else ans -= t*abs(dp[y+1]);;
+            dp[y+1] -= k;//注意这里差值是减
+            if(dp[y+1] > 0) ans -= s*abs(dp[y+1]);//重新计算贡献
+            else ans += t*abs(dp[y+1]);
+        }
+        cout<<ans<<"\n";//输出
+    }
+    return 0;
+}

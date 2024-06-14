@@ -1,0 +1,80 @@
+//背景:最小生成树好题,思路本质是建立虚拟节点,与挖井那题一样
+//原理:Kruskal生成树
+//时间复杂度:o(m^logm+m),主要是排序,m = n^2,为稠密图,不如Prime的朴素做法
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+typedef struct edge//Kruskal直接存边
+{
+    int a,b;
+    ll value;
+    bool st;//标记边是否连有电站
+}EDGE;
+bool cmp(EDGE x,EDGE y)//自定义排序
+{
+    return x.value < y.value;
+}
+int f[2005];//并查集数组
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    ll x[n+1],y[n+1];//每个点坐标
+    ll v,k[n+1];
+    vector<EDGE> e;//边数组
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=n;i++) cin>>x[i]>>y[i];//输入坐标
+    for (int i = 1;i<=n;i++)//建立每个城市到虚拟节点,即电站的边
+    {
+        cin>>v;
+        e.push_back({i,n+1,v,true});//建边
+    }
+    for (int i = 1;i<=n;i++) cin>>k[i];//输入
+    for (int i = 1;i<=n;i++)//建立稠密图
+    {
+        for (int j = 1;j<=n;j++)
+        {
+            v = abs(x[i]-x[j]) + abs(y[i]-y[j]);//计算曼哈顿距离
+            e.push_back({i,j,v*(k[i]+k[j]),false});//建边
+        }
+    }
+    sort(e.begin(),e.end(),cmp);//排序
+    int big = e.size();
+    int finish = 0;//初始化完成的边
+    ll ans = 0;//出初始化答案
+    int num = 0;//初始化建立的电站数
+    vector<int> ans_st;//记录电站建立在哪座城市
+    vector<pair<int,int>> ans_pair;//建立建立的边连接哪座城市
+    for (int i = 1;i<big;i++)//遍历
+    {
+        if(finish == n) break;//如果已经建好了,退出
+        int f1 = Find(e[i].a);
+        int f2 = Find(e[i].b);
+        if(f1 == f2) continue;
+        ans += e[i].value;//累加
+        f[f1] = f2;//并查集合并
+        finish++;//完成数+1
+        if(e[i].st)//如果有电站
+        {
+            num++;//数量累加
+            if(e[i].a != n+1) ans_st.push_back(e[i].a);//记录非虚拟的节点
+            if(e[i].b != n+1) ans_st.push_back(e[i].b);
+            continue;//跳过
+        }
+        ans_pair.push_back({e[i].a,e[i].b});//否则记录
+    }
+    //输出即可
+    cout<<ans<<"\n";
+    cout<<num<<"\n";
+    for (int i = 0;i<num;i++) cout<<ans_st[i]<<" ";
+    cout<<"\n";
+    cout<<ans_pair.size()<<"\n";
+    for (auto t:ans_pair) cout<<t.first<<" "<<t.second<<"\n";
+    return 0;
+}

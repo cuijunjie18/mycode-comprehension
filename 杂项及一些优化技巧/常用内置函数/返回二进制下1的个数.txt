@@ -1,0 +1,1 @@
+__builtin_popcount(t)//注意前面两个下划线,后面一个

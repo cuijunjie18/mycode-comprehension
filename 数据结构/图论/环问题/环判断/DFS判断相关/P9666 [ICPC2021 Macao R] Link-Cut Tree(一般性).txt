@@ -1,0 +1,107 @@
+//背景:刷生成树模板题,结果来了道澳门ICPC真题,收获颇丰
+//收获:1,DFS获取环路(适用于无向图);2,邻接表确实比链式前向星简洁,虽然效率比较低
+//原理:环判断 + DFS + 贪心 + MST
+//时间复杂度:o(nlogn),主要来自排序
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边结构体,记录终点及边的编号
+{
+    int to,pos;
+}EDGE;
+const int maxn = 100005;
+int f[maxn+1];//并查集数组
+int parent[maxn+1];//用于DFS找环时的父节点数组
+int edge_pos[maxn+1];//记录某节点是由哪个编号的边到达的
+bool vis[maxn+1];//标记数组
+bool flag;//环判断bool变量
+vector<int> ans;//环答案包含的边的编号集合
+vector<EDGE> e[maxn+1];//邻接表存图
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void DFS(int x,int fa,int pos)//DFS找环(难点及细节)
+{
+    if(flag) return;//如果已经找到了,后面不用进行了,返回
+    vis[x] = true;//标记
+    parent[x] = fa;//记录父节点
+    edge_pos[x] = pos;//记录来时的边的编号
+    for (int i = 0,big = e[x].size();i<big;i++)//遍历边
+    {
+        if(e[x][i].to == fa) continue;//排除直接来自父节点的
+        if(vis[e[x][i].to])//如果可以构成环了
+        {
+            flag = true;//标记
+            int temp = e[x][i].to;//保存成环临界点
+            int tx = x;//保存当前的x,防止改变它
+            ans.push_back(e[x][i].pos);//第一个编号入数组
+            while(true)//一直跳道临界点
+            {
+                ans.push_back(edge_pos[tx]);//先入数组
+                tx = parent[tx];//改变tx
+                if(tx == temp) break;//如果是临界点,退出循环,环构成完毕
+            }
+            return;
+            //为什么可以这样跳父亲呢?因为环的性质必然会构成一条链,所以一定可以跳找到环
+        }
+        DFS(e[x][i].to,x,e[x][i].pos);
+        if(flag) return;
+    }
+}
+void Solve()//核心函数
+{
+    flag = false;//一定要重新初始化环是否存在
+    ans.clear();//清空上次的答案
+    int n,m,x,y;
+    cin>>n>>m;//输入点数及边数
+    for (int i = 1;i<=n;i++)//初始化遍历
+    {
+        f[i] = i;//并查集初始化
+        parent[i] = 0;//parent数组清空
+        edge_pos[i] = 0;//边编号数组清空
+        vis[i] = false;//标记数组全部取消
+        e[i].clear();//图清空
+    }
+    for (int i = 1;i<=m;i++)//Kruskal的思想(因为题目的特殊性,保证了边是递增的,且前面的全部边和还小与当前边)
+    {
+        cin>>x>>y;//依旧输入
+        if(flag) continue;//如果已经找到环,直接跳过
+        e[x].push_back({y,i});//一定要先建边
+        e[y].push_back({x,i});
+        x = Find(x);//再并查集查找
+        y = Find(y);
+        if(x == y) DFS(x,0,0);//有环了,DFS找环
+        f[x] = y;//并查集合并,不要忘了!!!
+    }
+    if(!flag) cout<<-1<<"\n";//如果没有环,输出-1
+    else//否则输出环包含的边的编号
+    {
+        sort(ans.begin(),ans.end());//小到大排序
+        for (auto v:ans) cout<<v<<" ";//依次输出
+        cout<<"\n";//换行
+    }
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+6 8
+1 2
+2 3
+5 6
+3 4
+2 5
+5 4
+5 1
+4 2
+*/

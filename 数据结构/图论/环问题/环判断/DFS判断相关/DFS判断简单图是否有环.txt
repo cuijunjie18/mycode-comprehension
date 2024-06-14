@@ -1,0 +1,51 @@
+//背景:做题过程发现问题,判断简单无向图中是否存在环该怎么处理?
+//思考:怎么能记录环路?
+//原理:我的DFS判断简单图是否有环(简单图没有自环),可能会有错误!
+#include <bits/stdc++.h>
+using namespace std;
+const int maxn = 100005;
+bool vis[maxn+1];//标记数组
+vector<int> e[maxn+1];//邻接表存图
+bool flag = false;//判断依据
+bool DFS(int x,int fa)
+{
+    bool temp = false;//初始化当前DFS是否有环
+    vis[x] = true;//标记
+    for (int i = 0,big = e[x].size();i<big;i++)
+    {
+        if(e[x][i] == fa) continue;//特判父亲,父亲的回路不算的
+        if(vis[e[x][i]]) return temp = true;//如果有指向之前已经标记节点的回路(一定违反了树的性质,而不是树就一定有环),有环,返回
+        temp = DFS(e[x][i],x);//否则继续DFS
+    }
+    return temp;//返回结果
+}
+void Solve()
+{
+    int n,m,x,y;
+    cin>>n>>m;
+    for (int i = 1;i<=m;i++)//建立无向图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(flag == false&&vis[i] == false)//仅对还没标记的点进行DFS判断且此时还没有环
+        {								  //因为图不一定连通,所以可能不同连通块中可能有环
+            flag = DFS(i,0);//获取标记
+        }
+    }
+    if(flag) cout<<"The Graph has cycle!"<<"\n";//有环
+    else cout<<"The Graph has no cycle!"<<"\n";//无环
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,63 @@
+//背景:考核题,不明白大佬怎么想得到的,纯粹思维题
+//思路:每个极大1块不能通过操作连通,但是对于每个极大1块而言,它可以伸长和缩短,即判断极大1块数量是否相同,相同才有解
+//坑点:极端数据,最大答案9e9以上,卡了int,要long long!(即01交错)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    scanf("%d",&n);
+    int a[n+1],b[n+1];
+    for (int i = 1;i<=n;i++) scanf("%1d",&a[i]);//输入a状态
+    for (int i = 1;i<=n;i++) scanf("%1d",&b[i]);//输入b状态
+    vector<pair<int,int>> pa;//记录a中的每个极大1块的端点
+    vector<pair<int,int>> pb;//同上
+    for (int i = 1;i<=n;i = i)//处理a
+    {
+        //cout<<i<<"\n";
+        if(a[i] == 1)
+        {
+            int temp = i;
+            while(a[i] == 1&&i <= n) i++;
+            if(i > n) pa.push_back({temp,n});
+            else pa.push_back({temp,i-1});
+        }
+        else i++;
+    }
+    for (int i = 1;i<=n;i = i)//处理b
+    {
+        if(b[i] == 1)
+        {
+            int temp = i;
+            while(b[i] == 1&&i <= n) i++;
+            if(i > n) pb.push_back({temp,n});
+            else pb.push_back({temp,i-1});
+        }
+        else i++;
+    }
+    int s1 = pa.size();//计算a中极大1块大小
+    int s2 = pb.size();//计算b中极大1块大小
+    if(s1 != s2 || a[1] != b[1] || a[n] != b[n])//判断无解,特殊处理起点与终点不能改变
+    {
+        printf("-1\n");
+        return;
+    }
+    //for (int i = 0;i<s1;i++) cout<<pa[i].first<<" "<<pa[i].second<<"\n";
+    //for (int i = 0;i<s1;i++) cout<<pb[i].first<<" "<<pb[i].second<<"\n";
+    //return;
+    long long ans = 0;//记得long long 开1答案
+    for (int i = 0;i<s1;i++) ans += abs(pa[i].first-pb[i].first) + abs(pa[i].second-pb[i].second);//每个块匹配的操作次数是左右端点同时匹配
+    printf("%lld\n",ans);//输出
+    return;
+}
+int main()
+{
+    //ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    scanf("%d",&t);
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

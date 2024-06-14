@@ -1,0 +1,77 @@
+//背景:没做逆序对之前对这道题是完全不会的,现在理解了
+//原理:离散化 + 树状数组维护
+#include <bits/stdc++.h>
+using namespace std;
+int n;//数据量
+long long sum[400001];//记录离散后某个位置的管辖区域数值前缀和
+int num[400001];//记录离散后某个位置的管辖区域数量前缀和
+int lowbit(int x)//截断低位1操作
+{
+    return x&(-x);
+}
+void add(int x,int p)//单点修改
+{
+    while(x<=n)//限制范围
+    {
+        sum[x] += p;//数值增加
+        num[x]++;//数量加1
+        x += lowbit(x);//跳祖先
+    }
+}
+long long getsum(int x)//获取数值和
+{
+    long long temp = 0;//初始化
+    while(x)//限制范围
+    {
+        temp += sum[x];//累加
+        x -= lowbit(x);//往下跳
+    }
+    return temp;//返回
+}
+int getnum(int x)//获取数量和
+{
+    int temp = 0;//初始化数量和
+    while(x)
+    {
+        temp += num[x];//累加
+        x -= lowbit(x);//往下跳
+    }
+    return temp;//返回
+}
+void Solve()
+{
+    cin>>n;
+    vector<int> a;//离散化数组
+    int save[n+1];//原始输入数组
+    for (int i = 1;i<=n;i++)//依次输入每个数
+    {
+        cin>>save[i];
+        a.push_back(save[i]);
+    }
+    sort(a.begin(),a.end());//对离散化数组排序,以便离散化
+    int diff = unique(a.begin(),a.end()) - a.begin();//去重并获取非重复的数量
+    map<int,int> s;//记录某个数在离散化数组中(排好序)的位置
+    long long ans = 0;//初始化答案
+    for (int i = 0;i<diff;i++)//遍历去重数组
+    {
+        s[a[i]] = i + 1;//记录下每个数的排位
+    }
+    for (int i = n;i>=1;i--)//倒着处理
+    {
+        int p = s[save[i]];//获取当前数在离散化数组中的位置
+        ans += getsum(n) - getsum(p) - (long long)(getnum(n) - getnum(p))*save[i];//先累加答案,后面数量的时候注意开long long
+        //解析:获取比当前大的已经存在的数值和,即获取满足j>i且save[j] > save[i]的总和,然后获取已经存在的比当前大的数的数量,上面是公式
+        add(p,save[i]);//然后当前位置的数也放入树状数组
+    }
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
