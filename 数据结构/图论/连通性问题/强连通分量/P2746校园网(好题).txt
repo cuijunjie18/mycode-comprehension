@@ -1,0 +1,92 @@
+//背景:Tarjan缩点刷题,发现好题
+//细节:缩点完成后形成的是DAG森林,不是DAG图
+/*思路:对于任务A:缩点后的DAG森林入度为0的点必须输入软件,即答案为入度为0的点
+       对于任务B:要求建立多少条边才能让整个图变成scc,有scc定义,每个节点入度出度均不为0;注意图中每个节点入度出度均不为0是scc的必要条件,非充分,
+                例如图被分为了n个独立的scc,每个点满足入度出度均不为0,但是整个图非scc;
+                由必要条件,我们可以贪心证明有一种方式,将每个点入度或出度为0的点进行加边可以形成全图scc,具体证明略
+*/
+//坑点:特殊处理全图缩成一个点时
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 105
+using namespace std;
+int dfn[MAXN],low[MAXN],dfncnt;
+int scc[MAXN],sz[MAXN],sc;
+stack<int> s;
+bool vis[MAXN];
+vector<int> e1[MAXN];//原图
+vector<int> e2[MAXN];//缩点后的图
+int in[MAXN];//入度
+int out[MAXN];//出度
+void Tarjan(int x)//Tarjan缩点
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto v:e1[x])
+    {
+        if(!dfn[v])
+        {
+            Tarjan(v);
+            low[x] = min(low[x],low[v]);
+        }
+        else if(vis[v]) low[x] = min(low[x],dfn[v]);
+    }
+    if(low[x] == dfn[x])
+    {
+        sc++;
+        while(true)//我的新处理,少了代码量
+        {
+            int t = s.top();
+            scc[t] = sc;
+            vis[t] = false;
+            sz[sc]++;
+            s.pop();
+            if(t == x)  break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//建图
+    {
+        cin>>x;
+        while(x)
+        {
+            e1[i].push_back(x);
+            cin>>x;
+        }
+    }
+    for (int i = 1;i<=n;i++)//遍历进行Tarjan缩点
+    {
+        if(!dfn[i]) Tarjan(i);
+    }
+    for (int i = 1;i<=n;i++)//建立新图
+    {
+        for (auto v:e1[i])
+        {
+            if(scc[v] == scc[i]) continue;//去除自环,构建DAG森林
+            e2[scc[i]].push_back(scc[v]);
+            in[scc[v]]++;
+            out[scc[i]]++;
+        }
+    }
+    if(sc == 1)//特殊处理,缩成一点
+    {
+        cout<<1<<"\n";
+        cout<<0<<"\n";
+        return 0;
+    }
+    int ans1 = 0,ans2 = 0;
+    for (int i = 1;i<=sc;i++)//计算出度入度为0的节点数
+    {
+        if(in[i] == 0) ans1++;
+        if(out[i] == 0) ans2++;
+    }
+    cout<<ans1<<"\n";//回答任务A
+    cout<<max(ans1,ans2)<<"\n";//贪心,回答任务B
+    return 0;
+}

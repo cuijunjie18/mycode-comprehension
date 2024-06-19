@@ -1,0 +1,138 @@
+//以abc258D题为例子
+
+法一:set二分查找操作
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+   ll n,m,x;
+   cin>>n>>m;
+   map<ll,ll> times;
+   set<ll> s;
+   set<ll>::iterator it;//记录set的迭代器
+   ll p[m+1];
+   for (int i = 1;i<=n;i++)
+   {
+       cin>>x;
+       times[x]++;
+       s.insert(x);
+   }
+   for (int i = 1;i<=m;i++) cin>>p[i];
+   sort(p+1,p+m+1);
+   ll ans = 0;
+   for (int i = 1;i<=m;i++)
+   {
+       it = s.lower_bound(p[i]);//这样用,不要it = lower_bound(s.begin(),s.end(),p[i]);会超时,我也不清楚
+       if(it == s.end())
+       {
+           cout<<-1<<"\n";
+           return;
+       }
+       ans += (*it);
+       times[*it]--;
+       if(times[*it] == 0) s.erase(it);
+   }
+   cout<<ans<<"\n";
+   return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+法二:map的直接二分
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+   ll n,m,x;
+   cin>>n>>m;
+   map<ll,ll> times;
+   map<ll,ll>::iterator it;//记录map的迭代器
+   ll p[m+1];
+   for (int i = 1;i<=n;i++)
+   {
+       cin>>x;
+       times[x]++;
+   }
+   for (int i = 1;i<=m;i++) cin>>p[i];
+   sort(p+1,p+m+1);
+   ll ans = 0;
+   for (int i = 1;i<=m;i++)
+   {
+       it = times.lower_bound(p[i]);
+       if(it == times.end())
+       {
+           cout<<-1<<"\n";
+           return;
+       }
+       ll temp = it->first;
+       ans += temp;
+       times[temp]--;
+       if(times[temp] == 0) times.erase(temp);
+   }
+   cout<<ans<<"\n";
+   return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+法三:直接multiset
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+   ll n,m,x;
+   cin>>n>>m;
+   ll p[m+1];
+   multiset<ll> s;
+   multiset<ll>::iterator it;
+   for (int i = 1;i<=n;i++)
+   {
+       cin>>x;
+       s.insert(x);
+   }
+   for (int i = 1;i<=m;i++) cin>>p[i];
+   sort(p+1,p+m+1);
+   ll ans = 0;
+   for (int i = 1;i<=m;i++)
+   {
+       it = s.lower_bound(p[i]);
+       if(it == s.end())//也可以像程哥一样在set末尾插入INF
+       {
+           cout<<-1<<"\n";
+           return;
+       }
+       ans += *it;
+       s.erase(it);
+   }
+   cout<<ans<<"\n";
+   return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

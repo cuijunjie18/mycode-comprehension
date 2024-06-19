@@ -1,0 +1,105 @@
+//背景:HDU的网络赛的acm题,也是我学割边的题,细节真的多
+//题意:只能炸毁一条边使得图不连通,即求最小割边
+//坑点:重边,没有割边,图本身不连通,最小割边为0的时候
+//原理:Tarjan求割边
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 2005
+using namespace std;
+
+const int INF = 99999999;//模拟无穷大
+int dfn[MAXN],low[MAXN],dfncnt;//Tarjan数组
+bool flag[MAXN];//flag[x]表示连接x - f[x]的边是否为割边
+int maxn;//记录桥的最小边权
+int n,m;//点数与边数
+int f[MAXN];//并查集数组,用于判断图的连通性
+int k;//未建图的连通块个数
+vector<int> e[MAXN];//边数组
+int value[MAXN][MAXN];//边权数组
+
+int Find(int x)//并查集查找
+{
+    if(x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void init()//数据初始化
+{
+    k = n;//初始化连通块数量
+    dfncnt = 0;//情况DFS序
+    for (int i = 1;i<=n;i++) f[i] = i;//并查集初始化
+    for (int i = 1;i<=n;i++) dfn[i] = 0;//dfs序初始化
+    for (int i = 1;i<=n;i++) flag[i] = false;//割边判断初始化
+    for (int i = 1;i<=n;i++) e[i].clear();//清空图
+    memset(value,0,sizeof(value));//清空边权
+    maxn = INF;//初始化最小边权
+}
+void Tarjan(int x,int f)//Tarjan求割边
+{
+    dfn[x] = low[x] = ++dfncnt;
+    for (auto v:e[x])
+    {
+        if(v == f) continue;//DFS遍历不走回头路
+        if(!dfn[v])
+        {
+            Tarjan(v,x);
+            low[x] = min(low[x],low[v]);
+            if(low[v] > dfn[x]&&flag[v] == false)//注意这里是判断to与x的这条边
+            {
+                //这种方式还可以记录连接的边的两端点,具体实现后续展开
+                flag[v] = true;
+                maxn = min(maxn,value[x][v]);//取小值
+            }
+        }
+        else low[x] = min(low[x],dfn[v]);//直接取小值
+    }
+}
+void Solve()
+{
+    init();//数据初始化
+    int x,y,v;
+    for (int i = 1;i<=m;i++)//建图
+    {
+        cin>>x>>y>>v;
+        e[x].push_back(y);
+        e[y].push_back(x);
+        if(value[x][y] != 0)//如果是重边
+        {
+            value[x][y] = INF;//直接无穷化,因为不可能删除x-y间的边达成目标
+            value[y][x] = INF;
+        }
+        else
+        {
+            value[x][y] = v;
+            value[y][x] = v;
+        }
+        x = Find(x);//并查集查找
+        y = Find(y);
+        if(x == y) continue;//无效,跳过
+        f[x] = y;//成功合并
+        k--;//少一个连通块
+    }
+    //其实可以通过Tarjan跑的次数判断连通,大于等于两次则不连通
+    for (int i = 1;i<=n;i++)//Tarjan求最小割边
+    {
+        if(!dfn[i]) Tarjan(i,i);
+    }
+    if(k != 1)//如果图不连通
+    {
+        cout<<0<<"\n";//输出0,即一个人都不用派
+        return;
+    }
+    if(maxn == INF) cout<<-1<<"\n";//无割边,输出-1
+    else if(maxn == 0) cout<<1<<"\n";//至少要取去一个人
+    else cout<<maxn<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    while(true)
+    {
+        cin>>n>>m;
+        if(n == 0&&m == 0) break;
+        Solve();
+    }
+    return 0;
+}

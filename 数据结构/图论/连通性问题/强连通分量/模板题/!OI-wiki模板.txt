@@ -1,0 +1,75 @@
+//背景:学习图论强连通分量
+//理解:强连通分量是在有向图中,分量中每个节点可以任意互相达到,因为有向边的原因,所以难以用并查集去维护连通,故要求新算法
+//注意:单个节点自己也算一个强连通分量
+//自己的一些观点(未证明):只有返祖边可以形成强连通分量
+//时间复杂度:o(n+m),n来自节点的存储,m来自边的遍历
+#include <bits/stdc++.h>
+#define MAXN 10005
+using namespace std;
+
+//Tarjan搜索过程的数组
+int dfn[MAXN];//存储节点的dfs序
+int dfncnt;//dfs序
+int low[MAXN];//存储以节点为子树可以回溯到的最早的还在栈中的节点
+int in_stack[MAXN];//记录节点是否还在栈中
+int tp;//记录当前栈顶的位置
+int s[MAXN];//记录栈中节点
+
+//记录强连通分量的数组
+int scc[MAXN];//记录节点属于哪个强连通分量(有点并查集的感觉)
+int sc;//记录强连通分量的数量
+int sz[MAXN];//记录某个强连通的大小
+
+//邻接表存图(虽然链式前向星效率高,但是邻接表好写)
+vector<int> e[MAXN];
+
+void Tarjan(int x)//Tarjan算法(又叫Tarjan缩点)
+{
+	//遍历到新节点的预处理操作
+	dfn[x] = ++dfncnt;//记录新的dfs序
+	low[x] = dfncnt;//初始化x可以回溯到当前子树的最早的dfs序(不要写成了 = x)
+	s[++tp] = x,in_stack[x] = 1;//节点入栈处理
+	for (auto v:e[x])//遍历边
+	{
+		if(!dfn[v])//如果to没有到达过
+		{
+			Tarjan(v);//递归节点
+			low[x] = min(low[x],low[v]);//更新low值
+		}
+		else if(in_stack[v]) low[x] = min(low[x],dfn[v]);//如果to到过且还在栈中(即没处理完),此边必然是反祖边!则可以推出此时dfn[v] = low[v] 
+	}
+	if(low[x] == dfn[x])//如果形成了以x为根的强连通分量(这是特征判断式)
+	{
+		sc++;//强连通分量+1
+		while(s[tp] != x)//将当前栈中的节点依次出栈直到当前节点
+		{
+			scc[s[tp]] = sc;//记录
+			in_stack[s[tp]] = 0;//出栈
+			sz[sc]++;//大小+1
+			tp--;//栈顶移动
+		}
+		scc[s[tp]] = sc;//记录当前节点
+		sz[sc]++;//大小+1
+		in_stack[x] = 0;//根节点出栈
+		tp--;//移动栈顶
+	}
+}
+int main()
+{
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);;
+	int n,m,x,y;
+	cin>>n>>m;
+	for (int i = 1;i<=m;i++)
+	{
+		cin>>x>>y;
+		e[x].push_back(y);
+	}
+	Tarjan(1);
+	int ans = 0;
+	for (int i = 1;i<=sc;i++)
+	{
+		if(sz[i] >= 2) ans++;
+	}
+	cout<<ans<<"\n";
+	return 0;
+}

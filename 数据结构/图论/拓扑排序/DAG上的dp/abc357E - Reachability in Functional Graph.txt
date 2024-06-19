@@ -1,0 +1,109 @@
+//背景:题目的图比较特殊,即有向图,且n个点仅有n条边,保证每个点出度仅为1,可以有自环
+/*思路:发现如果有环(除单个点自环),那么这个环一定是某条路径的终点,因为环中每个点耗掉了一个出度,所以不可能出,所以可以考虑构建无环的DAG
+       进行拓扑dp计数(出度不为1的时候一般不能dp拓扑计数到达多少个点),即先缩点去环,然后构建DAG森林进行dp计数*/
+//原理:Tarjan缩点 + DAG上拓扑dp计数
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 200005
+using namespace std;
+
+//Tarjan缩点相关数组
+int n;
+int dfn[MAXN],low[MAXN],dfncnt;
+int scc[MAXN];
+int sz[MAXN];
+int sc;
+bool vis[MAXN];//表示是否还在搜索栈里
+stack<int> s;
+
+//边权数组
+vector<int> e1[MAXN];//正向初始边
+vector<int> e2[MAXN];//反向DAG贡献边
+int in[MAXN];//入度数组
+int dp[MAXN];//dp数组,表示从这点出发可以到达多少个点(自己到自己也算一种情况)
+ll ans;//记录答案
+void Tarjan(int x)//Tarjan缩点
+{
+	low[x] = dfn[x] = ++dfncnt;
+	s.push(x);
+	vis[x] = true;
+	for (auto v:e1[x])
+	{
+		if(!dfn[v])
+		{
+			Tarjan(v);
+			low[x] = min(low[x],low[v]);
+		}
+		else if(vis[v]) low[x] = min(low[x],dfn[v]);
+	}
+	if(low[x] == dfn[x])
+	{
+		sc++;//新增缩完后的节点(也可能为仅包含1个节点)
+		while(s.top() != x)
+		{
+			scc[s.top()] = sc;
+			vis[s.top()] = false;
+			s.pop();
+			sz[sc]++;
+		}
+		scc[s.top()] = sc;
+		vis[s.top()] = false;
+		sz[sc]++;
+		s.pop();
+	}
+}
+void topo()//拓扑排序计数
+{
+	for (int i = 1;i<=sc;i++) dp[i] = sz[i];//初始化节点的dp数组
+	queue<int> que;
+	for (int i = 1;i<=sc;i++)//入度为0的节点入度
+	{
+		if(in[i] == 0) que.push(i);
+	}
+	while(!que.empty())//Kahn算法
+	{
+		int x = que.front();
+		ans += dp[x];
+		que.pop();
+		for (auto v:e2[x])
+		{
+			dp[v] += dp[x];
+			in[v]--;
+			if(in[v] == 0) que.push(v);
+		}
+	}
+	for (int i = 1;i<=sc;i++)//特殊处理新节点是2个以上节点缩合而成的情况
+	{
+		if(sz[i] >= 2) ans += (1ll)*sz[i]*(sz[i]-1);//加上环内本身还有的一部分贡献(注意当一个环很大时int相乘溢出)
+	}
+}
+int main()
+{
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	int x;
+	cin>>n;
+	for (int i = 1;i<=n;i++)//建立正向边
+	{
+		cin>>x;
+		e1[i].push_back(x);
+	}
+	for (int i = 1;i<=n;i++)//遍历进行Tarjan缩点
+	{
+		if(!scc[i]) Tarjan(i);
+	}
+	for (int i = 1;i<=n;i++)//构建DAG森林
+	{
+		for (auto v:e1[i])
+		{
+			if(v == i) continue;//舍弃原本的自环,因为要构建DAG森林
+			if(scc[v] == scc[i]) continue;//舍弃缩点后的自环
+			e2[scc[v]].push_back(scc[i]);//建立反向新边
+			in[scc[i]]++;//累加入度
+		}
+	}
+	topo();//拓扑计数
+	cout<<ans<<"\n";//输出
+	getchar();
+	return 0;
+}

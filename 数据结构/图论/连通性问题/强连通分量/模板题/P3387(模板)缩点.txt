@@ -1,0 +1,107 @@
+//背景:Tarjan求强连通分量进行缩点模板题,比abc357E题简单
+//收获:缩点去环适用于环上的权值不可重复贡献的题
+//思路:缩点然后DAG上的dp
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 20005
+using namespace std;
+int dfn[MAXN],dfncnt,low[MAXN];
+int scc[MAXN],sz[MAXN],sc;
+stack<int> s;
+bool vis[MAXN];
+int in[MAXN];
+int a_value[MAXN];//原始点权
+int c_value[MAXN];//缩点后的点权
+int dp[MAXN];//缩点后的dp数组,代表从入度为0的点到当前点的最多路径和
+vector<int> e1[MAXN];//原始图
+vector<int> e2[MAXN];//缩点后的DAG图
+ll ans;//答案
+void Tarjan(int x)//Tarjan缩点
+{
+	dfn[x] = low[x] = ++dfncnt;
+	s.push(x);
+	vis[x] = true;
+	for (auto v:e1[x])
+	{
+		if(!dfn[v])
+		{
+			Tarjan(v);
+			low[x] = min(low[x],low[v]);
+		}
+		else if(vis[v]) low[x] = min(low[x],dfn[v]);
+	}
+	if(low[x] == dfn[x])
+	{
+		sc++;
+		while(s.top() != x)
+		{
+			scc[s.top()] = sc;
+			vis[s.top()] = false;
+			c_value[sc] += a_value[s.top()];//累加
+			sz[sc]++;
+			s.pop();
+		}
+		scc[s.top()] = sc;
+		vis[s.top()] = false;
+		c_value[sc] += a_value[s.top()];//累加不要忘了
+		sz[sc]++;
+		s.pop();
+	}
+}
+void topo()//拓扑dp
+{
+	queue<int> que;
+	for (int i = 1;i<=sc;i++)
+	{
+		if(in[i] == 0)
+		{
+			dp[i] = c_value[i];//入度为0的节点dp初始化
+			que.push(i);//入队
+		}
+	}
+	while(!que.empty())
+	{
+		int x = que.front();
+		que.pop();
+		ans = max(ans,(1ll)*dp[x]);
+		for (auto v:e2[x])
+		{
+			dp[v] = max(dp[v],dp[x] + c_value[v]);//dp转移加上当前点权
+			in[v]--;//入度减1
+			if(in[v] == 0) que.push(v);//入队
+		}
+	}
+}
+int main()
+{
+	ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	int n,m,x,y;
+	cin>>n>>m;
+	for (int i = 1;i<=n;i++) cin>>a_value[i];
+	for (int i = 1;i<=m;i++)
+	{
+		cin>>x>>y;
+		e1[x].push_back(y);
+	}
+	for (int i = 1;i<=n;i++)//缩点
+	{
+		if(!dfn[i]) Tarjan(i);
+	}
+	for (int i = 1;i<=n;i++)//建立DAG森林
+	{
+		for (auto v:e1[i])
+		{
+			if(scc[v] == scc[i]) continue;//去掉自环
+			e2[scc[i]].push_back(scc[v]);
+			in[scc[v]]++;
+		}
+	}
+	topo();//拓扑dp
+	cout<<ans<<"\n";//输出
+	return 0;
+}
+
+/*2 2
+1 1
+1 2
+2 1*/

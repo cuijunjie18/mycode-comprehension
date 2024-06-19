@@ -1,0 +1,53 @@
+//背景:第一次敢比赛的时候去想dp,虽然最后没做出来,但是赛后几分钟后便切了,发现是想复杂了
+//收获:比赛的时候真的是可以练脑子的,从多重背包dp想到了设置状态的特点,最后便是组合数,给自己加油!
+//原理:组合数 + dp
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 998244353;
+ll pre[1005][1005];//预处理求组合数
+ll dp[1005];//dp数组,表示长度为i时的方案数
+ll c[27];//表示对应字母的数量
+void prework()//预处理组合数
+{
+    for (int i = 0;i<=1000;i++)//必要预处理,注意要从0开始
+    {
+        pre[i][0] = 1;
+        pre[i][i] = 1;
+    }
+    for (int i = 1;i<=1000;i++)//杨辉三角求组合数
+    {
+        for (int j = 1;j<i;j++)
+        {
+            pre[i][j] = (pre[i-1][j] + pre[i-1][j-1])%md;
+        }
+    }
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int n;
+    cin>>n;
+    for (int i = 1;i<=26;i++) cin>>c[i];
+    dp[0] = 1;//dp初始化,长度为1就一种方案
+    for (int i = 1;i<=26;i++)//枚举字母
+    {
+        for (int j = n;j>=1;j--)//倒着枚举长度,确保dp来自之前的状态
+        {
+            for (int k = 1;k<=c[i];k++)//枚举当前长度要放多少个当前字母
+            {
+                if(k > j) break;//如果放不下,退出
+                dp[j] = (dp[j] + dp[j-k]*pre[j][k]%md)%md;//放得下,j长度中找k个位置放
+            }
+        }
+    }
+    ll ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//遍历长度
+    {
+        ans = (ans + dp[i])%md;//累加取模
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

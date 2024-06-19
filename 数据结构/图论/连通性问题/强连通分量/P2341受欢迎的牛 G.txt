@@ -1,0 +1,84 @@
+//背景:Tarjan缩点Oi-wiki推荐的题,考了小小的思维与特判,自己想出来的
+//简单题意:给定一个有向图,求有多少个点可以由任意点到达
+//思路:利用Tarjan缩点构建DAG图/森林,可以发现,仅当出度为0的点仅有一个时才满足题意,同时特判缩成一个点的情况,全图为scc
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 10005
+using namespace std;
+int dfn[MAXN],low[MAXN],dfncnt;
+int scc[MAXN],sz[MAXN],sc;
+bool vis[MAXN];
+stack<int> s;
+vector<int> e1[MAXN];
+vector<int> e2[MAXN];
+int out[MAXN];//记录出度
+void Tarjan(int x)//Tarjan缩点
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto v:e1[x])
+    {
+        if(!dfn[v])
+        {
+            Tarjan(v);
+            low[x] = min(low[x],low[v]);
+        }
+        else if(vis[v]) low[x] = min(low[x],dfn[v]);
+    }
+    if(low[x] == dfn[x])
+    {
+        sc++;
+        while(true)
+        {
+            int t = s.top();
+            s.pop();
+            scc[t] = sc;
+            vis[t] = false;
+            sz[sc]++;
+            if(t == x) break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin>>n>>m;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e1[x].push_back(y);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(!dfn[i]) Tarjan(i);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        for (auto v:e1[i])
+        {
+            if(scc[v] == scc[i]) continue;
+            e2[scc[i]].push_back(scc[v]);
+            out[scc[i]]++;//记录入度
+        }
+    }
+    if(sc == 1)//特判缩成一个点
+    {
+        cout<<n<<"\n";//输出答案
+        return 0;
+    }
+    int num = 0,ans = 0;
+    for (int i = 1;i<=sc;i++)//计算出度为0的点
+    {
+        if(out[i] == 0)
+        {
+            num++;
+            ans = i;
+        }
+    }
+    if(num >= 2) cout<<0<<"\n";//大于2个,没有答案
+    else cout<<sz[ans]<<"\n";//否则输出对应节点大小
+    return 0;
+}

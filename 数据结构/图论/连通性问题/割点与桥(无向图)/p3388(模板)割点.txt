@@ -1,0 +1,64 @@
+//背景:割点的学习,割点是删除某点后图的连通块增加
+//求割点适用条件:无向图中
+//方法:Tarjan算法
+/*判断依据:(1)对于非起点x:如果存在至少一个点 v（x 的儿子），使得 low[v] >= dfn[x]，即不能回到祖先，那么 x 点为割点。
+           (2)对于起点x:在dfs遍历过程有两个儿子,说明通过第一个儿子的时候没有到达第二个儿子,说明起点把图分成了两个区域,必为割点,反之必不是
+*/
+#include <bits/stdc++.h>
+#define MAXN 20005
+using namespace std;
+int dfn[MAXN],low[MAXN],dfncnt;
+bool vis[MAXN];//标记数组,标记某个节点是否访问过,其实可以不用
+bool flag[MAXN];//标记某个点是否为割点(可以防止割点集合重复,防止计数重复)
+int res;
+vector<int> e[MAXN];
+void Tarjan(int x,int fa)
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    int child = 0;
+    for (auto v:e[x])
+    {
+        //if(v == fa) continue;
+        if(!vis[v])
+        {
+            child++;
+            Tarjan(v,x);
+            low[x] = min(low[x],low[v]);
+            if(x != fa&&low[v] >= dfn[x]&&flag[x] == false)//如果当前点不是起点,且满足
+            {
+                flag[x] = true;//标记为割点
+                res++;//割点数量累加
+            }
+        }
+        //等价于前面continue后直接else
+        else if(v != fa) low[x] = min(low[x],dfn[v]);//确保了不通过父节点更新low(错了,其实只是确保不走回路)
+    }
+    if(child >= 2&&x == fa&&flag[x] == false)//特殊判断起点
+    {
+        flag[x] = true;//标记割点
+        res++;//割点数量累加
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin>>n>>m;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        if(!dfn[i]) Tarjan(i,i);
+    }
+    cout<<res<<"\n";
+    for (int i = 1;i<=n;i++)
+    {
+        if(flag[i]) cout<<i<<" ";//注意是空格,不是换行(调了20分钟)
+    }
+    return 0;
+}
