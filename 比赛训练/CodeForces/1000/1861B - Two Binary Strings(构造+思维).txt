@@ -1,0 +1,31 @@
+//背景：暑假训练，深深挫败，思维题
+//思路：题目保证了起点都为0，终点都为1，那么只要要相同位置的"01"即可
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    string a,b;
+    cin>>a>>b;
+    int n = a.size();
+    for (int i = 0;i<n-1;i++)
+    {
+        if(a[i] == '0'&&b[i] == '0'&&a[i+1] == '1'&&b[i+1] == '1')
+        {
+            cout<<"Yes"<<"\n";
+            return;
+        }
+    }
+    cout<<"No"<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

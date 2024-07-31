@@ -1,0 +1,47 @@
+#include <bits/stdc++.h>
+using namespace std;
+int f[2][6001];//第一维为该人参不参加，第二维代表编号为i的人，f代表此情况下的最大快乐指数和
+int t[6001];//记录快乐指数
+typedef struct tree//定义树的结构体
+{
+    int fa;//该点的父亲
+    vector<int> g;//该点子树
+}TREE;
+TREE tree[6001];//树形数据
+int root;//树的根节点
+int ans;//最终答案
+void DFS(int x)//核心函数
+{
+    if(tree[x].g.size() == 0)//如果到达了底部
+    {
+        f[0][x] = 0;//x节点不参加的快乐指数为0
+        f[1][x] = t[x];//x节点参加的快乐指数(可能为负)
+        return;//切记要返回，否则死循环
+    }
+    f[1][x] = t[x];//该节点参加的最大快乐指数至少包括自己
+    for (int i = 0,s = tree[x].g.size();i<s;i++)//遍历子树
+    {
+        DFS(tree[x].g[i]);//注意DFS放的位置，确保了先到达底部
+        f[0][x] += max(f[0][tree[x].g[i]],f[1][tree[x].g[i]]);//该点不参加，其子树随便选，比较取最大值
+        f[1][x] += f[0][tree[x].g[i]];//该点参加，只能选子树不参加的情况
+    }
+}
+int main()
+{
+    int n,l,k;
+    scanf("%d",&n);//输入参加舞会的人数
+    for (int i = 1;i<=n;i++) scanf("%d",&t[i]);//输入每个人的快乐指数
+    for (int i = 1;i<=n-1;i++)
+    {
+        scanf("%d%d",&l,&k);
+        tree[l].fa = k;//l的上司为k(即k是l的根节点)
+    }
+    for (int i = 1;i<=n;i++)//类反函数，确定子树 ，同时该循环可以确定树的根节点
+    {
+        tree[tree[i].fa].g.push_back(i);//i的父亲的子树一定有i
+        if(tree[i].fa == 0) root = i;//如果没有父亲，则该点为根节点
+    }
+    DFS(root);//从根节点开始递归，即dp
+    printf("%d\n",max(f[0][root],f[1][root]));//输出最大值，可能为root参加，也可能为不参加，取最大值
+    return 0;
+}

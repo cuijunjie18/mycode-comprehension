@@ -28,7 +28,7 @@ void Tarjan(int x)//Tarjan缩点
 			Tarjan(v);
 			low[x] = min(low[x],low[v]);
 		}
-		else if(vis[v]) low[x] = min(low[x],dfn[v]);
+		else if(vis[v]) low[x] = min(low[x],dfn[v]);//还在栈的必为DFS序中的返祖边
 	}
 	if(low[x] == dfn[x])
 	{

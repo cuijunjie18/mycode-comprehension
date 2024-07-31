@@ -1,0 +1,58 @@
+//背景：暑假训练，再一次被cf的题目震惊到，会做真的简单
+//题解思路：显然当a1,a2 …… ak是坏段，那么加上任何数都是坏段，贪心即可，遇到坏段答案累加
+//原理：数论 + 贪心
+//时间复杂度：o(n*sqrt(x))，保证每次循环set里不会有超过sqrt(x)个数
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    int n,ans = 0;
+    ll x,y;
+    unordered_set<ll> s;//利用unordered_set 优化时间复杂度
+    unordered_set<ll> temp;
+    cin >> n >> x;
+    for (int i = 1; i <= n; i++)
+    {
+        bool flag = false;
+        cin >> y;
+        if (x%y) continue;//只有x的因子才可能乘积产生x，否则不要管
+        for (auto v:s)//遍历当前段的所有乘积
+        {
+            if (y*v == x)//有坏的了
+            {
+                flag = true;
+                break;
+            }
+        }
+        if (flag)//如果加上当前位置产生了下
+        {
+            ans++;//答案累加
+            s.clear();//清空乘积
+        }
+        else//否则
+        {
+            temp.clear();//清空临时set
+            for (auto v:s)
+            {
+                if (x%(v*y)) continue;//只保留x的因子
+                temp.insert(v*y);
+            }
+            for (auto v:temp) s.insert(v);//将临时set的放入s
+        }
+        s.insert(y);//当前位置别忘了加
+    }
+    cout << ans + 1 << "\n";//输出答案+1
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

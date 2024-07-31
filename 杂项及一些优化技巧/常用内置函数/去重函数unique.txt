@@ -29,3 +29,22 @@ int main()
 5
 
 说明去重并没有真的删除,而是放到了数组后面,所以num.size()仍旧不变,所以在用去重数组的时候要先知道大小
+
+
+注意：vector情况是ans输出去重后的个数，而int则不是
+
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    int a[5];
+    a[1] = 1;
+    a[2] = 1;
+    a[3] = 1;
+    a[4] = 5;
+    int p = unique(a+1,a+5) - a;
+    cout<<p<<"\n";
+    return 0;
+}
+
+输出：p = 3

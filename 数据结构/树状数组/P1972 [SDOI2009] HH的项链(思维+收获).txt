@@ -1,0 +1,83 @@
+//背景：暑假训练，发现好题
+//题意：对于每个询问，回到区间有多少"种"不同的数，注意是种
+/*思路分析：对于判断多少种的问题，要想办法使得相同的物品贡献始终为1，同时又要快速回答询问，而问题的答案是种类和；
+故想到可以快速维护前缀和的数据结构，树状数组或线段树都行；我们将问题离线处理，按右端点小到大排序，那么每种出现过
+的物品可用其最右边出现的那一次替代，那么直接树状数组维护即可
+*/
+#include <bits/stdc++.h>
+#define MAXN 1000005
+using namespace std;
+typedef struct edge//问题结构体
+{
+    int pos;
+    int l,r;
+}EDGE;
+bool cmp(EDGE x,EDGE y)//自定义排序
+{
+    return x.r < y.r;
+}
+int tree[1000005];//树状数组
+int p[1000005];//表示某种数字的位置，初始全为0，代表还没有出现过
+int a[1000005];//原始物品数组
+int n;//数组大小
+EDGE e[1000005];
+vector<int> ans(1000001,0);//答案
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void revise(int x,int k)
+{
+    while (x <= n)
+    {
+        tree[x] += k;
+        x += lowbit(x);
+    }
+}
+int query(int x)
+{
+    int ans = 0;
+    while (x)
+    {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int q;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    cin >> q;
+    for (int i = 1; i <= q; i++)
+    {
+        cin >> e[i].l >> e[i].r;
+        e[i].pos = i;
+    }
+    int b = 1;//初始化左位置
+    sort(e+1,e+q+1,cmp);//排序
+    for (int i = 1; i <= q; i++)
+    {
+        int pos = e[i].pos;
+        for (; b <= e[i].r; b++)//遍历直到碰到当前右端点
+        {
+            int temp = a[b];//获取当前的数字
+            if (p[temp] != 0)//如果已经有位置了
+            {
+                revise(p[temp],-1);//之前贡献去掉
+                revise(b,1);//重新在新位置计算贡献
+                p[temp] = b;//位置右移
+            }
+            else
+            {
+                p[temp] = b;//直接记录
+                revise(b,1);//加上贡献
+            }
+        }
+        ans[pos] = query(e[i].r) - query(e[i].l - 1);//记录答案
+    }
+    for (int i = 1; i <= q; i++) cout << ans[i] << "\n";//按原顺序输出即可
+    return 0;
+}

@@ -1,0 +1,82 @@
+//背景:学完Tarjan强连通时很理解,结果现在强连通,割点,割边混在一起无法理解了
+//原理:Tarjan求割点,计数
+#include <iostream>
+#include <vector>
+#define MAXN 10005
+using namespace std;
+int n,m;
+int dfn[MAXN],low[MAXN],dfncnt;
+int son[MAXN];//记录节点分出的连通块数量(不包括自己的那一块)
+bool flag[MAXN];
+vector<int> e[MAXN];
+int num;//记录原图的连通块数量
+
+void init()
+{
+    num = 0;//连通块数量清空
+    dfncnt = 0;
+    for (int i = 0;i<n;i++)
+    {
+        dfn[i] = 0;
+        low[i] = 99999999;
+        son[i] = 0;
+        flag[i] = false;
+        e[i].clear();
+    }
+}
+
+void Tarjan(int x,int fa)
+{
+    dfn[x] = low[x] = ++dfncnt;//++一定要在前面
+    int child = 0;
+    for (int i = 0,big = e[x].size();i<big;i++)
+    {
+        int v = e[x][i];
+        if(!dfn[v])
+        {
+            child++;
+            Tarjan(v,x);
+            low[x] = min(low[x],low[v]);
+            if(flag[v] == false&&low[v] >= dfn[x]&& x != fa)
+            {
+                flag[v] = true;
+                son[x]++;//此割点包含连通块区域加1
+            }
+        }
+        else if(v != fa) low[x] = min(low[x],dfn[v]);//这里不理解,为什么不能替换成low[v]
+    }
+    if(x == fa) son[x] = child-1;//特判根节点
+}
+void Solve()
+{
+    init();
+    int x,y;
+    for (int i = 1;i<=m;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    for (int i = 0;i<n;i++)
+    {
+        if(!dfn[i])
+        {
+            num++;//连通块数量累加
+            Tarjan(i,i);
+        }
+    }
+    int ans = 0;
+    for (int i = 0;i<n;i++) ans = max(ans,num+son[i]);//求最大值
+    cout<<ans<<"\n";//输出
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    while(true)
+    {
+        cin>>n>>m;
+        if(n == 0&&m == 0) break;
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,40 @@
+//背景：Nim游戏练习题，看了题解才有思路
+/*思路：把棋子位置从左到右排序，按顺序两两配对，如果为奇数将第一个与0配对；那么棋子间有空位，类比Nim的堆数量；
+为什么？因为如果移动配对的前面，可以移动后面相同的步数使得空位不变，即移动前一个棋子为无效操作；
+那么原题等价于将空位全变为0，即取n堆石子；故建模为Nim游戏
+*/
+#include <iostream>
+#include <algorithm>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    sort(a+1,a+n+1);//排序
+    int ans = 0;//初始化Nim和
+    if(n%2)//处理奇数个棋子
+    {
+        for (int i = 2;i<=n;i += 2) ans ^= (a[i+1] - a[i] - 1);//配对
+        ans ^= (a[1] - 0 - 1);//与0配对
+    }
+    else//处理偶数个棋子
+    {
+        for (int i = 1;i<=n;i += 2) ans ^= (a[i+1] - a[i] - 1);//配对
+    }
+    if(ans) cout<<"Georgia will win"<<"\n";
+    else cout<<"Bob will win"<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

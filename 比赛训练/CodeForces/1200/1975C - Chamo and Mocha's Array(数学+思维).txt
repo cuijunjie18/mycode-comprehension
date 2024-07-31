@@ -1,0 +1,39 @@
+//背景：暑假训练，做不出题，哭了
+//思路：如果能操作产生相邻相同的数，那么可以将整个数组变成这个数，那么就如何操作出最大的相邻相等的数了，即枚举长度为3的subarray，取最大的中位数
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    int maxn = 0;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    if(n == 2)//特判两个的情况
+    {
+        cout<<min(a[1],a[2])<<"\n";//输出小的
+        return;
+    }
+    int temp[4];//临时数组
+    for (int i = 1;i<=n-2;i++)
+    {
+        temp[1] = a[i];
+        temp[2] = a[i+1];
+        temp[3] = a[i+2];
+        sort(temp+1,temp+4);
+        maxn = max(maxn,temp[2]);//在中位数中取最大值
+    }
+    cout<<maxn<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

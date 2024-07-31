@@ -1,0 +1,45 @@
+//背景:abc360-G题灵感
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int a[5005];
+int low[5005];
+int p[5005];//为求解路径引入的数组,表示当前位置连接之前的最长长度(包括自己)
+int way[5005];//记录方案的数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    int ans = 0;//初始化答案
+    low[0] = -2e9;//初始化为最小值
+    for (int i = 1;i<=n;i++)//dp模板
+    {
+        if(a[i] > low[ans])
+        {
+            low[++ans] = a[i];
+            p[i] = ans;//记录i是属于长度ans的
+            continue;
+        }
+        int temp = lower_bound(low+1,low+ans+1,a[i]) - low;//记得是减去low
+        low[temp] = a[i];//更新
+        p[i] = temp;//记录属于长度
+    }
+    int k = 0;//临时变量
+    int maxn = 2e9;//初始化最大值
+    for (int i = n;i>=1;i--)//倒着找
+    {
+        if(ans == 0) break;//找齐ans个了,退出
+        if(p[i] == ans&&maxn > a[i])//如果满足条件
+        {
+            way[++k] = a[i];//记录
+            maxn = a[i];//更新
+            ans--;//减少
+        }
+    }
+    reverse(way+1,way+k+1);//翻转数组
+    for (int i = 1;i<=k;i++) cout<<way[i]<<" ";//输出
+    cout<<"\n";
+    return 0;
+}

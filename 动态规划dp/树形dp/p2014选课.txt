@@ -1,0 +1,88 @@
+//引入:多棵树构成的森林可以引入一个0节点让其变为一棵树，方便求解
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//边的结构体
+{
+    int to,next;
+}EDGE;
+EDGE e[301<<1];//双向边，两倍大小
+int head[301];//以i为根节点的首条边的编号
+int cnt,n,m;//cnt为边的条数，n为节点个数(不包括0)，m为要选多少个
+int score[301];//每门课的分数
+int g[301];//i的父节点
+int big[301];//以i为根节点的树的大小(包括自己)
+int f[301][301];//dp数组，代表以i为根节点，选了j门课的最大值
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS(int x,int fa)//核心DFS
+{
+    if(x != 0)//如果x不是0
+    {
+        big[x] = 1;//初始化树的大小，大小可以用于剪枝
+        f[x][1] = score[x];//初始化选一门课，即自己的分数
+    }
+    for (int i = head[x];i;i = e[i].next)//枚举子树，先遍历到底
+    {
+        if(e[i].to == fa) continue;//来自父节点，跳过
+        DFS(e[i].to,x);//遍历子树
+        big[x] += big[e[i].to];//回溯累加求大小
+    }
+    for (int i = head[x];i;i = e[i].next)//开始dp以x为根节点的树
+    {
+        if(e[i].to == fa) continue;//来自父节点，跳过
+        if(x == 0)//0要特殊处理，即求最终答案
+        {
+            for (int j = m;j>=0;j--)//逆序枚举要选多少个
+            {
+                for (int k = 0;k<=j;k++)//枚举已经选了多少个，因为0是虚拟的，不用选，故已经选了k要从0开始
+                {
+                    f[0][j] = max(f[0][j],f[0][k] + f[e[i].to][j-k]);//背包状态转移方程
+                }
+            }
+        }
+        else//一般情况
+        {
+            for (int j = big[x];j>=2;j--)//j代表要以该节点为根选多少门课(已经包含了自己，故j不用等于1)(最多可以选big[x],一个剪枝)！！要逆序保证来自之前
+            {
+                for (int k = 1;k<=j;k++)//枚举已经选了多少门课，不能超过j
+                {
+                    f[x][j] = max(f[x][j],f[x][k] + f[e[i].to][j-k]);//背包状态转移方程
+                }
+            }
+        }
+    }
+}
+int main()
+{
+    n = read();//读入节点个数
+    m = read();//读入选课个数
+    for (int i = 1;i<=n;i++)
+    {
+        g[i] = read();//记录i的父节点
+        score[i] = read();//记录i的学分
+    }
+    for (int i = 1;i<=n;i++)//加边
+    {
+        add(g[i],i);
+        add(i,g[i]);
+    }
+    DFS(0,0);//从0开始，连接森林
+    printf("%d\n",f[0][m]);//最后答案是以0为根节点的m个节点的连通块的最大值(不包括0，0是虚拟的)
+    return 0;
+}

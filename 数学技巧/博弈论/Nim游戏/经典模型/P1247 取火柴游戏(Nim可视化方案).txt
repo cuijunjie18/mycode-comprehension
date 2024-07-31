@@ -1,0 +1,30 @@
+//背景：学习Nim后开始做题，这题是一个Nim操作可视化的题目
+//原理：Nim博弈
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    int a[n+1];
+    int ans = 0;//初始化Nim和
+    for (int i = 1;i<=n;i++) cin>>a[i],ans ^= a[i];//输入a[i]并异或Nim和
+    if(ans == 0)//如果先手必输
+    {
+        cout<<"lose"<<"\n";
+        return 0;
+    }
+    for (int i = 1;i<=n;i++)//否则找方案，顺序找，确保b最小的情况下
+    {
+        int temp = ans^a[i];//这样操作将Nim和维持在0
+        if(temp < a[i])//如果减少才是合理的
+        {
+            cout<<a[i] - temp<<" "<<i<<"\n";//输出
+            a[i] = temp;//改变
+            break;//退出循环
+        }
+    }
+    for (int i = 1;i<=n;i++) cout<<a[i]<<" ";//输入第一次操作后的状态
+    return 0;
+}

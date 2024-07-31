@@ -1,0 +1,48 @@
+//背景：暑假训练，看了Hint才会，但是细节还是出错
+//思路：将数字展开成二进制下看，题目中的操作等价于1移动，判断某个位置在m时间内能否变为1即可，每一位的周期性为格雷码
+//细节：未经历一个完整的格雷码的不能由前面传递到1(n = 0便是一个好的例子)，只能由后面（我的wrong）
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll qpow[40];//2的幂次方
+void prework()//预处理
+{
+    qpow[0] = 1;
+    for (int i = 1;i<=39;i++) qpow[i] = qpow[i-1]*2;
+}
+void Solve()
+{
+    ll n,m;
+    cin>>n>>m;
+    ll ans = 0;//初始化答案
+    if(m == 0)//如果没得移动
+    {
+        cout<<n<<"\n";//直接输出
+        return;
+    }
+    for (int i = 1;i<=35;i++)//按位判断
+    {
+        ll temp = n%qpow[i];//计算余数
+        bool flag = n/qpow[i] >= 1;//计算是否可以由前面1传递
+        if(temp >= qpow[i-1]) ans += qpow[i-1];//如果直接落在1上，直接累加
+        else
+        {
+            if(m >= qpow[i-1]-temp) ans += qpow[i-1];//判断后面的传递
+            else if(flag&&m >= temp+1) ans += qpow[i-1];//判断前面的传递
+        }
+    }
+    cout<<ans<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();//不要忘记预处理
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

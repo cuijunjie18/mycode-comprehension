@@ -1,0 +1,58 @@
+//背景：暑假训练，思维题还是不会，看了题解
+//原理：组合数学 + 前缀和 + 贪心
+//思路：https://www.luogu.com.cn/article/oqf7cfju
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 998244353;
+ll po[300005];//2的幂
+void prework()//预处理2的幂
+{
+    po[0] = 1;
+    po[1] = 2;
+    for (int i = 2;i<=300000;i++) po[i] = po[i-1]*2%md;
+}
+void Solve()
+{
+   int n,x;
+   cin>>n;
+   ll minn = 0;//记录最小前缀值，初始化为0
+   ll sum[n+1];
+   sum[0] = 0;
+   for (int i = 1;i<=n;i++)//前缀处理
+   {
+       cin>>x;
+       sum[i] = x + sum[i-1];
+       minn = min(minn,sum[i]);
+   }
+   if(minn == 0)//特殊判断,即没有必须执行操作2的位置
+   {
+       cout<<po[n]<<"\n";
+       return;
+   }
+   ll ans = 0;//初始化答案
+   int cnt = 0;//记录必须执行2操作位置前可以任意处理的位置个数
+   for (int i = 1;i<=n;i++)
+   {
+       if(sum[i] >= 0) cnt++;//大于0取绝对值没影响
+       if(sum[i] == minn)//如果必须执行2
+       {
+           ans = (ans + po[cnt+n-i])%md;//累加答案
+       }
+   }
+   cout<<ans<<"\n";//输出
+   return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

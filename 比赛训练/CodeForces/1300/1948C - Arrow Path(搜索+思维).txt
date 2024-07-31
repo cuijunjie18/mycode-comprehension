@@ -1,0 +1,39 @@
+//背景：暑假训练，一开始自己打了搜索发现错误(不知道哪里错了)
+//巧妙方法：https://www.luogu.com.cn/article/bw4wzmfn
+#include <bits/stdc++.h>
+using namespace std;
+char mp[3][200005];
+int n;
+void Solve()
+{
+    cin>>n;
+    for (int i = 1;i<=2;i++)
+    {
+        for (int j = 1;j<=n;j++) cin>>mp[i][j];
+    }
+    bool check = false;
+    for (int i = 1;i<=n-1;i++)
+    {
+        if(i%2)
+        {
+            if(mp[2][i] == '<'&&mp[1][i+1] == '<') check = true;
+        }
+        else
+        {
+            if(mp[1][i] == '<'&&mp[2][i+1] == '<') check = true;
+        }
+    }
+    if(check) cout<<"NO"<<"\n";
+    else cout<<"YES"<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

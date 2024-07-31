@@ -1,0 +1,46 @@
+//背景:练习贪心题,一眼反悔贪心,秒了
+//原理:贪心 + 优先队列
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+typedef struct edge
+{
+    int d;
+    ll p;
+}EDGE;
+EDGE e[100005];
+bool cmp(EDGE x,EDGE y)//按结束时间排序
+{
+    return x.d < y.d;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++) cin>>e[i].d>>e[i].p;
+    sort(e+1,e+n+1,cmp);
+    ll ans = 0;//答案
+    int use = 0;//用时
+    priority_queue<ll,vector<ll>,greater<ll>> que;//小根堆
+    for (int i = 1;i<=n;i++)
+    {
+        if(e[i].d > use)//如果还可以做
+        {
+            use++;//用时加1
+            ans += e[i].p;//累加答案
+            que.push(e[i].p);//入队
+            continue;//继续
+        }
+        if(que.top() < e[i].p)//否则如果之前可以替换
+        {
+            ans -= que.top();
+            que.pop();
+            que.push(e[i].p);//入队
+            ans += e[i].p;
+        }
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

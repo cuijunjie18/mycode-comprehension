@@ -1,0 +1,59 @@
+//背景：暑假补题，依旧做不成，看了答案提示二分才会
+//原理：二分答案
+//时间复杂度：o(nloga)
+//实现：细节
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    ll n,k;
+    cin >> n >> k;
+    ll a[n+1],b[n+1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= n; i++) cin >> b[i];
+    ll minn = 0; // 初始化能被加上贡献的最小值
+    ll l = 0,r = 1e9; // 初始化左右端点
+    while (l <= r) // 二分答案
+    {
+        ll mid = (l+r) >> 1;
+        ll temp = 0; // 记录能被加上的数量
+        for (int i = 1; i <= n; i++)
+        {
+            if (a[i] < mid) continue; // 小于最小值，一次都不行
+            temp += (a[i] - mid)/b[i] + 1; // 取下界+1
+        }
+        if (temp >= k) // 如果数量足够
+        {
+            minn = mid; // 记录最小值
+            l = mid + 1; // 提高下界
+        }
+        else r = mid - 1; // 否则缩小上界
+    }
+    //cout << minn << "\n";
+    ll ans = 0; // 初始化答案
+    ll d = minn + 1; // 重中之中，因为最后可能很多等于minn的，导致其实数量是大于k的，所以加大1上界确保不加多
+    ll sum = 0; // 计算当前加的次数
+    for (int i = 1; i <= n; i++)
+    {
+        if (a[i] < d) continue; // 小于d，跳过
+        ll temp = (a[i] - d)/b[i] + 1; // 计算次数
+        //cout << temp << " ";
+        sum += temp; // 累加次数
+        ans += temp*a[i] - b[i]*temp*(temp-1)/2; // 公式求解
+    }
+    //cout << k - sum << "\n";
+    cout << ans + minn * (k - sum)<< "\n"; // 输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

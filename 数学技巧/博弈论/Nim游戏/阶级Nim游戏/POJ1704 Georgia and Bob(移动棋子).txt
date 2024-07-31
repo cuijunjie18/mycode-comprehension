@@ -1,0 +1,37 @@
+//背景：上一次的做法是经典Nim模型，这一次转化为阶梯Nim
+/*理解：例如已知道棋子位置1,5,7,6,9,122,14,17,则每颗棋子向左最大移动步数为0,3,0,0,1,2,1,2;
+       我们将第2个棋子向左移动一步，则局面变为0,2,1,0,0,1,2,1,2;发现它右边第一个棋子的限制边宽松了。
+       是不是想到了移动阶梯，向左移动相当于将石子向右移动，那么最后一个看成1阶梯即可建模为阶梯Nim
+*/
+#include <iostream>
+#include <algorithm>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    int h[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    a[0] = 0;
+    sort(a+1,a+n+1);
+    for (int i = 1;i<=n;i++) h[i] = a[i] - a[i-1] - 1;
+    
+    //0阶梯对应的位置是最后一个位置的后面，即最后一个位置对应1阶梯
+    int ans = 0;
+    for (int i = 0;n-i >= 1;i += 2) ans ^= h[n-i];//阶梯Nim模板
+    if(ans) cout<<"Georgia will win"<<"\n";
+    else cout<<"Bob will win"<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

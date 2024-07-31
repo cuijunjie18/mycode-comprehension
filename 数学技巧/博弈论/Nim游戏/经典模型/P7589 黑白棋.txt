@@ -1,0 +1,30 @@
+//背景：Nim经典模板题
+/*思路：向着对方移动相当于减少石子，远离相当于增加，而若某人发现自己先手必胜，那么对方会选择增加石子，
+       那么你可以向着他移动相同距离，而增加次数有限，所以胜负不改变；故为经典Nim博弈
+*/
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,k,d,y,b,w;
+    int ans = 0;
+    cin>>n>>k>>d;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>y>>b>>w;
+        ans ^= abs(b-w) - 1;//注意不要少了减1，因为是计算空隙
+    }
+    if(ans) cout<<"Yes"<<"\n";
+    else cout<<"No"<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,102 @@
+//背景：暑假复习，自己切了一道Kruskal重构树
+//思路：题目的大意为两点路径上的边权的最小值的最大值，想到Kruskal重构最大树
+//原理：Kruskal重构树 + 最大生成树
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+typedef struct edge // Kruskal生成树边结构体
+{
+    int a,b;
+    ll value;
+}EDGE;
+EDGE e[100005];
+vector<int> et[10005<<1]; // 重构树
+int f[10005<<1];
+ll val[10005<<1]; // 记录点权，仅有Kruskal新节点才有
+int cnt; // 节点编号
+int dp[10005<<1][30]; // 倍增父节点
+int depth[10005<<1]; // 深度数组
+int logn[10005<<1]; // 预处理对数
+bool cmp(EDGE x,EDGE y) // 最大生成树排序
+{
+    return x.value > y.value;
+}
+void prework() // 预处理工作
+{
+    logn[1] = 0;
+    for (int i = 2; i <= 20005; i++) logn[i] = logn[i/2] + 1;
+}
+int Find(int x) // 并查集查找
+{
+    if (x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void DFS(int x,int fa,int d) // DFS预处理
+{
+    depth[x] = d;
+    dp[x][0] = fa;
+    for (int i = 1; (1 << i) <= depth[x]; i++) dp[x][i] = dp[dp[x][i-1]][i-1];
+    for (auto to : et[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x,d+1);
+    }
+}
+int LCA(int a,int b) // 倍增求LCA
+{
+    if (depth[a] < depth[b]) swap(a,b);
+    while (depth[a] > depth[b]) a = dp[a][logn[depth[a] - depth[b]]];
+    if (a == b) return a;
+    for (int i = logn[depth[a]]; i >= 0; i--)
+    {
+        if (dp[a][i] != dp[b][i])
+        {
+            a = dp[a][i];
+            b = dp[b][i];
+        }
+    }
+    return dp[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int n,m,q,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) f[i] = i; // 并查集初始化
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> e[i].a >> e[i].b >> e[i].value;
+    }
+    sort(e+1,e+m+1,cmp);
+    cnt = n; // 初始化节点编号
+    for (int i = 1; i <= m; i++) // 最大生成树
+    {
+        x = Find(e[i].a);
+        y = Find(e[i].b);
+        if (x == y) continue;
+        cnt++; // 编号累加
+        f[x] = f[y] = f[cnt] = cnt; // 注意新节点也要并查集初始化 
+        val[cnt] = e[i].value; // 记录点权
+        et[cnt].push_back(x); // 注意是x，而不是e[i].a
+        et[cnt].push_back(y); // 连y
+    }
+    for (int i = 1; i <= cnt; i++) // 预处理
+    {
+        if (Find(i) == i) DFS(i,0,0); // 对于每个根节点
+    }
+    cin >> q;
+    while (q--) // 回答询问
+    {
+        cin >> x >> y;
+        if (Find(x) != Find(y)) // 如果不连通
+        {
+            cout << -1 << "\n";
+            continue;
+        }
+        int lca = LCA(x,y);
+        //cout << x << " "<< y << " " << lca << "\n";
+        cout << val[lca] << "\n";
+    }
+    return 0;
+}

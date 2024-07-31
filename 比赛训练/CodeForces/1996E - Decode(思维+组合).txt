@@ -1,0 +1,39 @@
+//背景：暑假cf补题，思维题
+//思路：看到选择区间中0，1相等之类的，想前缀和，但是我没想到正解
+//正解：遇到1前缀和加1，遇到0减1，前缀和相等的位置，如sum[l] = sum[r]，那么[l+1,r]区间0，1个数相同
+//题解：https://www.cnblogs.com/zhifanacm/p/18326509
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 1e9 + 7;
+void Solve()
+{
+    string s;
+    cin >> s;
+    int n = s.size();
+    s = '#' + s;
+    int now = 0;
+    map<ll,ll> sum;
+    sum[0] = 1; // 初始化不要忘记了
+    ll ans = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        if (s[i] == '1') now++;
+        else now--;
+        ans = (ans + (n-i+1)*sum[now]%md)%md;
+        sum[now] = (sum[now] + i + 1)%md; // 注意这里是当前位置+1，因为是真正满足条件的当前位置的下一个位置才是起点
+    }
+    cout << ans << "\n"; // 输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

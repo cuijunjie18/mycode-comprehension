@@ -1,0 +1,58 @@
+//背景：暑假训练，cf的题太难了，折磨人，看了题解才会的构造题
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    ll n,k;
+    cin>>n>>k;
+    if(k%2)//只有偶数才有解：(证明)https://www.luogu.com.cn/article/yhn3biwe
+    {
+        cout<<"No"<<"\n";
+        return;
+    }
+    int a[n+1];
+    for (int i = 1;i<=n;i++) a[i] = i;//初始化排列
+    if(k == 0)//特判0的情况，其实错在了n == 1时进不去循环，导致flag无法变为true
+    {
+        cout<<"Yes"<<"\n";
+        for (int i = 1;i<=n;i++) cout<<a[i]<<" ";
+        cout<<"\n";
+        return;
+    }
+    bool flag = false;//初始化存在
+    for (int i = 1;i<=n/2;i++)
+    {
+        if(k > 2*(n-2*i+1))//如果超过极限
+        {
+            swap(a[i],a[n-i+1]);//交换
+            k -= 2*(n-2*i+1);//减少
+            continue;
+        }
+        else
+        {
+            flag = true;//标记
+            swap(a[i],a[i+k/2]);//交换
+            break;
+        }
+    }
+    if(flag)//如果有解
+    {
+        cout<<"Yes"<<"\n";
+        for (int i = 1;i<=n;i++) cout<<a[i]<<" ";
+        cout<<"\n";
+    }
+    else cout<<"No"<<"\n";//无解
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

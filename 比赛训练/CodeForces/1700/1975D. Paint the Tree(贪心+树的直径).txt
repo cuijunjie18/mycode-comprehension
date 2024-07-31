@@ -1,0 +1,84 @@
+//背景：暑假训练1700，想到方法为树的直径思想，但是贪心思维不足，无法做出，看了题解
+/*关键思路：尽量让染蓝色尽快开始，即找到a，b最快相遇的位置，即第一个染蓝色点的位置，以其为根找到根最长链即可，答案为2*(n-1) + minn - maxn
+其中minn为第一个染蓝色经过的路径，maxn为最长根，贪心证明：https://blog.csdn.net/sluckystar/article/details/139665520
+*/
+//时间复杂度：o(n)
+#include <bits/stdc++.h>
+using namespace std;
+vector<int> e[200005];//邻接表存图
+int d1[200005];//a的最短路数组
+int d2[200005];//b的最短路数组
+int maxn = 0;//最长根链
+void DFS1(int x,int fa,int d)//求d1
+{
+    d1[x] = d;
+    for (auto v:e[x])
+    {
+        if(v == fa) continue;
+        DFS1(v,x,d+1);
+    }
+}
+void DFS2(int x,int fa,int d)//求d2
+{
+    d2[x] = d;
+    for (auto v:e[x])
+    {
+        if(v == fa) continue;
+        DFS2(v,x,d+1);
+    }
+}
+void DFS(int x,int fa,int d)//求最长根链
+{
+    maxn = max(d,maxn);
+    for (auto v:e[x])
+    {
+        if(v == fa) continue;
+        DFS(v,x,d+1);
+    }
+}
+void Solve()
+{
+    int n,a,b,x,y;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//清空上次的图
+    {
+        e[i].clear();
+        d1[i] = 0;
+        d2[i] = 0;
+    }
+    cin>>a>>b;
+    for (int i = 1;i<=n-1;i++)//建图
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    DFS1(a,0,0);
+    DFS2(b,0,0);
+    //初始化
+    int root = 0;
+    int minn = 99999999;
+    for (int i = 1;i<=n;i++)//找根
+    {
+        if(d2[i] >= d1[i]&&d2[i] < minn)//要红色先到且最短
+        {
+            minn = d2[i];
+            root = i;
+        }
+    }
+    maxn = 0;
+    DFS(root,0,0);
+    cout<<2*(n-1) + minn - maxn<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

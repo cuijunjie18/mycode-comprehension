@@ -1,0 +1,77 @@
+//背景：暑假洛谷题单，线段树区间修改，区间最值
+//收获：线段树大小一定要确定，不能动态处理（除非用动态开点线段树）
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll tree[200005<<2];
+ll laz[200005<<2];
+bool v[200005<<2];
+ll ans;
+ll n;
+void up(int pos)//向上更新
+{
+    int l = pos<<1;
+    int r = (pos<<1)|1;
+    tree[pos] = max(tree[l],tree[r]);
+}
+void pd(int s,int t,int pos)//下放修改标记
+{
+    int l = pos<<1;
+    int r = (pos<<1)|1;
+    if (v[pos])//因为修改可能为0，所以要另外用变量表示存在下放标记
+    {
+        laz[l] = laz[r] = laz[pos];
+        v[l] = v[r] = true;//不要忘记标记
+        tree[l] = tree[r] = laz[pos];
+        laz[pos] = 0;
+        v[pos] = false;
+    }
+}
+void revise(int l,int r,int s,int t,int pos,ll k)//区间修改
+{
+    if (l <= s && r >= t)
+    {
+        tree[pos] = k;
+        laz[pos] = k;
+        v[pos] = true;
+        return;
+    }
+    pd(s,t,pos);
+    int mid = (s+t)>>1;
+    if (l <= mid) revise(l,r,s,mid,pos<<1,k);
+    if (r >= mid + 1) revise(l,r,mid + 1,t,(pos<<1)|1,k);
+    up(pos);
+}
+ll query(int l,int r,int s,int t,int pos)//查询最大值
+{
+    if (l <= s && r >= t) return tree[pos];
+    pd(s,t,pos);
+    ll maxn = 0;
+    int mid = (s+t)>>1;
+    if (l <= mid) maxn = max(maxn,query(l,r,s,mid,pos<<1));
+    if (r >= mid + 1) maxn = max(maxn,query(l,r,mid + 1,t,(pos<<1)|1));
+    return maxn;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll m,d,x;
+    char ch;
+    cin >> m >> d;
+    while (m--)
+    {
+        cin >> ch >> x;
+        if (ch == 'Q')
+        {
+            ans = query(n-x+1,n,1,200000,1);//注意不能改变1，200000，要一开始就定
+            cout << ans << "\n";
+        }
+        else if (ch == 'A')
+        {
+            ll temp = (ans + x + d)%d;//防止负数取模
+            revise(n+1,n+1,1,200000,1,temp);
+            n++;
+        }
+    }
+    return 0;
+}

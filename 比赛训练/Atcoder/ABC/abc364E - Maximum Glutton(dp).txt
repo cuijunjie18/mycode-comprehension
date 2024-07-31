@@ -1,0 +1,40 @@
+//背景：暑假训练，abc退步了
+/*思路：一开始发现背包dp空间时间均过大，尝试将状态与状态表示的量转移；
+例如，一开始dp[i][j]表示甜度盐度等于i,j所需吃的最多物品，发现i<=1e4；j<=1e4，时间复杂度过高；
+状态转化dp[i][j]表示吃i个物品盐度为j的甜度的最小值
+*/
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y;
+    cin >> n >> x >> y;
+    int dp[n+1][y+1]; // 吃了i个物品，盐度为j的最小甜度
+    int a[n+1],b[n+1];
+    memset(dp,0x3f,sizeof(dp));// 最小甜度初始化为无穷大
+    dp[0][0] = 0;//初始化为0
+    for (int i = 1; i <= n; i++) cin >> a[i] >> b[i];
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = i; j >= 1; j--)//倒着枚举要吃多少个物品
+        {
+            for (int k = y; k >= b[i]; k--)//倒着枚举盐度
+            {
+                dp[j][k] = min(dp[j][k],dp[j-1][k-b[i]] + a[i]);//dp转移
+            }
+        }
+    }
+    for (int i = n - 1; i >= 0; i--)
+    {
+        for (int j = 0; j <= y; j++)
+        {
+            if (dp[i][j] <= x)//找到了满足条件的
+            {
+                cout << i + 1 << "\n";//输出+1，因为吃到超过才不能继续吃了
+                return 0;
+            }
+        }
+    }
+    return 0;
+}

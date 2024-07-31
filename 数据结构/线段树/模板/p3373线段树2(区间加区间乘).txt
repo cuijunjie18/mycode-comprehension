@@ -17,7 +17,7 @@ void pd(int s,int t,int pos)//下放懒标记函数
     int mid = (s+t)>>1;//二分区间,用于计算区间长度,下放和标记
     int l = pos<<1;//先获取左右子树节点编号,简化代码
     int r = (pos<<1)|1;
-    if(mul[pos] != 1)//有乘法懒标记未下放
+    if(mul[pos] != 1)//有乘法懒标记未下放(!!!因为可能会乘以0,所以这里不能if(mul[pos]))
     {
         mul[l] = mul[l]*mul[pos]%md;
         mul[r] = mul[r]*mul[pos]%md;

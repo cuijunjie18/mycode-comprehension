@@ -1,0 +1,53 @@
+//背景:Atcoder-E题比赛自己分析出来的
+//思路:维护一个单调不增的序列即可
+//原理:单调栈
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+   int n;
+   cin>>n;
+   ll h[n+1];
+   for (int i = 1;i<=n;i++) cin>>h[i];
+   ll ans = 0;//初始化答案
+
+   //定义栈,其实s与p可以一起
+   stack<ll> s;//存储栈值
+   stack<int> p;//存储位置
+   stack<ll> giv;//存储贡献
+
+   s.push(1e10);//初始放一个无穷大的数
+   p.push(0);//位置为0
+   giv.push(0);//贡献为0
+
+   for (int i = 1;i<=n;i++)//遍历
+   {
+       while(!s.empty()&&s.top() < h[i])//维护单调性
+       {
+           ans -= giv.top();//去掉贡献
+           s.pop();//依次出栈
+           p.pop();
+           giv.pop();
+       }
+       int temp = p.top();//获取位置
+       ll k = h[i]*(i-temp);//计算新贡献
+       ans += k;//累加
+       s.push(h[i]);//入栈
+       p.push(i);
+       giv.push(k);
+       cout<<ans+1<<" ";//输出
+   }
+   return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

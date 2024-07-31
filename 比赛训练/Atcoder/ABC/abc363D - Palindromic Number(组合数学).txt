@@ -1,0 +1,67 @@
+//背景：暑假打的一场abc，赛后不看答案补题，发现可以做了。说明做题满了，且代码需要大量调试，以后要练vp了
+//原理：组合数学
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll d[40];//代表长度为i的回文数字的数量
+ll sum[40];//长度<=i的回文数字的前缀和
+ll ten[19];//10的幂次
+ll ind = 37;//最长回文长度
+ll ans[50];//记录答案
+void prework()//预处理
+{
+    ten[0] = 1;
+    ten[1] = 10;
+    for (int i = 2;i<=18;i++) ten[i] = 10*ten[i-1];//累乘10的幂
+    d[1] = 10;
+    sum[1] += d[1];
+    for (int i = 2;i<=37;i++)//组合数学
+    {
+        d[i] = 9*ten[(i+1)/2 - 1];//第一位仅取1~9，后面取0~9
+        sum[i] = sum[i-1] + d[i];//累加前缀和
+    }
+    //for (int i = 1;i<=37;i++) cout<<sum[i]<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();//不要忘记预处理
+    ll n;
+    cin>>n;
+    if(n <= 10)//特判一位情况
+    {
+        cout<<n-1<<"\n";
+        return 0;
+    }
+    int p = lower_bound(sum+1,sum+ind+1,n) - sum;//找到第一个大于等于当前位置的回文串长度
+    n -= sum[p-1];//在p位置定位相对大小
+    if(p%2)//奇数
+    {
+        ll k = (p+1)/2;
+        n += ten[k-1];//第一位加多1
+        n--;//然后减去，这些都是细节
+        for (int i = k;i>=1;i--)
+        {
+            ans[i] = n%10;
+            n /= 10;
+        }
+        for (int i = 1;i<=k;i++) cout<<ans[i];
+        for (int i = k-1;i>=1;i--) cout<<ans[i];
+        return 0;
+    }
+    else//偶数同理
+    {
+        ll k = p/2;
+        n += ten[k-1];
+        n--;
+        for (int i = k;i>=1;i--)
+        {
+            ans[i] = n%10;
+            n /= 10;
+        }
+        for (int i = 1;i<=k;i++) cout<<ans[i];
+        for (int i = k;i>=1;i--) cout<<ans[i];
+        return 0;
+    }
+    return 0;
+}

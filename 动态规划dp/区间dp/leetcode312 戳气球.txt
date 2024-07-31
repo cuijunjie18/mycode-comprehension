@@ -1,0 +1,32 @@
+题目描述:
+有 n 个气球，编号为0 到 n - 1，每个气球上都标有一个数字，这些数字存在数组 nums 中。
+
+现在要求你戳破所有的气球。戳破第 i 个气球，你可以获得 nums[i - 1] * nums[i] * nums[i + 1] 枚硬币。 这里的 i - 1 和 i + 1 代表和 i 相邻的两个气球的序号。如果 i - 1或 i + 1 超出了数组的边界，那么就当它是一个数字为 1 的气球。
+
+求所能获得硬币的最大数量
+
+//背景:冯一峰推荐的题,思考了一会感觉是区间dp,但是不会写,看了题解的巧妙转换
+//dp设置:dp[i][j]表示i,j未戳破,i与j间全部戳破的最大价值
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        int n = nums.size();
+        int a[n+5];
+        a[1] = 1;//左右边界填加1
+        a[n+2] = 1;
+        for (int i = 2;i<=n+1;i++) a[i] = nums[i-2];
+        int dp[n+5][n+5];
+        memset(dp,0,sizeof(dp));//一定要初始化全为0
+        n = n+2;//改变n
+        for (int l = 3;l<=n;l++)//枚举长度,至少为3
+        {
+            for (int b = 1;b + l - 1<=n;b++)//枚举起点
+            {
+                int e = b + l - 1;//确定终点
+                //注意k不能与b,e重复
+                for (int k = b+1;k<=e-1;k++) dp[b][e] = max(dp[b][e],a[b]*a[k]*a[e] + dp[b][k] + dp[k][e]);//dp转移
+            }
+        }
+        return dp[1][n];//左右边界戳破乘以1,等于没有戳破,故1,n未戳破,中间全部戳破即为所求!
+    }
+};

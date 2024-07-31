@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//单向边的结构体
+{
+    int to,next;//该边的终点及以该点为起点的边的下一条
+    bool can;//是否可以通行
+}EDGE;
+EDGE e[200001<<1];//双倍空间
+int head[200001];//以x为起点的第一条边的编号
+int cnt;//边的数量
+int f[200001];//dp数组，一开始为能到到全部子树的反转次数，后来为到全部节点
+int ans[200001];//答案数组
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y,bool t)//加边
+{
+    e[++cnt].to = y;
+    e[cnt].can = t;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DDFS(int x,int fa)//对节点子树进行操作，自底而上
+{
+    for (int i = head[x];i;i = e[i].next)//枚举子树
+    {
+        if(e[i].to == fa) continue;//来自父亲，跳过，不走回头路
+        DDFS(e[i].to,x);//递归子树
+        if(e[i].can == true) f[x] += f[e[i].to];//如果x到子节点可以通行，不用反转，累加
+        else f[x] += (f[e[i].to] + 1);//否则要反转1次再累加
+    }
+}
+void UDFS(int x,int fa)//对父节点操作，自顶而下
+{
+    for (int i = head[x];i;i = e[i].next)//先找到父节点，避免提前进入下层形成无效dp
+    {
+        if(e[i].to == fa)//找到父节点了
+        {
+            if(e[i].can == true) f[x] = (f[fa] - 1);//如果可以通行，加上f父节点(已经处理过了)的反转次数减1
+            else f[x] = (f[fa] + 1);//否则还要多反转一次
+            break;//退出循环
+        }
+    }
+    for (int i = head[x];i;i = e[i].next)//枚举子树，向下
+    {
+        if(e[i].to == fa) continue;//来自父亲，跳过
+        UDFS(e[i].to,x);//递归子树
+    }
+}
+int main()
+{
+    int n = read();//读入节点个数
+    for (int i = 1;i<=n-1;i++)//建立单向边
+    {
+        int x = read();
+        int y = read();
+        add(x,y,true);//x到y为true
+        add(y,x,false);//y到x为false
+    }
+    DDFS(1,0);//无根树，从1开始
+    UDFS(1,0);//要与上面建树过程的起点统一，故从1开始
+    int m = pow(2,30);//初始化最小值
+    int number = 0;//初始化最小值节点个数
+    for (int i = 1;i<=n;i++)
+    {
+        if(f[i]<m)//如果有更小的
+        {
+            m = f[i];//更新最小值
+            number = 1;//重新计数
+            ans[number] = i;//存储答案
+        }
+        else if(f[i] == m)//如果等于最小值
+        {
+            number++;//答案数加1
+            ans[number] = i;//存储答案
+        }
+    }
+    printf("%d\n",m);//输出最小值
+    for (int i = 1;i<=number;i++)//依次输出答案
+    {
+        printf("%d ",ans[i]);
+    }
+    return 0;
+}

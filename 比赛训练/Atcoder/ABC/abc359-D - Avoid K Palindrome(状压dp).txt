@@ -1,0 +1,98 @@
+//背景:abc赛后补题,之前比赛时想到组合数,结果wa了,正解应该是状态压缩dp(因为k<=10)
+//原理:字符串 + 状压dp
+//时间复杂度:o(n*2^k*k)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 998244353;
+int n,k;
+ll dp[1005][1<<11];//dp数组,表示处理到某个位置时状态为t的总方案数
+string s;//原字符串
+string temp;//临时字符串,用于判断回文
+bool Is_palindrome()//检查是否为回文串
+{
+    for (int i = 0,j = k-1;i<=j;i++,j--)
+    {
+        if(i == j) break;
+        if(temp[i] != temp[j]) return false;//返回不是回文
+    }
+    return true;//是回文
+}
+bool Check_can_get(int num,int b,int e)//检测某子串是可以获得(用于预处理),num为对应的二进制数状态
+{
+    //我的二进制数,即状态是右到左,而字符串是从左到右,可以reverse处理,但这里用栈更帅
+    stack<char> str;
+    for (int i = 1;i<=k;i++)//取k位
+    {
+        str.push(num%2 + 'A');//等于先取右边的数,即右边的字符串
+        num /= 2;
+    }
+    for (int i = b;i<=e;i++)//判断字符串是否可以获得
+    {
+        char t = str.top();
+        str.pop();
+        temp += t;//用栈等价于从左往右存
+        if(s[i] == '?') continue;//问号可以
+        if(s[i] == t) continue;//相等可以
+        return false;//否则非法
+    }
+    return true;//合法
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin>>n>>k;
+    cin>>s;
+    for (int t = 0;t<=(1<<k)-1;t++)//预处理第一个k长度的状态压缩dp
+    {
+        temp = "";//清空临时字符串
+        if(!Check_can_get(t,0,k-1)) continue;//不能获得的跳过
+        if(!Is_palindrome()) dp[k-1][t] = 1;//以k-1处为终点当前状态为t,且不回文,的方案数为1(本质就是预处理),其他非法的自然为0
+    }
+    for (int i = k;i<n;i++)//枚举位
+    {
+        for (int t = 0;t<=(1<<k)-1;t++)//枚举之前的状态
+        {
+            if(!dp[i-1][t]) continue;//之前如果不满足条件,即没有对应序列,跳过
+
+            temp = "";//初始化temp字符串
+
+            //仅获取t的后k-1位字符
+            stack<int> r;
+            int num = t;
+            for (int j = 1;j<=k-1;j++)//仅k-1长度
+            {
+                r.push(num%2 + 'A');
+                num /= 2;
+            }
+            int sig = 0;//存储之前状态的数值二进制数
+            while(!r.empty())
+            {
+                temp += r.top();
+                sig = sig*2 + r.top() - 'A';//获取数值二进制数
+                r.pop();
+            }
+
+            //判断回文进行dp转移
+            if(s[i] == '?')//当前位置可以仁选A与B
+            {
+                temp += 'A';
+                int x = sig*2 + 0;
+                if(!Is_palindrome()) dp[i][x] = (dp[i][x] + dp[i-1][t])%md;//dp转移
+                temp = temp.substr(0,k-1) + 'B';
+                x = sig*2 + 1;
+                if(!Is_palindrome()) dp[i][x] = (dp[i][x] + dp[i-1][t])%md;//dp转移
+            }
+            else//已经固定
+            {
+                temp += s[i];
+                int x = sig*2 + s[i] - 'A';
+                if(!Is_palindrome()) dp[i][x] = (dp[i][x] + dp[i-1][t])%md;//dp转移
+            }
+        }
+    }
+    ll ans = 0;//初始化答案
+    for (int t = 0;t<=(1<<k)-1;t++) ans = (ans + dp[n-1][t])%md;//累加答案
+    cout<<ans<<"\n";//输出
+    return 0;
+}

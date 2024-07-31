@@ -1,0 +1,56 @@
+//背景：暑假刷题，算是自己写的一道dp题了(虽然用的是记忆化搜索)
+//收获：因为有的情况可能是0，所以dp搜索初始化为-1，只要不是-1就说明搜过了，我第一次超时是以是否为0为搜索依据
+//时间复杂度：o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll sum[200005];//前缀和数组
+ll dp[200005];//dp数组
+ll n,x;
+ll DFS(int b)
+{
+    if (b == n+1) return 0; // 如果越界了，说明无解
+    if (dp[b] != -1) return dp[b]; // 如果已经搜索过了
+    ll p = upper_bound(sum+b,sum+n+1,x+sum[b-1]) - sum; // 二分
+    //cout << p << "\n";
+    if (p == n+1) return dp[b] = n - b + 1;//如果没有，则后面全部都有贡献
+    if (p == b) return dp[b] = DFS(b+1);//如果是自己，那么往下一个搜索
+    else//其他情况
+    {
+        p--;//减1
+        dp[b] = p - b + 1;//计算答案
+        if(p + 2 <= n) dp[b] += DFS(p+2);//记得要累加答案
+    }
+    return dp[b];//记得返回
+}
+void Solve()
+{
+    ll y,ans = 0;
+    cin >> n >> x;
+    for (int i = 1; i <= n; i++) dp[i] = -1;
+    sum[0] = 0;
+    for (int i = 1; i <= n; i++)//维护前缀和
+    {
+        cin >> y;
+        sum[i] = sum[i-1] + y;
+    }
+    for (int i = 1; i <= n; i++)//枚举左端点，开始搜索
+    {
+        //注意不能sum[i] - sum[i-1] > x continue
+        ans += DFS(i);
+    }
+    //for (int i = 1; i <= n; i++) cout << dp[i] << "\n";
+    cout << ans << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

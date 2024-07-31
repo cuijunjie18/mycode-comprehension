@@ -1,0 +1,97 @@
+//背景：练习双连通分量，此题为边双连通分量，且学习了边双缩点
+//求边双的思路：(1)求割边：Tarjan；(2)两个点是边双连通的，当且仅当它们的树上路径中不包含桥。(也可以像本题一样直接缩点判断)
+//收获：边双求法，边双缩点，超时细节
+//解释为什么要编号求桥：如1->2为桥，以前仅标记了1->2，虽然缩点的时候1->2无法到，但是2->1却可以，故产生错误
+#include <bits/stdc++.h>
+#define MAXN 300005
+using namespace std;
+vector<pair<int,int>> e1[MAXN]; // 要以编号的形式记录边，否则会得到错误的缩点
+vector<int> e2[MAXN]; // 缩点后的新图
+int dfn[MAXN],low[MAXN],dfncnt;
+bool flag[MAXN]; // 判断边编号是否未桥
+int scc[MAXN],sc; // 缩点数组，有点像强连通分量
+int maxn,p; // 找直径数组
+void Tarjan(int x,int fa) // Tarjan找桥
+{
+    dfn[x] = low[x] = ++dfncnt;
+    for (auto v : e1[x])
+    {
+        int pos = v.first;
+        int to = v.second;
+        if (to == fa) continue;
+        if (!dfn[to])
+        {
+            Tarjan(to,x);
+            low[x] = min(low[x],low[to]);
+            if (flag[pos] == false && low[to] > dfn[x]) flag[pos] = true; // 判断依据，标记边的编号
+        }
+        else low[x] = min(low[x],dfn[to]);
+    }
+}
+void DFS(int x,int fa) // 边双缩点
+{
+    scc[x] = sc; // 记录缩点后的节点编号
+    for (auto v : e1[x])
+    {
+        int pos = v.first;
+        int to = v.second;
+        if (to == fa) continue;
+        if (flag[pos]||scc[to]) continue; // 如果是桥或者已经在连通块重
+        DFS(to,x);
+    }
+}
+void Count(int x,int fa,int d) // 找直径
+{
+    if (d > maxn)
+    {
+        maxn = d;
+        p = x;
+    }
+    for (auto to : e2[x])
+    {
+        if (to == fa) continue;
+        Count(to,x,d+1);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        e1[x].push_back({i,y});
+        e1[y].push_back({i,x});
+    }
+    for (int i = 1; i <= n; i++) // 无向图求割边
+    {
+        if (!dfn[i]) Tarjan(i,i);
+    }
+    for (int i = 1; i <= n; i++) // 双连通分量边缩点
+    {
+        if (!scc[i]) // 如果没有所属的缩点
+        {
+            sc++;//点数+1
+            DFS(i,0);
+        }
+    }
+    for (int i = 1; i <= n; i++) // 建立新的无向图
+    {
+        for (auto v : e1[i])
+        {
+            int to = v.second;
+            if (scc[i] == scc[to]) continue;
+            e2[scc[i]].push_back(scc[to]);
+            // 注意只能加一次，由于双向的缘故，另一边也会通过遍历加到
+            // 如果下面代码激活了，那么会超时
+            //e2[scc[to]].push_back(scc[i]);
+        }
+    }
+    // 两遍DFS求树的直径
+    Count(1,0,0);
+    maxn = 0;
+    Count(p,0,0);
+    cout << maxn << "\n";
+    return 0;
+}

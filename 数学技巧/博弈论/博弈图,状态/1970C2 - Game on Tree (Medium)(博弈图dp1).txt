@@ -1,0 +1,48 @@
+//背景：暑假训练，自己切了1700的博弈图，开心！！
+//原理：博弈图dp
+#include <bits/stdc++.h>
+using namespace std;
+bool dp[200005];//dp表示将这个位置激活是否必胜，true为必胜
+vector<int> e[200005];//图
+void DFS(int x,int fa)//DFS从底部开始倒着推：博弈图dp的特点
+{
+    bool son = false;//判断儿子
+    bool win = true;//判断当前状态是否必胜
+    for (auto v:e[x])
+    {
+        if(v == fa) continue;
+        son = true;//标记儿子
+        DFS(v,x);
+        if(dp[v] == true)//如果下一个状态有必胜的
+        {
+            win = false;//当前位置必败
+            dp[x] = false;//必败
+        }
+    }
+    if(win) dp[x] = true;//如果次态无必胜，则当前必胜
+    if(!son) dp[x] = true;//叶子必胜
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,t,x,y,root;
+    cin>>n>>t;
+    for (int i = 1;i<=n-1;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    cin>>root;//输入根
+    DFS(root,0);
+    for (auto v:e[root])//遍历与根相连的点
+    {
+        if(dp[v] == true)//如果有一个必胜
+        {
+            cout<<"Ron"<<"\n";//则先手必胜
+            return 0;
+        }
+    }
+    cout<<"Hermione"<<"\n";//否则先手输
+    return 0;
+}

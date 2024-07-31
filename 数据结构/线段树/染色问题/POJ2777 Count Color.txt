@@ -1,0 +1,111 @@
+//背景：学习扫描线过程看到了线段树染色就来了
+//询问实现：用数组（也可以用二进制压缩，向上的时候不是-1取|即可）
+#include <iostream>
+#include <algorithm>
+#define MAXN 100005
+using namespace std;
+int tree[MAXN<<2];
+int laz[MAXN<<2];
+bool color[31]; // 标记某次询问的颜色是否存在
+int ans; // 询问的答案
+void up(int pos) // 向上更新
+{
+    int l = pos << 1;
+    int r = (pos << 1)|1;
+    if (tree[l] == tree[r]) tree[pos] = tree[l]; // 记录纯色节点
+    else tree[pos] = -1; // -1表示当前节点包含非纯色
+}
+void Build(int l,int r,int pos) // 建树：初始化每个节点为1
+{
+    if (l == r)
+    {
+        tree[pos] = 1;
+        return;
+    }
+    int mid = (l+r)>>1;
+    Build(l,mid,pos<<1);
+    Build(mid+1,r,(pos<<1)|1);
+    up(pos); // 记得一定不要忘记向上更新，一开始我以为不用
+}
+void pd(int pos) // 下放懒标记
+{
+    int l = pos << 1;
+    int r = (pos << 1)|1;
+    if (laz[pos])
+    {
+        laz[l] = laz[r] = laz[pos];
+        tree[l] = tree[r] = laz[pos];
+        laz[pos] = 0;
+    }
+}
+void revise(int l,int r,int s,int t,int pos,int k) // 区间修改
+{
+    if (l <= s && r >= t)
+    {
+        tree[pos] = k;
+        laz[pos] = k;
+        return;
+    }
+    pd(pos);
+    int mid = (s+t)>>1;
+    if (l <= mid) revise(l,r,s,mid,pos<<1,k);
+    if (r >= mid + 1) revise(l,r,mid+1,t,(pos<<1)|1,k);
+    up(pos);
+}
+void query(int l,int r,int s,int t,int pos) // 核心查询
+{
+    if (l <= s && r >= t)
+    {
+        if (tree[pos] == 0) return; // 如果没有颜色，不用管
+        if (tree[pos] != -1) // 如果是纯色
+        {
+            if (color[tree[pos]] == false) // 未计算答案
+            {
+                ans++; // 计算答案
+                color[tree[pos]] = true; // 标记
+            }
+        }
+        else // 非纯色，继续往下
+        {
+            pd(pos);
+            int mid = (s+t)>>1;
+            if (l <= mid) query(l,r,s,mid,pos<<1);
+            if (r >= mid + 1) query(l,r,mid+1,t,(pos<<1)|1);
+            up(pos);
+        }
+        return;
+    }
+    pd(pos);
+    int mid = (s+t)>>1;
+    if (l <= mid) query(l,r,s,mid,pos<<1);
+    if (r >= mid + 1) query(l,r,mid+1,t,(pos<<1)|1);
+    up(pos);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,t,q,a,b,c;
+    char ch;
+    cin >> n >> t >> q;
+    Build(1,n,1);
+    while (q--)
+    {
+        cin >> ch;
+        if (ch == 'C')
+        {
+            cin >> a >> b >> c;
+            if (a > b) swap(a,b);
+            revise(a,b,1,n,1,c);
+        }
+        else if (ch == 'P')
+        {
+            for (int i = 1; i <= t; i++) color[i] = false;
+            cin >> a >> b;
+            if (a > b) swap(a,b);
+            ans = 0;
+            query(a,b,1,n,1);
+            cout << ans << "\n";
+        }
+    }
+    return 0;
+}

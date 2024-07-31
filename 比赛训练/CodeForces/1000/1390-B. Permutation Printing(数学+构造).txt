@@ -1,0 +1,31 @@
+//背景:暑假训练,还是栽在了数学构造题上
+//思路:对于n/2以上的整数都不能整除其他数
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    for (int i = 1;i<=(n+1)/2;i++)
+    {
+        if(n%2&&i == (n+1)/2)//判断奇数情况
+        {
+            cout<<(n+1)/2;
+            break;
+        }
+        cout<<i<<" "<<(n+1)/2 + i<<" ";//交替输出
+    }
+    cout<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,118 @@
+//做法一：并查集
+//背景：暑假训练，红温了，提交了20次了
+//思路：根据容斥原理，每个模数下总会有相同的数，那么相减可以被模数整除，倒着取(明显 x越小能连的边就越多，所以可以考虑从大到小枚举 x建边)
+//收获：容斥原理 + 启发式合并并查集卡常
+#include <bits/stdc++.h>
+using namespace std;
+int f[2005];
+int s[2005];
+int Find(int x)//并查集查找
+{
+    if (x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+void dus(int x,int y)//启发式合并，不加超时
+{
+    if (s[x] > s[y]) swap(x,y);
+    s[y] += s[x];
+    f[x] = y;
+}
+void Solve()
+{
+    int n;
+    cin >> n;
+    cout << "YES" << "\n";
+    int a[n+1];
+    for (int i = 1; i <= n; i++) f[i] = i,s[i] = 1; // 并查集初始化，记得大小也要
+    vector<pair<int,int>>ans;//记录答案的边
+    vector<int> e[n+1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = n-1; i >= 1; i--)
+    {
+        for (int j = 0; j < i; j++) e[j].clear();//清空
+        for (int j = 1; j <= n; j++) e[a[j]%i].push_back(j);//记录对应模的编号
+        bool flag = false;//判断是否当前模下成功连边
+        for (int j = 0; j < i; j++)
+        {
+            if (flag) break;//退出
+            if (e[j].size() >= 2)//至少两个
+            {
+                int big = e[j].size();
+                for (int k = 0; k < big; k++)
+                {
+                    if(flag) break;//退出
+                    for (int t = 0; t < big; t++)
+                    {
+                        int x = Find(e[j][k]);
+                        int y = Find(e[j][t]);
+                        if (x == y) continue;
+                        dus(x,y);//合并
+                        flag = true;
+                        ans.push_back({e[j][k],e[j][t]});//记录
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    for (int i = n-2; i >= 0; i--) cout << ans[i].first << " " << ans[i].second << "\n";//倒着输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+
+//做法二：抽屉原理
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin >> n;
+    bool in[n+1];//记录是否不能连了，因为根据抽屉原理，无论谁不能连了，后面都有答案，目的是减少时间复杂度
+    int p[n+1];//记录上一个对应余数是哪个节点，-1代表无
+    int a[n+1];
+    vector<pair<int,int>> ans;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= n; i++) in[i] = false;
+    for (int i = n - 1; i >= 1; i--)
+    {
+        for (int j = 0; j < i; j++) p[j] = -1;//初始化-1
+        for (int j = 1; j <= n; j++)
+        {
+            if (in[j]) continue;//如果不能连了，跳过
+            int x = a[j]%i;//计算余数
+            if (p[x] == -1) p[x] = j;//更新
+            else//记录答案
+            {
+                ans.push_back({p[x],j});
+                in[j] = true;//标记不能连了
+                break;
+            }
+        }
+    }
+    cout << "YES" << "\n";
+    for (int i = n-2; i >= 0; i--) cout << ans[i].first << " " << ans[i].second << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,69 @@
+//背景：暑假练习题，再次感受到了杭电的题目的恶心（虽然出自中大）
+//原理：二维差分 + 思维
+#include <bits/stdc++.h>
+using namespace std;
+int n,m,p,q,x1,y1,x2,y2;
+void Solve()
+{
+    cin>>p;
+    int d[n+5][m+5];//定义差分数组
+    for (int i = 0;i<=n+4;i++)//初始化差分数组，注意要从0开始，故还是memset省事
+    {
+        for (int j = 0;j<=m+4;j++) d[i][j] = 0;
+    }
+    for (int i = 1;i<=p;i++)//二维差分修改
+    {
+        cin>>x1>>y1>>x2>>y2;
+        d[x1][y1]++;
+        d[x1][y2+1]--;
+        d[x2+1][y1]--;
+        d[x2+1][y2+1]++;
+    }
+    for (int i = 1;i<=n;i++)//差分数组转换为原数组
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            d[i][j] += (d[i-1][j] + d[i][j-1] - d[i-1][j-1]);
+        }
+    }
+    //这是思维部分
+    for (int i = 1;i<=n;i++)//超过1的变为1
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            d[i][j] = (d[i][j] >= 1)?1:0;
+        }
+    }
+
+    
+    cin>>q;
+    int sum[n+5][m+5];//定义前缀和数组,其实可以继续用d数组，但是为了直观
+    memset(sum,0,sizeof(sum));//初始化前缀和数组
+    for (int i = 1;i<=n;i++)//求前缀和
+    {
+        for (int j = 1;j<=m;j++) sum[i][j] = sum[i-1][j] + sum[i][j-1] - sum[i-1][j-1] + d[i][j];
+    }
+    while(q--)
+    {
+        cin>>x1>>y1>>x2>>y2;
+        int temp = sum[x2][y2] - sum[x1-1][y2] - sum[x2][y1-1] + sum[x1-1][y1-1];
+        if(temp == (x2-x1+1)*(y2-y1+1)) cout<<"YES"<<"\n";//判断面积是否包括整个给定矩形
+        else cout<<"NO"<<"\n";
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    while(cin>>n>>m) Solve();
+    return 0;
+}
+/*
+6 6
+3
+2 2 4 4
+3 3 5 6
+5 1 6 2
+2
+3 2 5 4
+1 5 6 5
+*/

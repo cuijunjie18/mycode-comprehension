@@ -1,0 +1,31 @@
+//背景：另一种写法，更简洁
+#include <bits/stdc++.h>
+using namespace std;
+bool dp[200005];
+vector<int> e[200005];
+void DFS(int x,int fa)
+{
+    for (auto to:e[x])
+    {
+        if(to == fa) continue;
+        DFS(to,x);
+        if(dp[to] == false) dp[x] = true;
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,t,x,y,root;
+    cin>>n>>t;
+    for (int i = 1;i<=n-1;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    cin>>root;
+    DFS(root,0);
+    if(dp[root]) cout<<"Ron"<<"\n";
+    else cout<<"Hermione"<<"\n";
+    return 0;
+}

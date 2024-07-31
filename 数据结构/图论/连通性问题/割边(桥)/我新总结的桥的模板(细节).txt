@@ -1,0 +1,19 @@
+//背景：仅有采取了编号形式才是正确的，之前只判断了一半
+
+void Tarjan(int x,int fa)
+{
+    dfn[x] = low[x] = ++dfncnt;
+    for (auto v : e1[x])
+    {
+        int pos = v.first; // 获取编号
+        int to = v.second;
+        if (to == fa) continue;
+        if (!dfn[to])
+        {
+            Tarjan(to,x);
+            low[x] = min(low[x],low[to]);
+            if (flag[pos] == false && low[to] > dfn[x]) flag[pos] = true;
+        }
+        else low[x] = min(low[x],dfn[to]);
+    }
+}

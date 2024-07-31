@@ -1,0 +1,52 @@
+//背景:又一次赛时没做出D题,时间复杂度无法分析
+//原理:BFS
+//时间复杂度:感觉13!,但是没有超时
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    string s,t;
+    cin>>n>>s>>t;
+    if(s == t)//特判,否则最后这种情况输出为-1
+    {
+        cout<<0<<"\n";
+        return;
+    }
+    s += "..";
+    t += "..";
+    map<string,int> dis;//字符串型的BFS中的vis数组
+    dis[s] = 0;//初始化
+    queue<string> que;
+    que.push(s);
+    while(!que.empty())
+    {
+        string temp = que.front();
+        que.pop();
+        int j = 0;
+        while(temp[j] != '.') j++;//找到".."的位置
+        for (int i = 0;i<n+1;i++)//枚举分割
+        {
+            string c = temp;//临时记录
+            if(temp[i] == '.'||temp[i+1] == '.') continue;//不能选的位置
+            swap(c[i],c[j]);//交换
+            swap(c[i+1],c[j+1]);//交换
+            if(dis[c]) continue;//如果搜索过了,跳过
+            dis[c] = dis[temp] + 1;//dp
+            que.push(c);//入队
+        }
+    }
+    if(dis[t]) cout<<dis[t]<<"\n";//输出
+    else cout<<-1<<"\n";//否则
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

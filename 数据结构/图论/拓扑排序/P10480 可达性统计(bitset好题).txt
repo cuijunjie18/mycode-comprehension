@@ -10,7 +10,7 @@ void Solve()
     cin>>n>>m;
     vector<int> e[n+1];//邻接表逆向存边
     //int ans[n+1];
-    bitset<maxn> ans[n+1];//bitset答案,代表谁可以到达i,1代表可以,0代表不行
+    bitset<maxn> ans[n+1];//bitset答案,代表i可以到达谁,1代表可以,0代表不行
     //for (int i = 1;i<=n;i++) ans[i].set();//发现不用初始化,bitset自己初始化为0
     int in[n+1];//入度数组
     memset(in,0,sizeof(in));//初始化为0

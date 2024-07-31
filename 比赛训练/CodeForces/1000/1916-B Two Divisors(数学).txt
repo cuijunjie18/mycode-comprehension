@@ -1,0 +1,23 @@
+//背景：暑假练习题，数论题，思维不行
+//原理+思路：https://www.cnblogs.com/One-JuRuo/p/17937436
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    long long a,b;
+    cin>>a>>b;
+    long long temp = a*b/__gcd(a,b);
+    if(temp > b) cout<<temp<<"\n";
+    else cout<<b*b/a<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);;
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

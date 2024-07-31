@@ -1,4 +1,4 @@
-二分查找(推荐均用vector好记忆),适用于已经排好序的情况
+二分查找(推荐均用vector好记忆),适用于已经排好序的情况(一般单调上升)
 lowerbound(First,last,k),其实是左闭右开区间
 lowerbound(起点地址,终点地址,参考值)为查找第一个大于等于某数的值
 upperbound(起点地址,终点地址,参考值)为查找第一个大于某数的值
@@ -24,7 +24,7 @@ upperbound(起点地址,终点地址,参考值)为查找第一个大于某数的
     s.push_back(6);
     int ans = *lower_bound(s.begin(),s.end(),3);
     cout<<ans<<"\n";
-    输出为3
+    输出为4
     
     //返回形象化
     vector<int> s;
@@ -43,3 +43,14 @@ upperbound(起点地址,终点地址,参考值)为查找第一个大于某数的
     int ans = lower_bound(s.begin(),s.end(),8) - s.begin();
     cout<<ans<<"\n";
     输出为3,说明返回的数组下标为原数组结尾下标的下一个位置
+    
+    //如果单调性不同
+    vector<int> a;
+    vector<int> b;
+    for (int i = 1;i<=10;i++) a.push_back(i);
+    for (int i = 10;i>=1;i--) b.push_back(i);
+    int x = *lower_bound(a.begin(),a.end(),5);
+    int y = *lower_bound(b.begin(),b.end(),5);
+    cout<<x<<" "<<y<<"\n";//输出5和10,依旧满足第一个的性质
+    
+    

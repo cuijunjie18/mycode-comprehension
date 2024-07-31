@@ -1,0 +1,45 @@
+//背景：暑假训练，思维题
+//思路：看到这种规定操作次数不超过40之类的，想二分，每次取最大值的一半减去即可
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,x,maxn = 0;
+    bool odd = false,even = false;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> x;
+        maxn = max(maxn,x);
+        if (x%2) odd = true;
+        else even = true;
+    }
+    if (even&&odd) // 如果既有偶数又有奇数，那么无解
+    {
+        cout << -1 << "\n";
+        return;
+    }
+    vector<int> ans;
+    while (maxn > 1) // 操作
+    {
+        int temp = maxn/2; // 取最大值的一半
+        ans.push_back(temp);
+        maxn -= temp;
+    }
+    if (maxn) ans.push_back(1); // 如果不为0，说明最后整个数组是1，还要操作一个1
+    cout << ans.size() << "\n"; // 输出
+    for (auto v:ans) cout << v << " ";
+    cout << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

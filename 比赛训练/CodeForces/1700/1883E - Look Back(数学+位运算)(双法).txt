@@ -1,0 +1,97 @@
+//背景：暑假训练，用峰哥的log方法果然还是错了，自己想到了正解，公式法在下面
+//题意：最少操作次数使得数组单调不降，操作方法为乘2
+//原理：数学 + 位运算
+//时间复杂度:o(nloga)
+#include <bits/stdc++.h>
+#define ll long long
+#define ld long double // long double 公式法wrong answer 12
+using namespace std;
+void Solve()
+{
+    int n;
+    cin >> n;
+    ll a[n+1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    ll ans = 0; // 初始化答案
+    ll x[n+1];
+    x[1] = 0; // 第一个数操作次数肯定为0
+    for (int i = 2; i <= n; i++)
+    {
+        if (a[i] == a[i-1]) x[i] = x[i-1]; // 如果相等，直接继承上一位的次数
+        if (a[i] < a[i-1]) // 如果小于
+        {
+            ll temp = a[i];
+            int t = 0; // 本身要乘的次数
+            while (temp < a[i-1]) // 变化到大于等于
+            {
+                t++;
+                temp <<= 1; // 位运算乘2
+            }
+            x[i] = x[i-1] + t; // 记录乘2次数(要加上上一位乘2的次数)
+        }
+        if (a[i] > a[i-1]) // 如果大于
+        {
+            ll temp = a[i-1];
+            int t = 0;
+            while (temp <= a[i]) // 计算前面的大于当前要多少次
+            {
+                t++;
+                temp <<= 1;
+            }
+            t--;//减去一次后就刚好小于
+            x[i] = max(0ll,x[i-1]-t); // 累加多出的部分，但是不能小于0
+        }
+        ans += x[i]; // 累加答案
+    }
+    cout << ans << "\n"; // 输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+//公式法
+#include <bits/stdc++.h>
+#define ll long long
+#define ld long double
+using namespace std;
+void Solve()
+{
+    int n;
+    cin >> n;
+    ll a[n+1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    ll ans = 0;
+    ll x[n+1];
+    x[1] = 0;
+    for (int i = 2; i <= n; i++)
+    {
+        x[i] = ceil(x[i-1] + (log((ld)(a[i-1])) - log((ld)(a[i])))/log((ld)(2)));//同样的做法，1995C可以过
+        //x[i] = ceil(log2l(a[i-1]) - log2l(a[i]) + x[i-1]); // 这样就对了，对于这种题，优先logl,log2l,lgl,都是long double的，且尽量化简式子，减少精度丢失
+        x[i] = max(0ll,x[i]);
+        ans += x[i];
+    }
+    //for (int i = 1; i <= n; i++) cout << x[i] << " ";
+    cout << ans << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+

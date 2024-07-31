@@ -1,0 +1,105 @@
+//背景：暑假复习，树上启发式合并，思维题
+//思路：将询问k级表亲转化为询问k级孩子，于是问题变成了询问子树相关信息，这是启发式合并的特点
+//原理：树上启发式合并
+//时间复杂度：o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 100005
+using namespace std;
+
+//树相关数组
+vector<int> e[MAXN];
+int dfn[MAXN],udfn[MAXN],mdfn[MAXN],dfncnt;
+int son[MAXN],big[MAXN];
+int f[MAXN][30];
+int depth[MAXN];
+
+//询问及答案数组
+int ans[MAXN];
+vector<pair<int,int> > ask[MAXN];
+int cnt[MAXN]; // 记录当前对应深度的节点数
+
+int logn[MAXN];//用于倍增找k级祖先
+void prework()//预处理logn数组
+{
+    logn[1] = 0;
+    for (int i = 2; i <= 100000; i++) logn[i] = logn[i/2] + 1;
+}
+
+void DFS(int x,int fa,int d)//预处理
+{
+    depth[x] = d;//记录深度
+    dfn[x] = ++dfncnt;
+    udfn[dfncnt] = x;
+    big[x] = 1;
+    f[x][0] = fa;
+    for (int i = 1; (1<<i) <= depth[x]; i++) f[x][i] = f[f[x][i-1]][i-1];//倍增记录父节点
+    for (auto to:e[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x,d+1);
+        big[x] += big[to];
+        if (son[x] == 0 || big[to] > big[son[x]]) son[x] = to;
+    }
+    mdfn[x] = dfncnt;//记录最远dfs序
+}
+void dsu(int x,bool keep)//启发式合并
+{
+    for (auto to:e[x])
+    {
+        if (to == son[x]) continue;
+        dsu(to,false);
+    }
+    if (son[x]) dsu(son[x],true);
+    for (auto to:e[x])
+    {
+        if (to == son[x]) continue;
+        for (int i = dfn[to]; i <= mdfn[to]; i++) cnt[depth[udfn[i]]]++;
+    }
+    cnt[depth[x]]++;
+    for (auto v:ask[x])
+    {
+        int pos = v.first;
+        int k = v.second;
+        ans[pos] = cnt[depth[x]+k];
+    }
+    if (!keep)
+    {
+        for (int i = dfn[x]; i <= mdfn[x]; i++) cnt[depth[udfn[i]]]--;
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();//预处理不要忘了
+    int n,q,x,k;
+    vector<int> root;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> x;
+        if (x == 0)
+        {
+            root.push_back(i);//根节点
+            continue;
+        }
+        e[x].push_back(i);
+    }
+    for (auto t:root) DFS(t,0,0);//对每个根节点进行预处理，一开始错以为只有一个根节点
+    cin >> q;
+    for (int i = 1; i <= q; i++)//将询问离线化
+    {
+        cin >> x >> k;
+        int temp = depth[x] - k;//k级父节点的深度
+        if (temp < 0)//如果小于0，说明没有
+        {
+            ans[i] = 0;
+            continue;
+        }
+        while (depth[x] > temp) x = f[x][logn[depth[x]-temp]];//倍增求k级父节点
+        ask[x].push_back({i,k});//记录询问
+    }
+    for (auto t:root) dsu(t,false);//遍历不同根，开始启发式合并，注意false
+    for (int i = 1; i <= q; i++) cout << max(ans[i] - 1,0) << " ";//输出-1，至少为0
+    return 0;
+}

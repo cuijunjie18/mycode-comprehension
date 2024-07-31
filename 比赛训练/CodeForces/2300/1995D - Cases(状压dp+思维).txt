@@ -1,0 +1,88 @@
+//做法一：
+//背景：暑假训练，隔了两天才做出了；该题需要逆向思维
+/*分析：如果正着分析，枚举选择字符结尾状态，显然超时；那么我们不妨想一想不选什么状态一定非法；1，显然没有原字符串结尾那个字符一定非法；2，对于一个k区间，如果没有一个结尾字符
+显然非法；那么我们处理出了非法情况，那么只需要枚举每个状态，判断它们是否包含任一非法状态，若不包含任一个，则合法
+*/
+//原理：状态压缩 + 子集枚举(我的做法)
+//时间复杂度；o(c*n + 3^c)，对于本题3^c差点超时
+#include <bits/stdc++.h>
+using namespace std;
+int g[20];//美化数组
+void prework()
+{
+    for (int i = 1; i <= 19; i++) g[i] = 1<<(i-1);
+}
+void Solve()
+{
+    int n,c,k;
+    cin >> n >> c >> k;
+    char str[n+1];
+    for (int i = 1; i <= n; i++) cin >> str[i];
+
+    bool flag[1<<c];//对应二进制状态为1的代表不选对应字母结尾
+    for (int t = 0;t <= (1<<c)-1; t++) flag[t] = true; // 初始化全部合法
+
+    int times[c+1];//记录对应字符出现次数
+    memset(times,0,sizeof(times));//初始化0
+
+    int temp = 0;//记录k区间的字符出现状态
+    for (int i = 1; i <= k; i++)//先处理第一个k段
+    {
+        times[str[i] - 'A' + 1]++;
+        temp |= g[str[i] - 'A' + 1];//取并
+    }
+    flag[temp] = false;//如果都不选，该状态非法
+    for (int i = 2; i + k - 1 <= n; i++)//枚举字符串
+    {
+        times[str[i-1] - 'A' + 1]--;////改变times
+        times[str[i+k-1] - 'A' + 1]++;
+        temp = 0;//初始化当前k区间的状态
+        for (int j = 1; j <= c; j++) // 枚举字符
+        {
+            if (times[j] == 0) continue;
+            temp |= g[j];//取并
+        }
+        flag[temp] = false;//该状态非法
+    }
+    flag[g[str[n] - 'A' + 1]] = false; // 单独处理最后一个结尾字符
+    // 由上面过程得到了不合法的集合，下面判断对应的集合是否包含这些不合法的集合即可
+    int ans = c;//初始化答案为全选
+    for (int t = 0; t < (1<<c); t++)//子集枚举模板
+    {
+        for (int j = t; j; j = (j-1)&t)
+        {
+            flag[t] &= flag[j];
+        }
+        if (flag[t])//如果不包含非法的子集，那么当前状态合法
+        {
+            ans = min(ans,c - __builtin_popcount(t));//dp
+        }
+    }
+    cout << ans << "\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+
+
+//做法二：
+把上面的子集枚举改成dp即可，确保了之前的状态已经确认合法性了
+ for (int t = 0; t < (1<<c); t++)
+    {
+        for (int i = 1; i <= c; i++)
+        {
+            if ((t&g[i]) == 0) continue;
+            flag[t] &= flag[t^g[i]];//只用去掉一个就可以判断了，因为之前的状态已经确认过了
+        }
+        if (flag[t]) ans = min(ans,c - __builtin_popcount(t));
+    }

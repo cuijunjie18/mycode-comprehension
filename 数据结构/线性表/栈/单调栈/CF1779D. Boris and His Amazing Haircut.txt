@@ -11,7 +11,7 @@ void Solve()
     int a[n+1],b[n+1];
     bool flag = false;
     for (int i = 1;i<=n;i++) cin>>a[i];
-    for (int i = 1;i<=n;i++)
+    for (int i = 1;i<=n;i++)//注意这里不能把相等的去掉,要保留
     {
         cin>>b[i];
         if(b[i] > a[i]) flag = true;//如果理想头发长于现在头发,不合法了

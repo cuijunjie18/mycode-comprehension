@@ -1,0 +1,71 @@
+//背景：暑假训练，强连通分量好题
+/*
+思路：发现安全的情况一定是男女间形成一个闭环，而Tarjan是判断环的不二之选，但是题意是有向图，那么怎么转换为有向图呢？
+     夫妻之间女->男，情人之间男->女即可满足条件!
+*/
+#include <bits/stdc++.h>
+using namespace std;
+// map字符串形式的Tarjan数组
+map<string,int> dfn,low;
+int dfncnt;
+map<string,vector<string>> e;
+map<string,int> scc;
+stack<string> s;
+map<string,bool> vis;
+int sc,sz[4005<<1];
+void Tarjan(string x) // Tarjan模板
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto to : e[x])
+    {
+        if (!dfn[to])
+        {
+            Tarjan(to);
+            low[x] = min(low[x],low[to]);
+        }
+        else if (vis[to]) low[x] = min(low[x],dfn[to]);
+    }
+    if (dfn[x] == low[x])
+    {
+        sc++;
+        while(true)
+        {
+            string temp = s.top();
+            s.pop();
+            vis[temp] = false;
+            scc[temp] = sc;
+            sz[sc]++;
+            if (temp == x) break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m;
+    cin >> n;
+    string girl[n+1],boy[n+1];
+    for (int i = 1; i <= n; i++) // 输入夫妻关系
+    {
+        cin >> girl[i] >> boy[i];
+        e[girl[i]].push_back(boy[i]); // 女 -> 男
+    }
+    cin >> m;
+    for (int i = 1; i <= m; i++) // 情人关系
+    {
+        cin >> girl[0] >> boy[0];
+        e[boy[0]].push_back(girl[0]); // 男 -> 女
+    }
+    for (int i = 1; i <= n; i++) // 依次判断夫妻是否处于一个>=2的强连通分量
+    {
+        if (!scc[girl[i]]) // Tarjan
+        {
+            Tarjan(girl[i]);
+        }
+        if (sz[scc[girl[i]]] >= 2) cout << "Unsafe" << "\n"; // 判断
+        else cout << "Safe" << "\n";
+    }
+    return 0;
+}

@@ -1,0 +1,47 @@
+//背景:心血来潮,想做dp题,结果来了道思维题
+/*
+思路:要求同时满足l1>=l2,w1>=w2的最少分割,想到LIS问题,先对木棍排序l大到小排序,若l同,按w小到大排序;
+    这样保证了l已经是单调不升序列了,而w数组与l对应同一木棍,判断此时w数组的LIS的最小分割,利用Dilworth定理即可再次转换为LIS问题
+*/
+//原理:dp + 排序
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//木棍结构体
+{
+    int l,w;
+}EDGE;
+EDGE e[5005];
+int w[5005];//w数组
+int low[5005];//辅助LIS的数组
+bool cmp(EDGE x,EDGE y)//自定义排序
+{
+    if(x.l == y.l) return x.w > y.w;
+    return x.l > y.l;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>e[i].l>>e[i].w;
+    }
+    sort(e+1,e+n+1,cmp);//排序
+    for (int i = 1;i<=n;i++) w[i] = e[i].w;//获取排序后的w数组
+    int ans = 0;//初始化最大长度
+    low[0] = 0;//初始化
+    for (int i = 1;i<=n;i++)//LIS模板
+    {
+        if(w[i] > low[ans])
+        {
+            ans++;
+            low[ans] = w[i];
+            continue;
+        }
+        int p = lower_bound(low,low+ans,w[i]) - low;//自己思考判断即可
+        low[p] = w[i];
+    }
+    cout<<ans<<"\n";//输出
+    return 0;
+}

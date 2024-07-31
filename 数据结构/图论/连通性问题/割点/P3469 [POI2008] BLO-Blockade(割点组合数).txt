@@ -1,0 +1,64 @@
+//背景：暑假学习，割点的应用
+//题意：对于连通图，计算去掉某一个点后，互不连通的有序点对
+//原理：Tarjan求割点，求树的重心的部分思想，组合数学
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 100005
+using namespace std;
+vector<int> e[MAXN];
+ll dfn[MAXN],low[MAXN],dfncnt;
+ll big[MAXN]; // 记录DFS搜索树的子树的大小
+bool flag[MAXN]; // 标记某个点是否为割点
+ll n,m;
+ll ans[MAXN]; // 记录答案
+
+// 下面所说的树均是DFS搜索树
+void Tarjan(int x,int fa)
+{
+    dfn[x] = low[x] = ++dfncnt;
+    ll sum = 0; // 初始化子树节点（不包括自己）的总数
+    big[x] = 1; // 初始化子树大小
+    ans[x] = 0; // 初始化答案
+    int child = 0; // 初始化儿子数（用于特判根节点的）
+    for (auto to : e[x])
+    {
+        if (to == fa) continue; // 不走回头路
+        if (!dfn[to])
+        {
+            child++; // 儿子数+1
+            Tarjan(to,x);
+            low[x] = min(low[x],low[to]);
+            big[x] += big[to]; // 累加大小
+            if (low[to] >= dfn[x]) // 如果当前点是割点且割完后to是不连通到祖先的，（注意不要flag == false才能进了，因为要计数，而不是仅判断是否为割点）
+            {
+                sum += big[to]; // 累加子树大小
+                flag[x] = true; // 标记割点
+                ans[x] += big[to]*(n-big[to]); // 计算被分割的这一块的贡献
+            }
+        }
+        else low[x] = min(low[x],dfn[to]);
+    }
+    if (x == fa && child >= 2) flag[x] = true; // 特判根节点
+    if (flag[x]) // 如果是割点
+    {
+        // 可以证明对于根节点也正确
+        ans[x] += (n-sum-1)*(sum+1); // 判断除子树块的那一块（不包括自己）的贡献
+        ans[x] += (n-1); // 计算自己那一块的贡献
+    }
+    else ans[x] = 2*(n-1); // 如果不是割点，自己计算
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    Tarjan(1,1);
+    for (int i = 1; i <= n; i++) cout << ans[i] << "\n"; // 按顺序输出
+    return 0;
+}

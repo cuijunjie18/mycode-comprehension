@@ -50,7 +50,7 @@ void Solve(int x,int fa)//核心求解函数，回溯求和思想
     for (int i = 0,s = g[x].size();i<s;i++)
     {
         if(g[x][i] == fa) continue;
-        Solve(g[x][i],x);//这里递归一定要Solve，不要写成DFS了！
+        Solve(g[x][i],x);//这里递归一定要Solve，不要写成DFS了！且一定要先计算
         force[x] += force[g[x][i]];//这一点的压力加上所有连通它的路径压力和(抽象难点，可以多看题解，原理好像叫差分)
     }
     ans = max(force[x],ans);//取最大值

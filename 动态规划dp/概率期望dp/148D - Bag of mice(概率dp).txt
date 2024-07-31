@@ -1,0 +1,26 @@
+//背景：暑假训练学习概率dp，概率dp一般顺推，难点在于对状态转移方程的刻画
+//思路：见oiwiki
+#include <bits/stdc++.h>
+using namespace std;
+double dp[1005][1005];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int w,b;
+    scanf("%d%d",&w,&b);
+    for (int i = 0; i <= b; i++) dp[0][i] = 0;
+    for (int i = 1; i <= w; i++) dp[i][0] = 1; // 注意这里要从1开始，防止dp[0][0] = 1
+    for (int i = 1; i <= w; i++)
+    {
+        for (int j = 1; j <= b; j++)
+        {
+            double x = i;
+            double y = j;
+            dp[i][j] += x/(x+y);
+            if (j >= 3) dp[i][j] += y*(y-1)/(x+y)/(x+y-1)*(y-2)/(x+y-2)*dp[i][j-3];
+            if (j >= 2) dp[i][j] += y*(y-1)/(x+y)/(x+y-1)*x/(x+y-2)*dp[i-1][j-2];
+        }
+    }
+    printf("%.9f\n",dp[w][b]); // 输出
+    return 0;
+}

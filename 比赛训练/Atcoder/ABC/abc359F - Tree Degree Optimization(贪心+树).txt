@@ -1,0 +1,59 @@
+//背景:看了题解感觉挺简单的一题,分配度即可
+//题解:https://mp.weixin.qq.com/s?__biz=Mzk0ODU4OTMzMQ==&mid=2247485797&idx=2&sn=29d4c48ad427043c80e2139f1609d954&chksm=c3640f19f413860f8ea846498a623418d3d00a75d0a735568098a631df0ae8c8c7f174bfe691&mpshare=1&scene=23&srcid=0626AMnSJ3e7pNRouwl0ULmf&sharer_shareinfo=0e561466749c8bfce652861db4075444&sharer_shareinfo_first=0e561466749c8bfce652861db4075444#rd
+//原理:贪心 + 优先队列
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 200005
+using namespace std;
+typedef struct situation//记录优先队列存储结构体
+{
+    ll degree;
+    ll a;
+    ll up;
+}SI;
+SI v[MAXN];
+struct cmp//优先队列自定义排序
+{
+    bool operator()(SI x,SI y)
+    {
+        return x.up > y.up;
+    }
+};
+priority_queue<SI,vector<SI>,cmp> que;
+void Solve()
+{
+    int n;
+    cin>>n;
+    ll ans = 0;
+    for (int i = 1;i<=n;i++) cin>>v[i].a;
+    for (int i = 1;i<=n;i++) v[i].up = v[i].a;
+    for (int i = 1;i<=n;i++)
+    {
+        v[i].degree = 1;//保证构成树,则每个点先分配一个入度
+        ans += v[i].up;
+        v[i].up = 3*v[i].a;//下一个增值
+        que.push(v[i]);
+    }
+    int leave = n-2;//还有可分配的入度
+    while(leave--)
+    {
+        SI temp = que.top();
+        que.pop();
+        ans += temp.up;//累加答案
+        temp.degree++;//先入度加1
+        temp.up = ((temp.degree + 1)*(temp.degree + 1) - temp.degree*temp.degree)*temp.a;//计算下一次被选到的增值
+        que.push(temp);//入队
+    }
+    cout<<ans<<"\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

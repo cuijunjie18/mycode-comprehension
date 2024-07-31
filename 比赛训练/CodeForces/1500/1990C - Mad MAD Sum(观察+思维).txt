@@ -1,0 +1,66 @@
+//背景：暑假训练，看了题解才有的思路
+/*思路：对原序列暴力两次即可，第一次操作后得到一个单调不降序列，可能有出现次数 == 1的数；那么第二次后这些数消失了，只剩下出现次数 >= 2的数；
+        且这些数连续，没操作一次，序列整体右移动，故可以利用前缀和减去计算
+*/
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+struct cmp//set由大到小排序
+{
+    bool operator()(ll x,ll y)
+    {
+        return x > y;
+    }
+};
+void Solve()
+{
+    int n;
+    cin >> n;
+    ll a[n+1];
+    ll sum = 0,temp = 0;//答案，临时前缀
+    set<int,cmp> s;//出现次数大于等于2的数集合
+    map<int,int> times;
+    s.insert(0);
+    times[0] = 1000000;
+    for (int i = 1; i <= n; i++)//第一次暴力
+    {
+        cin >> a[i];
+        sum += a[i];//初始累加
+        times[a[i]]++;
+        if (times[a[i]] >= 2) s.insert(a[i]);//如果满足条件
+        a[i] = *s.begin();//改变a
+        temp += a[i];//累加
+    }
+    sum += temp;//第一次暴力后累加
+    temp = 0;//重置
+    times.clear();//重置
+    s.clear();//重置
+    s.insert(0);
+    for (int i = 1; i <= n; i++)//第二次暴力
+    {
+        times[a[i]]++;
+        if (times[a[i]] >= 2) s.insert(a[i]);
+        a[i] = *s.begin();
+        temp += a[i];//累加
+    }
+    sum += temp;//累加
+    for (int i = n; i >= 1; i--)//计算贡献即可
+    {
+        if (a[i] == 0) break;//到底了
+        temp -= a[i];//减去最右边的
+        sum += temp;//累加
+    }
+    cout << sum << "\n";//输出
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

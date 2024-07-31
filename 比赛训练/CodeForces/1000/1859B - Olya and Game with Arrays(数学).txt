@@ -1,0 +1,46 @@
+//背景：暑假训练，依旧做不出来，看了提示才会
+//原理：贪心 + 数学
+//思路：答案只与每个数组的前两个小的数有关，那么答案 = 所有数组的第二小的数的和 - 最小的第二小数 + 最小数
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,m,x;
+    long long sum = 0;
+    int minn1 = 2e9,minn2 = 2e9;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>m;
+        int temp1 = 2e9,temp2 = 2e9;
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>x;
+            if(x < temp1)
+            {
+                temp2 = temp1;
+                temp1 = x;
+            }
+            else if(x < temp2)
+            {
+                temp2 = x;
+            }
+        }
+        sum += temp2;
+        minn1 = min(minn1,temp1);
+        minn2 = min(minn2,temp2);
+    }
+    cout<<sum-minn2+minn1<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,83 @@
+//背景：暑假练习，好题
+//原理：树上前缀和加LCA
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 998244353;
+ll sum[300005][51];//预处理深度的k次方前缀和
+vector<int> e[300005];
+int f[300005][35];
+int depth[300005];
+int logn[300005];
+ll quick_pow(ll a,ll b)//快速幂
+{
+    ll ans = 1;
+    while(b)
+    {
+        if(b&1) ans = ans*a%md;
+        a = a*a%md;
+        b >>= 1;
+    }
+    return ans;
+}
+void prework()//预处理
+{
+    logn[1] = 0;
+    for (int i = 2;i<=300000;i++) logn[i] = logn[i/2] + 1;
+    for (int i = 1;i<=50;i++)//前缀和预处理,时间复杂度o(n*k*logk),其实可以递推优化为o(n*k)
+    {
+        for (int j = 1;j<=300000;j++)
+        {
+            sum[j][i] = (sum[j-1][i] + quick_pow(j,i))%md;
+        }
+    }
+}
+void DFS(int x,int fa,int d)//DFS遍历处理树
+{
+    depth[x] = d;
+    f[x][0] = fa;
+    for (int i = 1;(1<<i)<=depth[x];i++) f[x][i] = f[f[x][i-1]][i-1];
+    for (auto to:e[x])
+    {
+        if(to == fa) continue;
+        DFS(to,x,d+1);
+    }
+}
+int LCA(int a,int b)//倍增求LCA
+{
+    if(depth[a] < depth[b]) swap(a,b);
+    while(depth[a] > depth[b]) a = f[a][logn[depth[a]-depth[b]]];
+    if(a == b) return a;
+    for (int i = logn[depth[a]];i>=0;i--)
+    {
+        if(f[a][i] != f[b][i])
+        {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int n,q,x,y,k;
+    cin>>n;
+    for (int i = 1;i<=n-1;i++)
+    {
+        cin>>x>>y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    DFS(1,0,0);
+    cin>>q;
+    while(q--)
+    {
+        cin>>x>>y>>k;
+        int lca = LCA(x,y);
+        ll ans = (sum[depth[x]][k] + sum[depth[y]][k] - 2ll*sum[depth[lca]][k] + quick_pow(depth[lca],k)+2*md)%md;//注意要再加一次lca对应的深度
+        cout<<ans<<"\n";
+    }
+    return 0;
+}

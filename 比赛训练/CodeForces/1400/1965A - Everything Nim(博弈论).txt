@@ -1,0 +1,48 @@
+//背景：博弈论题，看了题解才会，但是思路已经差不多了
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    a[0] = 0;//置零
+    sort(a+1,a+n+1);//排序
+    n = unique(a+1,a+n+1) - a - 1;//静态数组去重并获取去重后数量，这里会多出一个a[0]，减去才是真正的
+    if(n == 1)//如果全部相同
+    {
+        cout<<"Alice"<<"\n";//先手必胜
+        return;
+    }
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=n-1;i++)
+    {
+        if(a[i] - a[i-1] == 1) continue;//如果差值为1，只能取1
+        else
+        {
+            ans = i;//记录下可以有主动权的位置
+            break;//退出
+        }
+    }
+    if(ans == 0)//如果全是差值1
+    {
+        if(n%2) cout<<"Alice"<<"\n";//判断奇偶即可
+        else cout<<"Bob"<<"\n";
+        return;
+    }
+    //否则先掌握主动权的人胜利
+    if(ans%2) cout<<"Alice"<<"\n";
+    else cout<<"Bob"<<"\n";
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

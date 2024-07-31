@@ -1,0 +1,51 @@
+//背景:暑假练习题,一开始按顺序迭代发现错误,因为可能后面有影响,所以要全局考虑
+//正解:贪心,如果不同的,优先选择大的,同的先存储起来
+//时间复杂度:o(n)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1],b[n+1];
+    int c = 0,d = 0;//初始化电影的评分
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    for (int i = 1;i<=n;i++) cin>>b[i];
+    int ne = 0,po = 0;//记录相同的喜欢与不喜欢的
+    for (int i = 1;i<=n;i++)
+    {
+        if(a[i] == b[i])//如果对电影1与电影2评价相同
+        {
+            if(a[i] == 0) continue;//同时为0,跳过
+            else if(a[i] == 1) po++;//如果都是喜欢
+            else if(a[i] == -1) ne++;//如果都不喜欢
+            continue;
+        }
+        //贪心,喜欢的优先加上
+        if(a[i] > b[i]) c += a[i];
+        else d += b[i];
+    }
+    for (int i = 1;i<=ne;i++)//迭代不喜欢的
+    {
+        if(c >= d) c--;//多的减少
+        else d--;
+    }
+    for (int i = 1;i<=po;i++)//迭代喜欢的
+    {
+        if(c >= d) d++;//少的增多
+        else c++;
+    }
+    cout<<min(c,d)<<"\n";//输出小的
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

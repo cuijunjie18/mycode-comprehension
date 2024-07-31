@@ -1,0 +1,36 @@
+//背景：暑假训练，div3 D题不会了，看了题解豁然开朗
+//题意：找a,b,c > 0,使得 ab + ac + bc <= n && a + b + c <= x 的对数(1,2,2与2,2,1不同)
+//思路：对于这种3个数的组合情况，通常枚举两个，然后第三个就定了；而涉及乘积的时候，a*b <= n,枚举时发现是调和级数，不会超时
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    int n,x;
+    cin >> n >> x;
+    ll ans = 0; // 初始化答案
+    for (int a = 1; a <= n; a++) // 枚举a
+    {
+        for (int b = 1; b <= n; b++) // 枚举b
+        {
+            if (a*b >= n) break; // 剪枝判断
+            if (a + b >= x) break; 
+            int c = min((x - (a+b)),(n - a*b)/(a+b)); // c取满足两个不等式的最大值的最小值
+            ans += c; // 累加答案
+        }
+    }
+    cout << ans << "\n"; // 输出
+    return;
+
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

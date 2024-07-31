@@ -1,0 +1,45 @@
+//背景:暑假练习,思路与答案基本一致,最后差一点
+//原理:数学 + 排序
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n;
+    cin>>n;
+    int a[n+1];
+    for (int i = 1;i<=n;i++) cin>>a[i];
+    sort(a+1,a+n+1);
+    int x = a[1];//肯定有一个除数是最小数
+    vector<int> s;
+    for (int i = 1;i<=n;i++)
+    {
+        if(a[i]%x != 0) s.push_back(a[i]);//保留未被筛掉的
+    }
+    if(s.empty())//如果全筛完了
+    {
+        cout<<"Yes"<<"\n";
+        return;
+    }
+    int y = s[0];//新的除数一定是保留数组的最小值:不可能是之前的被筛掉的,因为如果是,那么当前保留的数也会在第一次中被筛掉
+    for (auto v:s)
+    {
+        if(v %y != 0)
+        {
+            cout<<"No"<<"\n";
+            return;
+        }
+    }
+    cout<<"Yes"<<"\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

@@ -1,0 +1,73 @@
+//背景：暑假abc赛后不看答案补题，发现做题慢了，以后得加强训练
+//原理：优先队列BFS
+//时间复杂度：o(H*W*log(4*H*W))，因为每个点最多入队4次,好像答案时间复杂度为：o(H*W)
+//收获细节：优先队列取出队头一定要判断队列不空，否则死循环！
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct situation
+{
+    int x,y;
+    int h;
+}SI;//优先队列结构体
+struct cmp//自定义排序，先取高度低的
+{
+    bool operator()(SI a,SI b)
+    {
+        return a.h > b.h;
+    }
+};
+SI mp[1005][1005];
+int ans;//答案
+int walk[4][2] = {{-1,0},{1,0},{0,1},{0,-1}};//方向数组
+bool vis[1005][1005];//标记数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,t;
+    cin>>n>>m>>t;
+    for (int i = 1;i<=n;i++)
+    {
+        for (int j = 1;j<=m;j++)
+        {
+            cin>>mp[i][j].h;
+            mp[i][j].x = i;
+            mp[i][j].y = j;
+        }
+    }
+    ans = n*m;//初始化答案
+    priority_queue<SI,vector<SI>,cmp> que;
+    for (int i = 1;i<=n;i++)//边界入队
+    {
+        que.push(mp[i][1]);
+        que.push(mp[i][m]);
+    }
+    for (int i = 1;i<=m;i++)//边界入队
+    {
+        que.push(mp[1][i]);
+        que.push(mp[n][i]);
+    }
+    for (int i = 1;i<=t;i++)//枚举时间
+    {
+        while(!que.empty()&&que.top().h <= i)//记得判断队列不空，且h小于等于当前海平面
+        {
+            SI temp = que.top();
+            que.pop();//记得出队
+            int x = temp.x;
+            int y = temp.y;
+            if(vis[x][y]) continue;//如果已经计算过答案，跳过，防止重复计算
+            vis[x][y] = true;//标记
+            ans--;//答案减少1
+            for (int j = 0;j<=3;j++)//遍历方向
+            {
+                int wx = x + walk[j][0];
+                int wy = y + walk[j][1];
+                if(wx>=1&&wx<=n&&wy>=1&&wy<=m&&vis[wx][wy] == false)//判断
+                {
+                    que.push(mp[wx][wy]);//入队
+                }
+            }
+        }
+        cout<<ans<<"\n";//每次时间输出
+    }
+    return 0;
+}

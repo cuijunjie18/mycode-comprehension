@@ -1,0 +1,53 @@
+//背景：暑假训练，看了题解才会
+//思路：枚举每一个a，由观察可以得出在某个a下b的范围不超过5
+//时间复杂度：o(a)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    int n;
+    cin >> n;
+    vector<int> num;//获取每一位数
+    int n_copy = n;
+    while (n_copy)
+    {
+        num.push_back(n_copy%10);
+        n_copy /= 10;
+    }
+    int index = num.size();
+    reverse(num.begin(),num.end());//翻转，方便后面
+    vector<pair<int,int>>ans;//记录答案
+    for (int i = 1; i <= 10000; i++)//枚举a
+    {
+        int minb = index*i - 5;//寻找b的下界
+        int maxb = index*i - 1;//寻找b的上界
+        for (int j = max(1,minb); j <= min(i*n,maxb); j++)//注意循环条件
+        {
+            int temp1 = n*i - j;//参考1
+            int k = index*i - j;
+            int x = 1;
+            int temp2 = 0;//初始化参考2
+            while (x <= k)
+            {
+                temp2 = temp2*10 + num[(x-1)%index];//生成字符串数字
+                x++;
+            }
+            if (temp1 == temp2) ans.push_back({i,j});//如果相等，即为答案
+        }
+    }
+    cout << ans.size() << "\n";//输出数量
+    for (auto v:ans) cout << v.first << " " << v.second << "\n";//输出配对
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

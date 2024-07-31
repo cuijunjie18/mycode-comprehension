@@ -1,0 +1,82 @@
+//背景：自己学完双连通分量速切的一题
+/*思路：题目保证无向图连通，即每个点间至少存在一条路径，问最少要加多少条边才能让每个点至少两条路；
+观察可以知道，缩点成树后变成了最小加几条边图为双连通图，思路类p4665，即每个点至少在一个环上；
+必要条件是每个点至少连有两条边，即整个图没有桥，那么将仅有一条边的节点配对即可
+*/
+#include <bits/stdc++.h>
+#define MAXN 5005
+using namespace std;
+vector<pair<int,int>> e1[MAXN];
+vector<int> e2[MAXN];
+int dfn[MAXN],low[MAXN],dfncnt;
+int scc[MAXN],sc;
+bool flag[MAXN];
+void Tarjan(int x,int fa)//求无向图中的桥
+{
+    dfn[x] = low[x] = ++dfncnt;
+    for (auto v : e1[x])
+    {
+        int pos = v.first;
+        int to = v.second;
+        if (to == fa) continue;
+        if (!dfn[to])
+        {
+            Tarjan(to,x);
+            low[x] = min(low[x],low[to]);
+            if (flag[pos] == false && low[to] > dfn[x]) flag[pos] = true;
+        }
+        else low[x] = min(low[x],dfn[to]);
+    }
+}
+void DFS(int x,int fa) // 无向图缩点
+{
+    scc[x] = sc;
+    for (auto v : e1[x])
+    {
+        int pos = v.first;
+        int to = v.second;
+        if (to == fa) continue;
+        if (flag[pos] || scc[to]) continue;
+        DFS(to,x);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        e1[x].push_back({i,y});
+        e1[y].push_back({i,x});
+    }
+    for (int i = 1; i <= n; i++) // 找桥
+    {
+        if (!dfn[i]) Tarjan(i,i);
+    }
+    for (int i = 1; i <= n; i++) // 缩点
+    {
+        if (!scc[i])
+        {
+            sc++;
+            DFS(i,i);
+        }
+    }
+    for (int i = 1; i <= n; i++) // 建立新图
+    {
+        for (auto v:e1[i])
+        {
+            int to = v.second;
+            if (scc[i] == scc[to]) continue;
+            e2[scc[i]].push_back(scc[to]);
+        }
+    }
+    int ans = 0; // 初始化答案
+    for (int i = 1; i <= sc; i++)
+    {
+        if (e2[i].size() == 1) ans++; // 累加仅一条边的节点数
+    }
+    cout << (ans + 1)/2 << "\n"; // 结论输出答案
+    return 0;
+}

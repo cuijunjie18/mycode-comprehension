@@ -1,0 +1,57 @@
+//背景:同学推荐的一道题,考了挺多内容的
+//原理:调和级数 + 快速幂
+#include <bits/stdc++.h>
+using namespace std;
+
+long long ans,mod = 1e9+7,a[1000006];
+
+//快速幂
+long long int quik_power(long long base, long long power)
+{
+    long long int result = 1;
+    while (power > 0)
+    {
+        if (power & 1){
+            result *= base;
+            result %=mod;
+        }
+        base *= base;
+        base %= mod;
+        power >>= 1;
+    }
+    return result;
+}
+
+//求f函数的
+long long f(long long number) {
+    long long sum = 0;
+    while (number != 0) {
+        sum += number % 10;
+        number /= 10;
+    }
+    return sum;
+}
+
+
+int main() {
+    int n;
+    cin>>n;
+    for (int i = 1; i < 1000000; i++){
+        a[i]=1;
+    }
+    
+    for (int x = 1; x <= n; x++)//枚举约数
+    {
+        int sum=0;
+        for (int i = 1; i*x <= n; i++)//遍历以x为约数的数
+        {
+            a[i]=(a[i]*i)%mod;//幂累乘
+            sum+=a[i];
+            sum%=mod;
+        }
+        ans+=((quik_power(x,x)*sum)%mod*f(x))%mod;  
+        ans%=mod;              
+    }
+    cout<<ans;
+    return 0;
+}
