@@ -1,0 +1,94 @@
+//背景：暑假学习点分治，但是之前自己的二分错了，不知道为什么，现在来个双指针+容斥去重
+//原理：点分治 + 双指针计数 + 去重
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 40005
+using namespace std;
+vector<pair<int,int>> e[MAXN];
+int maxn[MAXN],big[MAXN],sum,rt;
+bool vis[MAXN];
+int dis[MAXN];
+int rem[MAXN];
+ll ans;
+ll k;
+void getrt(int x,int fa) // 获取重心
+{
+    big[x] = 1;
+    maxn[x] = 0;
+    for (auto v : e[x])
+    {
+        int to = v.second;
+        if (to == fa || vis[to]) continue;
+        getrt(to,x);
+        big[x] += big[to];
+        maxn[x] = max(maxn[x],big[to]);
+    }
+    maxn[x] = max(maxn[x],sum - big[x]);
+    if (maxn[x] < maxn[rt]) rt = x;
+}
+void getdis(int x,int fa) // 计数子树(重心)节点的距离
+{
+    rem[++rem[0]] = dis[x];
+    for (auto v : e[x])
+    {
+        int w = v.first;
+        int to = v.second;
+        if (to == fa || vis[to]) continue;
+        dis[to] = dis[x] + w;
+        getdis(to,x);
+    }
+}
+ll calc(int x,int w) // w为初始化值
+{
+    dis[x] = w;
+    rem[0] = 0; // 清空原距离数组
+    getdis(x,0); // 获取距离
+    sort(rem+1,rem+rem[0]+1); // 排序
+    int l = 1,r = rem[0];
+    ll temp = 0; // 初始化答案
+    while (l <= r) // 双指针计数
+    {
+        if (rem[r] + rem[l] <= k) // 如果都满足
+        {
+            temp += r - l; // 注意是对数，所以不用+1
+            l++; // 移动左指针
+        }
+        else r--; // 移动右指针
+    }
+    return temp; // 返回答案
+}
+void Solve(int x) // 点分治
+{
+    vis[x] = true;
+    ans += calc(x,0); // 计算答案（此时包含重复的）
+    for (auto v : e[x])
+    {
+        int to = v.second;
+        int w = v.first;
+        if (vis[to]) continue;
+        ans -= calc(to,w); // 神来一笔（去重）
+        rt = 0;
+        maxn[rt] = big[to];
+        sum = big[to];
+        getrt(to,0);
+        Solve(rt);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y,w;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y >> w;
+        e[x].push_back({w,y});
+        e[y].push_back({w,x});
+    }
+    cin >> k;
+    maxn[rt] = sum = n; // 初始化
+    getrt(1,0); // 先找到整棵树的重心
+    Solve(rt);
+    cout << ans << "\n"; // 输出
+    return 0;
+}

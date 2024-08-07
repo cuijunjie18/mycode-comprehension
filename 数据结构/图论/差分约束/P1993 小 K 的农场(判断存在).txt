@@ -1,0 +1,76 @@
+//背景：暑假训练，差分约束模板题
+//原理：BF算法
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 5005
+#define INF 10000000000
+using namespace std;
+struct node
+{
+    int a,b;
+    ll d;
+}e[MAXN<<2];
+int cnt;
+ll dis[MAXN];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y,c,d;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) dis[i] = INF;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> c;
+        if (c == 1)
+        {
+            cin >> x >> y >> d;
+            e[++cnt].a = x;
+            e[cnt].b = y;
+            e[cnt].d = -d;
+        }
+        else if (c == 2)
+        {
+            cin >> x >> y >> d;
+            e[++cnt].a = y;
+            e[cnt].b = x;
+            e[cnt].d = d;
+        }
+        else if (c == 3) // 注意这里相等情况是如何建立不等式的
+        {
+            cin >> x >> y;
+            e[++cnt].a = x;
+            e[cnt].b = y;
+            e[cnt].d = 0;
+            e[++cnt].a = y;
+            e[cnt].b = x;
+            e[cnt].d = 0;
+        }
+    }
+    for (int i = 1; i <= n; i++) // 建立超级源点
+    {
+        e[++cnt].a = 0;
+        e[cnt].b = i;
+        e[cnt].d = 0;
+    }
+    dis[0] = 0;
+    bool flag = false;
+    for (int i = 1; i <= n; i++)
+    {
+        flag = false; // 每次要重新初始化
+        for (int j = 1; j <= cnt; j++)
+        {
+            x = e[j].a;
+            y = e[j].b;
+            if (dis[x] == INF) continue;
+            if (dis[y] > dis[x] + e[j].d)
+            {
+                dis[y] = dis[x] + e[j].d;
+                flag = true;
+            }
+        }
+        if (!flag) break;
+    }
+    if (flag) cout << "No" << "\n";
+    else cout << "Yes" << "\n";
+    return 0;
+}

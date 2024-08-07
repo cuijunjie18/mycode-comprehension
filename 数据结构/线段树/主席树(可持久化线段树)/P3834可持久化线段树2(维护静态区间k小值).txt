@@ -1,0 +1,95 @@
+//背景：暑假训练，学习主席树，虽然现在不太理解
+//本题主席树作用：维护静态任意区间任意大值
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 200005 // 数据范围
+using namespace std;
+
+int sum[MAXN << 5]; // 节点含数字数量
+int rt[MAXN << 5],ls[MAXN << 5],rs[MAXN << 5]; // 动态开点数组
+int a[MAXN],ind[MAXN]; // 原始数组与离散化数组
+int len,n,m;
+int tot; // 动态节点编号
+
+int getid(int x) // 获取对应数字离散化后的位置
+{
+    return lower_bound(ind + 1,ind + len + 1,x) - ind;
+}
+
+int Build(int l,int r)
+{
+    int root = ++tot;
+    if (l == r) return root; // 如果已经是叶子节点了，返回编号
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid + 1,r);
+    return root; // 返回该子树的根节点
+}
+
+int update(int k,int l,int r,int root) // 更新操作，可以看出每一层只会共用上棵树的一个节点，而更新最多logn层，保证时空复杂度
+{
+    int dir = ++tot; // 新建节点
+    int mid = (l + r) >> 1;
+
+    // 利用上一次的线段树初始化当前线段树
+    ls[dir] = ls[root];
+    rs[dir] = rs[root];
+    sum[dir] = sum[root] + 1; // 对应的数量增加1
+
+    if (l == r) return dir; // 找到位置了，即更新完成
+
+    if (k <= mid) ls[dir] = update(k,l,mid,ls[root]); // 如果位置在左边
+    else if (k > mid) rs[dir] = update(k,mid+1,r,rs[root]); // 如果位置在右边
+
+    return dir;
+}
+
+int query(int u,int v,int l,int r,int k) // 注意u，v不要搞混了
+{
+    int mid = (l + r) >> 1; // 计算中间值
+    int x = sum[ls[v]] - sum[ls[u]]; // 利用前缀和计算查询的左儿子中存储的数量
+
+    if (l == r) return l;
+    if (k <= x) // 若 k 小于等于 x ，则说明第 k 小的数字存储在在左儿子中
+        return query(ls[u],ls[v],l,mid,k);
+    else // 否则在右儿子
+        return query(rs[u],rs[v],mid + 1,r,k-x); // 注意数量要减去左儿子
+}
+
+void init()
+{
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    memcpy(ind,a,sizeof(ind)); // 原数组复制到未离散化的数组里
+    sort(ind + 1,ind + n + 1); // 排序
+    len = unique(ind + 1,ind + n + 1) - ind - 1; // 静态数组的去重计数，离散化
+    rt[0] = Build(1,len); // 建树
+    for (int i = 1; i <= n; i++) rt[i] = update(getid(a[i]),1,len,rt[i-1]); // 利用上一次的线段树，共用节点开当前的树
+}
+
+void Solve() // 回答m次询问
+{
+    int x,y,k;
+    while (m--)
+    {
+        cin >> x >> y >> k;
+        int p = query(rt[x-1],rt[y],1,len,k); // 先获取离散化位置先
+        cout << ind[p] << "\n";  // 输出
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    init(); // 初始化
+    Solve(); // 回答问题
+    return 0;
+}
+/*
+5 5
+25957 6405 15770 26287 26465 
+2 2 1
+3 4 1
+4 5 1
+1 2 2
+4 4 1
+*/

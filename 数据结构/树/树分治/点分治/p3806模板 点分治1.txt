@@ -1,0 +1,110 @@
+//背景：暑假训练，树上点分治，处理树上距离及路径问题，但是着篇代码RE(找不到原因)
+//理解：每条路径都可以看成由某个根出发的，自己理解一下
+//原理：树上点分治
+//时间复杂度：o(nlogn)，前提是重心优化下
+#include <bits/stdc++.h>
+#define MAXN 100010
+#define INF 10000001
+using namespace std;
+int n,m;
+int ask[1005]; // 记录询问
+vector<pair<int,int>> e[MAXN]; // 边数组
+int big[MAXN],maxn[MAXN],sum,rt; // 重心相关
+bool judge[INF],ans[INF],vis[MAXN]; // 分治及记录相关
+int dis[MAXN]; // 到根节点的距离
+int rem[MAXN]; // 记录产生的距离
+int que[MAXN]; // 记录此次计算过后要清空的距离
+void getrt(int x,int fa) // 获取树的重心
+{
+    big[x] = 1;
+    maxn[x] = 0; // 初始化
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        if (to == fa || vis[to]) continue; // 注意vis
+        getrt(to,x);
+        big[x] += big[to];
+        maxn[x] = max(big[to],maxn[x]);
+    }
+    maxn[x] = max(maxn[x],sum - big[x]);
+    if (maxn[x] < maxn[rt]) rt = x;
+}
+void getdis(int x,int fa) // 获取到根节点的距离
+{
+    rem[++rem[0]] = dis[x]; // 记录记录
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        int w = v.second;
+        if (to == fa || vis[to]) continue;
+        dis[to] = dis[x] + w;
+        getdis(to,x);
+    }
+}
+void calc(int x) // 计算路径的核心函数
+{
+    int p = 0; // 初始化
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        int w = v.second;
+        if (vis[to]) continue;
+        rem[0] = 0; // rem[0]用于记录当前节点的子树产生了多少个距离
+        dis[to] = w;
+        getdis(to,x);// 处理每个子树到当前节点(当前为根)的dis
+
+        for (int i = 1; i <= rem[0]; i++) // 遍历当前节点为根产生的距离
+        {
+            for (int j = 1; j <= m; j++) // 遍历问题
+            {
+                if (ask[j] >= rem[i]) ans[j] |= judge[ask[j]-rem[i]]; // dp
+            }
+        }
+
+        // 标记当前的距离
+        for (int i = 1; i <= rem[0]; i++)
+        {
+            judge[rem[i]] = true;
+            que[++p] = rem[i];
+        }
+    }
+    // 处理完这个子树就清空judge
+    for (int i = 1; i <= p; i++) judge[que[i]] = false;
+}
+void Solve(int x)
+{
+    vis[x] = judge[0] = true; // 到当前节点为0就是自己，且标记自己已经被当作子树处理过了
+    calc(x); // 处理以x为根的子树
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        if (vis[to]) continue;
+        rt = 0; // 重新定义根
+        maxn[rt] = INF;
+        sum = big[to]; // 定义子树的大小
+        getrt(to,0); // 找到子树的重心
+        Solve(rt);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y,w;
+    cin >> n >> m;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y >> w;
+        e[x].push_back({y,w});
+        e[y].push_back({x,w});
+    }
+    for (int i = 1; i <= m; i++) cin >> ask[i];
+    maxn[rt] = sum = n; // 第一次先找一整棵树的重心，保证计算的时间复杂度
+    getrt(1,0);
+    Solve(rt);
+    for (int i = 1; i <= m; i++)
+    {
+        if (ans[i]) cout << "AYE" << "\n";
+        else cout << "NAY" << "\n";
+    }
+    return 0;
+}

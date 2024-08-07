@@ -1,0 +1,100 @@
+//背景：暑假训练，真正意义上自己分析的点分治
+//思路：要求路径为3的倍数，那么利用余数记录每次搜索的对应余数的出现次数，进行组合数学；注意本身就满足三的倍数的情况
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 20005
+using namespace std;
+vector<pair<int,ll>> e[MAXN];
+ll big[MAXN],maxn[MAXN],rt,sum;
+ll a[MAXN];
+ll ans;
+ll dis[MAXN];
+ll num[4];
+ll que[4];
+bool  vis[MAXN];
+void getrt(int x,int fa) // 获取当前子树重心
+{
+    big[x] = 1;
+    maxn[x] = 0;
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        if (to == fa || vis[to]) continue;
+        getrt(to,x);
+        big[x] += big[to];
+        maxn[x] = max(maxn[x],big[to]);
+    }
+    maxn[x] = max(maxn[x],sum - big[x]);
+    if (maxn[x] < maxn[rt]) rt = x;
+}
+void getdis(int x,int fa) // 余数计数
+{
+    num[dis[x]%3]++;
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        ll w = v.second;
+        if (to == fa || vis[to]) continue;
+        dis[to] = dis[x] + w;
+        getdis(to,x);
+    }
+}
+void calc(int x) // 计算经过当前根节点的答案
+{
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        ll w = v.second;
+        if (vis[to]) continue;
+        for (int i = 0; i <= 2; i++) num[i] = 0;
+        dis[to] = w;
+        getdis(to,x);
+
+        ans += 2*num[0]; // 加上仅经过根节点为3的倍数的路径，细节
+
+        for (int i = 0; i <= 2; i++) // 计数核心，因为(1,2)(2,1)都要算，所以乘2
+        {
+            if (i == 0) ans += 2*num[0]*que[0];
+            else if (i == 1) ans += 2*num[2]*que[1];
+            else if (i == 2) ans += 2*num[1]*que[2];
+        }
+        for (int i = 0; i <= 2; i++) que[i] += num[i]; // 累加
+    }
+    for (int i = 0; i <= 2; i++) que[i] = 0; // 清空
+}
+void Solve(int x)
+{
+    vis[x] = true;
+    calc(x);
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        if (vis[to]) continue;
+        rt = 0;
+        maxn[rt] = sum = big[to];
+        getrt(to,0);
+        Solve(rt);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n,x,y,w;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y >> w;
+        e[x].push_back({y,w});
+        e[y].push_back({x,w});
+    }
+    maxn[rt] = sum = n;
+    getrt(1,0);
+    Solve(rt);
+    ll temp1 = ans + n;
+    ll temp2 = n*n; // 计算所有点对数
+    ll gcd = __gcd(temp1,temp2); // 计算gcd
+    temp1 /= gcd;
+    temp2 /= gcd;
+    cout << temp1 << "/" << temp2 << "\n";//输出概率
+    return 0;
+}

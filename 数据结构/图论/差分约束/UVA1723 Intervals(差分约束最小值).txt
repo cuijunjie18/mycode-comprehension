@@ -1,0 +1,53 @@
+//背景：暑假训练，差分约束最小值用最长路；最大值用最短路
+//注：本篇无持续读入
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 50005
+using namespace std;
+vector<pair<int,ll> > e[MAXN];
+bool vis[MAXN];
+ll dis[MAXN];
+int maxn;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y,d;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> x >> y >> d;
+        // 所有节点编号偏移1位，防止最长路下标变负数
+        e[x].push_back({y+1,d});
+        maxn = max(maxn,y + 1);
+    }
+    for (int i = 1; i <= maxn; i++) // 隐含的约束条件
+    {
+        e[i-1].push_back({i,0});
+        e[i].push_back({i-1,-1});
+    }
+    memset(dis,-0x3f,sizeof(dis));
+    dis[0] = 0; // 原本是超级源点-1，因为偏移了1，所以是0，那么现在共有md + 2个节点
+    vis[0] = true;
+    queue<int> que;
+    que.push(0);
+    while(!que.empty())
+    {
+        x = que.front();
+        que.pop();
+        vis[x] = false;
+        for (auto v : e[x])
+        {
+            int to = v.first;
+            ll temp = v.second;
+            if (dis[to] < dis[x] + temp)
+            {
+                dis[to] = dis[x] + temp;
+                if (vis[to]) continue;
+                vis[to] = true;
+                que.push(to);
+            }
+        }
+    }
+    cout << dis[maxn] << "\n"; // 输出
+    return 0;
+}

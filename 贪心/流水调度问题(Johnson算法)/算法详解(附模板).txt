@@ -1,0 +1,29 @@
+https://blog.csdn.net/weixin_37924741/article/details/102981986
+
+美化模板
+#include<iostream>
+#include<cstdio>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+int  n,ans;
+struct Node{
+    int a,b,c;
+}x[1500];
+bool cmp(Node x,Node y){
+    return min(y.b,x.a)<min(x.b,y.a);//这就是Johnson表达式 
+}
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++) scanf("%d",&x[i].a);
+    for(int i=1;i<=n;i++) {scanf("%d",&x[i].b);x[i].c=i;};
+    sort(x+1,x+n+1,cmp);
+    int ta=0,tb=0;
+    for(int i=1;i<=n;i++){
+        ta+=x[i].a;
+        tb=max(ta,tb)+x[i].b;
+    }
+    printf("%d\n",tb);
+    for(int i=1;i<=n;i++) printf("%d ",x[i].c);
+    return 0;
+}

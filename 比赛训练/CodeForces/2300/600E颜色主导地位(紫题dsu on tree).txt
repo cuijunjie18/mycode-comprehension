@@ -1,0 +1,110 @@
+//背景:激动!!!!人生第一道紫题(虽然自己的超时了,就差两个点,参照了别人的修改了自己的)
+//难点:时间复杂度分析
+//时间复杂度:o(nlogn+n)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct edge//链式前向星存边
+{
+    int to,next;
+}EDGE;
+EDGE e[100001<<1];//双倍存边
+int head[100001];//记录起点边
+int color[100001];//存储每个节点的颜色
+int cnt;//双边的数
+int m;//记录子树中颜色最多值的大小
+int l[100001];//x点的DFS序
+int r[100001];//x点的最远DFS序
+int node[100001];//DFS为x的节点编号
+int son[100001];//节点x的重儿子
+int big[100001];//节点x的子树(含自己)大小
+int pos;//DFS序变量
+long long ans[100001];//记录答案
+int times[100001];//记录每个颜色出现的次数
+long long sum = 0;//临时变量
+inline int read()//快读
+{
+    int s = 0;
+    char ch = getchar();
+    while(ch < '0'||ch > '9') ch = getchar();
+    while(ch <= '9'&&ch >= '0')
+    {
+        s = s*10 + ch - '0';
+        ch = getchar();
+    }
+    return s;
+}
+void add(int x,int y)//建树
+{
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+void DFS1(int x,int fa)//预处理树
+{
+    big[x] = 1;//初始化树的大小
+    l[x] = ++pos;//记录当前节点的DFS序
+    node[pos] = x;//记录DFS序为pos的节点
+    for (int i = head[x];i;i = e[i].next)//遍历子树
+    {
+        if(e[i].to == fa) continue;
+        DFS1(e[i].to,x);
+        big[x] += big[e[i].to];//累加大小
+        if(son[x] == 0||big[son[x]] < big[e[i].to]) son[x] = e[i].to;//更新重儿子
+    }
+    r[x] = pos;//记录当前节点的最远DFS序
+}
+void DFS2(int x,int fa,bool keep)//树上启发式合并核心函数,keep确定是否要保留数据(因为总有一边是要保留的,这也是启发式来源)
+{
+    for (int i = head[x];i;i = e[i].next)//先计算轻儿子(本身遍历,时间复杂度重n的来源)
+    {
+        if(e[i].to == son[x]||e[i].to == fa) continue;
+        DFS2(e[i].to,x,false);
+    }
+    if(son[x])//有重儿子的单独处理
+    {
+        DFS2(son[x],x,true);
+    }
+    for (int i = head[x];i;i = e[i].next)//再次计算轻儿子同时确定当前节点的答案(多余的遍历,次数取决与轻边数,导致时间复杂度nlogn)
+    {
+        if(e[i].to == fa||e[i].to == son[x]) continue;
+        for (int j = l[e[i].to];j<=r[e[i].to];j++)//轻儿子的节点DFS序为连续区间,直接遍历
+        {
+            times[color[node[j]]]++;//对应颜色数加1
+            if(times[color[node[j]]]>m)//如果超过了最大值
+            {
+                m = times[color[node[j]]];//更新最大值
+                sum = color[node[j]];//重置答案
+            }
+            else if(times[color[node[j]]] == m) sum += color[node[j]];//如果等于最大值,累加答案
+        }
+    }
+    times[color[x]]++;//加上本身
+    if(times[color[x]] > m)//判断
+    {
+        m = times[color[x]];
+        sum = color[x];
+    }
+    else if(times[color[x]] == m) sum += color[x];
+    ans[x] = sum;//存储答案
+    if(keep == false)//如果不保留
+    {
+        m = 0;//重置此节点的全部
+        for (int i = l[x];i<=r[x];i++) times[color[node[i]]]--;
+    }
+}
+int main()
+{
+    int n = read();//读入节点数量
+    for (int i = 1;i<=n;i++) color[i] = read();//读入每个节点的颜色
+    for (int i = 1;i<=n-1;i++)//建树
+    {
+        int a = read();
+        int b = read();
+        add(a,b);
+        add(b,a);
+    }
+    DFS1(1,0);//预处理树(题目说以1为根节点)
+    DFS2(1,0,false);//树上启发式合并求每个节点的答案
+    for (int i = 1;i<=n;i++) printf("%lld ",ans[i]);//按顺序输出节点答案
+    return 0;
+}

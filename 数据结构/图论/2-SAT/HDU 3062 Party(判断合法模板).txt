@@ -1,0 +1,89 @@
+//背景：暑假训练，学习2-SAT，本题是HDU多校的模板题
+//原理：Tarjan求强连通，离散数学
+//时间复杂度：o(n)
+#include <bits/stdc++.h>
+#define MAXN 1005
+using namespace std;
+vector<int> e[MAXN<<1];
+int dfn[MAXN<<1],low[MAXN<<1],dfncnt;
+int scc[MAXN<<1],sc;
+bool vis[MAXN<<1];
+stack<int> s;
+vector<pair<int,int>> clash; // 记录矛盾
+void init(int n) // 初始化
+{
+    dfncnt = 0;
+    sc = 0;
+    for (int i = 0; i <= 2*n; i++)
+    {
+        dfn[i] = 0;
+        low[i] = 0;
+        scc[i] = 0;
+        e[i].clear();
+        vis[i] = false;
+    }
+    clash.clear();
+}
+void Tarjan(int x) // Tarjan求强连通分量模板
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto to : e[x])
+    {
+        if (!dfn[to])
+        {
+            Tarjan(to);
+            low[x] = min(low[x],low[to]);
+        }
+        else if (vis[to]) low[x] = min(low[x],dfn[to]);
+    }
+    if (low[x] == dfn[x])
+    {
+        sc++;
+        while (true)
+        {
+            int temp = s.top();
+            s.pop();
+            vis[temp] = false;
+            scc[temp] = sc;
+            if (temp == x) break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,a1,a2,c1,c2;
+    while (cin >> n >> m)
+    {
+        init(n);
+        // 妻子编号 0 ~ n-1 ,丈夫编号n ~ 2n - 1
+        for (int i = 1; i <= m; i++)
+        {
+            cin >> a1 >> a2 >> c1 >> c2;
+            // 简单的建图
+            e[a1 + n*c1].push_back(a2 + n*(1^c2));
+            e[a2 + n*c2].push_back(a1 + n*(1^c1));
+            clash.push_back({a1 + n*c1,a2 + n*c2});
+        }
+        for (int i = 0 ; i <= 2*n-1; i++) // 进行Tarjan
+        {
+            if (!scc[i]) Tarjan(i);
+        }
+        bool flag = true; // 初始化
+        for (auto v : clash) // 判断是否有矛盾在同一连通分量里
+        {
+            int x = v.first;
+            int y = v.second;
+            if (scc[x] == scc[y]) // 如果有
+            {
+                flag = false;
+                break;
+            }
+        }
+        if (flag) cout << "YES" << "\n";
+        else cout << "NO" << "\n";
+    }
+    return 0;
+}

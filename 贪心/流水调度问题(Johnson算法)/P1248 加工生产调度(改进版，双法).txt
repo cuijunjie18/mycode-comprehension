@@ -1,0 +1,103 @@
+//写法一
+//背景：暑假学习，johnson贪心的核心改进，即分开处理，即不利用johnson不等式，利用johnson贪心算法，即johnson法则
+//思路：a <= b的为一组，升序排序，a > b的为一组，降序排序；然后顺序为第一组 -> 第二组
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+struct node1 // a <= b组
+{
+    ll a,b;
+    int pos;
+};
+struct node2 // a > b组
+{
+    ll a,b;
+    int pos;
+};
+// 排序
+bool cmp1(node1 x,node1 y) {return x.a <= y.a;} // 以后不要等号
+bool cmp2(node2 x,node2 y) {return x.b >= y.b;}
+ll a[1005],b[1005];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    vector<node1> M1;
+    vector<node2> M2;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= n; i++) cin >> b[i];
+    for (int i = 1; i <= n; i++) // 进行分组操作
+    {
+        if (a[i] <= b[i]) M1.push_back({a[i],b[i],i});
+        else M2.push_back({a[i],b[i],i});
+    }
+    sort(M1.begin(),M1.end(),cmp1); // 分别排序
+    sort(M2.begin(),M2.end(),cmp2);
+    ll ta = 0,tb = 0;
+    // 计算答案
+    for (auto v : M1)
+    {
+        ta += v.a;
+        tb = max(ta,tb) + v.b;
+    }
+    for (auto v : M2)
+    {
+        ta += v.a;
+        tb = max(ta,tb) + v.b;
+    }
+    cout << tb << "\n"; // 输出答案
+    // 输出方案
+    for (auto v : M1) cout << v.pos << " ";
+    for (auto v : M2) cout << v.pos << " ";
+    return 0;
+}
+
+
+//写法二：标准写法，引入d数组
+//背景：暑假学习，johnson贪心算法，尽管有错，依旧有价值
+//错误点：全部数据均满足min(a1,b2) < min(a2,b1)才行，如果有等于会出问题
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+struct node
+{
+    ll a,b,pos; // 一，二阶段用时，pos为编号，便于输出方案
+}p[1005];
+int d[1005];
+bool cmp(node x,node y) // 核心
+{
+    if (d[x.pos] == d[y.pos])
+    {
+        if (d[x.pos] <= 0) return x.a < y.a;
+        else return x.b > y.b;
+    }
+    return d[x.pos] < d[y.pos];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> p[i].a;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> p[i].b;
+        p[i].pos = i; // 记录编号
+        
+        // 处理d数组
+        if (p[i].a < p[i].b) d[i] = -1;
+        else if (p[i].a == p[i].b) d[i] = 0;
+        else if (p[i].a > p[i].b) d[i] = 1;
+    }
+    sort(p+1,p+n+1,cmp);
+    ll ta = 0,tb = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        ta += p[i].a;
+        tb = max(ta,tb) + p[i].b; // 核心计算公式
+    }
+    cout << tb << "\n"; // tb即最短时间
+    for (int i  = 1; i <= n; i++) cout << p[i].pos << " "; // 输出方案
+    return 0;
+}

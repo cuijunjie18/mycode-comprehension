@@ -1,0 +1,96 @@
+//背景：暑假学习扫描线，对这个特殊线段树的理解不太好
+//原理：离散化 + 线段树
+//细节：线段树大小开8倍，且线段树的叶子节点不是长度1，而是至少为1个块
+#include <bits/stdc++.h>
+#define MAXN 200005
+#define ll long long
+using namespace std;
+struct node1
+{
+    ll l,r,sum;
+}tree[MAXN<<3]; // 线段树维护的信息
+int laz[MAXN<<3]; // 特殊懒标记，表示这一段是否全部被加上
+struct node2
+{
+    ll x,y1,y2;
+    int flag; // 表示入边还是出边
+}p[MAXN]; // 存储边的信息
+ll s[MAXN]; // 存储离散化后的y坐标
+bool cmp(node2 a,node2 b) // 按边x坐标从左到右排序
+{
+    return a.x < b.x;
+}
+void pushup(int pos) // 向上更新包括的长度
+{
+    if (laz[pos]) // 如果整个区间有不为0的标记，即整个区间被染色
+    {
+        tree[pos].sum = tree[pos].r - tree[pos].l; // 记录
+        return; // 一定要返回
+    }
+    tree[pos].sum = tree[pos<<1].sum + tree[(pos<<1)|1].sum;
+}
+void Build(int l,int r,int pos) // 初始化树
+{
+    if (r - l > 1) // 如果还可以分
+    {
+        tree[pos].l = s[l]; // 记录
+        tree[pos].r = s[r];
+        Build(l,(l+r)>>1,pos<<1);
+        Build((l+r)>>1,r,(pos<<1)|1);
+        pushup(pos); // 更新
+    }
+    else // 否则停止递归
+    {
+        tree[pos].l = s[l];
+        tree[pos].r = s[r];
+        tree[pos].sum = 0; // 初始化
+    }
+}
+void update(ll y1,ll y2,int pos,int k) // 更新
+{
+    if (tree[pos].l == y1 && tree[pos].r == y2) // 如果包含了边界
+    {
+        laz[pos] += k; // 记录标记
+        pushup(pos); // 更新
+        return; // 一定要返回
+    }
+    // 难点及无法理解的特殊性
+    int l = pos << 1;
+    int r = (pos << 1)|1;
+    if (tree[l].r > y1) update(y1,min(y2,tree[l].r),pos<<1,k);
+    if (tree[r].l < y2) update(max(tree[r].l,y1),y2,(pos<<1)|1,k);
+    pushup(pos); // 更新
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    ll x1,y1,x2,y2;
+    cin >> n;
+    for (int i = 1; i <= n; i++) // 输入坐标
+    {
+        cin >> x1 >> y1 >> x2 >> y2;
+        p[i].x = x1;
+        p[i].y1 = y1;
+        p[i].y2 = y2;
+        p[i].flag = 1; // 入边
+        p[i+n].x = x2;
+        p[i+n].y1 = y1;
+        p[i+n].y2 = y2;
+        p[i+n].flag = -1; // 出边
+        s[i] = y1;
+        s[i+n] = y2;
+    }
+    sort(s+1,s+2*n+1); // y坐标离散化
+    sort(p+1,p+2*n+1,cmp); // 排序
+    Build(1,2*n,1); //初始化扫描线段树
+    update(p[1].y1,p[1].y2,1,p[1].flag); // 先将第一个边加入线段树
+    ll ans = 0; // 初始化答案
+    for (int i = 2; i <= 2*n; i++)
+    {
+        ans += (p[i].x - p[i-1].x)*tree[1].sum; // 累加答案
+        update(p[i].y1,p[i].y2,1,p[i].flag); // 更新
+    }
+    cout << ans << "\n"; // 输出
+    return 0;
+}

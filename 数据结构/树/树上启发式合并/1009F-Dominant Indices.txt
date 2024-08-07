@@ -1,0 +1,76 @@
+//背景：暑假训练，自己first AC的一道启发式合并，关键是读懂题目，思路类似CF208E Blood Cousins(k级表亲)这题
+//时间复杂度：o(nlogn)
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 1000005
+using namespace std;
+vector<int> e[MAXN];
+int dfn[MAXN],udfn[MAXN],mdfn[MAXN],dfncnt;
+int big[MAXN],son[MAXN]; 
+int depth[MAXN]; // 记录节点深度
+int ans[MAXN]; // 记录节点答案
+int times[MAXN]; // 记录启发式搜索中对应深度出现的次数
+int maxn,num; // 记录最大出现次数，及对应的深度
+void DFS(int x,int fa,int d) // 预处理，处理深度及轻重儿子
+{
+    depth[x] = d;
+    big[x] = 1;
+    dfn[x] = ++dfncnt;
+    udfn[dfncnt] = x;
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x,d+1);
+        big[x] += big[to];
+        if (son[x] == 0 || big[to] > big[son[x]]) son[x] = to;
+    }
+    mdfn[x] = dfncnt;
+}
+void dsu(int x,int fa,bool keep)
+{
+    for (auto to : e[x]) // 先计算轻儿子
+    {
+        if (to == fa || to == son[x]) continue;
+        dsu(to,x,false);
+    }
+    if (son[x]) dsu(son[x],x,true); // 计算重儿子
+    for (auto to : e[x]) // 再次计算轻儿子
+    {
+        if (to == fa || to == son[x]) continue;
+        for (int i = dfn[to]; i <= mdfn[to]; i++)
+        {
+            times[depth[udfn[i]]]++;
+            if (times[depth[udfn[i]]] > maxn) // 判断条件
+            {
+                maxn = times[depth[udfn[i]]];
+                num = depth[udfn[i]];
+            }
+            else if (times[depth[udfn[i]]] == maxn && depth[udfn[i]] < num) num = depth[udfn[i]]; // 判断条件
+        }
+    }
+    times[depth[x]]++; // 加上当前节点
+    if (times[depth[x]] >= maxn) num = depth[x]; // >=一起判断，因为当前节点深度一定最小，一定可以成为答案
+    ans[x] = num - depth[x]; // 记录答案(相对深度)
+    if (!keep) // 如果不保留
+    {
+        maxn = 0; // 清空
+        num = 0; // 清空
+        for (int i = dfn[x]; i <= mdfn[x]; i++) times[depth[udfn[i]]]--; // 删除
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    DFS(1,0,0);
+    dsu(1,0,false);
+    for (int i = 1; i <= n; i++) cout << ans[i] << "\n";
+    return 0;
+}

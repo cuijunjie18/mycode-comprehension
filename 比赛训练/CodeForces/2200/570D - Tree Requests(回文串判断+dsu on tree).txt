@@ -1,0 +1,88 @@
+//背景：暑假训练，又是一道紫题，回文 + dsu，直接切了
+//原理：树上启发式合并 + 离线记录 + 回文串判断
+//回文串判断原理：所有字符，至多有一个出现次数为奇数的
+//时间复杂度：o(nlogn)
+#include <bits/stdc++.h>
+#define MAXN 500005
+using namespace std;
+vector<int> e[MAXN];
+vector<pair<int,int>> ask[MAXN]; // 离线询问
+int depth[MAXN];
+int dfn[MAXN],udfn[MAXN],mdfn[MAXN],dfncnt;
+int big[MAXN],son[MAXN];
+int a[MAXN];
+bool ans[MAXN];
+int times[MAXN][30]; // 表示对应深度，字符i出现的奇偶性，0为偶
+void DFS(int x,int fa,int d) // 预处理
+{
+    depth[x] = d;
+    big[x] = 1;
+    dfn[x] = ++dfncnt;
+    udfn[dfncnt] = x;
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x,d+1);
+        big[x] += big[to];
+        if (son[x] == 0 || big[to] > big[son[x]]) son[x] = to;
+    }
+    mdfn[x] = dfncnt;
+}
+void dsu(int x,int fa,bool keep) // dsu
+{
+    for (auto to : e[x]) // 先计算轻儿子
+    {
+        if (to == fa || to == son[x]) continue;
+        dsu(to,x,false);
+    }
+    if (son[x]) dsu(son[x],x,true);
+    for (auto to : e[x]) // 再次计算轻儿子
+    {
+        if (to == fa || to == son[x]) continue;
+        for (int i = dfn[to]; i <= mdfn[to]; i++)
+        {
+            times[depth[udfn[i]]][a[udfn[i]]] ^= 1; // 核心计算
+        }
+    }
+    times[depth[x]][a[x]] ^= 1; // 计算自己
+    for (auto v : ask[x]) // 回答与当前节点有关的问题
+    {
+        int pos = v.first;
+        int d = v.second;
+        int temp = 0;
+        for (int i = 0; i < 26; i++) temp += times[d][i];
+        if (temp >= 2) ans[pos] = false;
+        else ans[pos] = true; // 可以构成回文
+    }
+    if (!keep)
+    {
+        for (int i = dfn[x]; i <= mdfn[x]; i++) times[depth[udfn[i]]][a[udfn[i]]] ^= 1; // 删除贡献
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 2; i <= n; i++) // 细节从2开始，因为记录的是父亲，一开始从1开始调了几分钟
+    {
+        cin >> x;
+        e[x].push_back(i);
+    }
+    string s;
+    cin >> s;
+    for (int i = 0; i < n; i++) a[i+1] = s[i] - 'a';
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        ask[x].push_back({i,y});
+    }
+    DFS(1,0,1);
+    dsu(1,0,false);
+    for (int i = 1; i <= m; i++) // 输出
+    {
+        if (ans[i]) cout << "Yes" << "\n";
+        else cout << "No" << "\n";
+    }
+    return 0;
+}

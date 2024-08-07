@@ -1,0 +1,54 @@
+//背景:比赛没时间看,赛后补题,看题解反悔贪心秒了
+//原理:反悔贪心
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+struct cmp//大根堆自定义比较
+{
+    bool operator()(int x,int y)
+    {
+        return x < y;
+    }
+};
+void Solve()
+{
+    int n,x;
+    cin>>n>>x;
+    int c[n+1];
+    for (int i = 1;i<=n;i++) cin>>c[i];
+    priority_queue<int,vector<int>,cmp>que;//建立大根堆
+    int have = 0;//初始化有的钱
+    int use = 0;//初始化用了多少钱
+    int ans = 0;//初始化答案
+    for (int i = 1;i<=n;i++)//遍历月份
+    {
+        if(have >= use + c[i])//如果能买下
+        {
+            ans++;//答案+1
+            use += c[i];//累加用的钱
+            que.push(c[i]);//入队
+        }
+        else//如果买不下
+        {
+            if(!que.empty()&&que.top() > c[i])//如果队列里有比当前更贵的,替换一定更优(队列里的一定是选的了),同时保持答案不变
+            {
+                use -= (que.top() - c[i]);//更新花费
+                que.pop();//出队
+                que.push(c[i]);//!!!!不要忘了,这个替换的也要入队
+            }
+        }
+        have += x;//拿到工资
+    }
+    cout<<ans<<"\n";//输出答案
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        Solve();
+    }
+    return 0;
+}

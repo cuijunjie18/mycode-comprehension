@@ -1,0 +1,129 @@
+//背景：暑假训练，之前扫描线求的是面积，现在求周长，采用一样的结构
+//区别：分两次扫描，左到右，下到上，因为周长有横竖边之分
+//关键：每次的贡献等于之前的区间长度减去现在区间长度的绝对值
+#include <bits/stdc++.h>
+#define MAXN 10005
+#define ll long long
+using namespace std;
+struct node1 // 线段树
+{
+    ll l,r,sum;
+}tree[MAXN<<3];
+struct node2 // 存每条边
+{
+    ll x,y1,y2;
+    int flag;
+}p[MAXN<<3];
+struct node3 // 存每个矩形
+{
+    ll x1,y1,x2,y2;
+}save[MAXN<<3];
+ll laz[MAXN<<3]; // 类似染色数组的懒标记，表示是否全覆盖
+ll s[MAXN<<3]; // 离散化数组
+ll ans;
+int n;
+bool cmp(node2 a,node2 b)
+{
+    return a.x < b.x;
+}
+void pushup(int pos) // 向上更新
+{
+    if (laz[pos])
+    {
+        tree[pos].sum = tree[pos].r - tree[pos].l;
+        return;
+    }
+    tree[pos].sum = tree[pos<<1].sum + tree[pos<<1|1].sum;
+}
+void Build(int pos,int l,int r) // 初始化线段树
+{
+    if (r - l > 1)
+    {
+        tree[pos].l = s[l];
+        tree[pos].r = s[r];
+        Build(pos<<1,l,(l+r)>>1);
+        Build(pos<<1|1,(l+r)>>1,r);
+        pushup(pos);
+    }
+    else
+    {
+        tree[pos].l = s[l];
+        tree[pos].r = s[r];
+        tree[pos].sum = 0;
+    }
+}
+void update(int pos,ll y1,ll y2,ll k) // 每次加边时更新
+{
+    if (tree[pos].l == y1 && tree[pos].r == y2)
+    {
+        laz[pos] += k;
+        pushup(pos);
+        return;
+    }
+    if (tree[pos<<1].r > y1) update(pos<<1,y1,min(tree[pos<<1].r,y2),k);
+    if (tree[pos<<1|1].l < y2) update(pos<<1|1,max(y1,tree[pos<<1|1].l),y2,k);
+    pushup(pos);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n;
+    // 存下矩形
+    for (int i = 1; i <= n; i++) cin >> save[i].x1 >> save[i].y1 >> save[i].x2 >> save[i].y2; 
+
+    // 先从左往右扫描
+    for (int i = 1; i <= n; i++)
+    {
+        p[i].x = save[i].x1;
+        p[i].y1 = save[i].y1;
+        p[i].y2 = save[i].y2;
+        p[i].flag = 1;
+        p[i+n].x = save[i].x2;
+        p[i+n].y1 = save[i].y1;
+        p[i+n].y2 = save[i].y2;
+        p[i+n].flag = -1;
+        s[i] = save[i].y1;
+        s[i+n] = save[i].y2;
+    }
+    sort(s+1,s+2*n+1);
+    sort(p+1,p+2*n+1,cmp);
+    Build(1,1,2*n);
+    ll b = 0; // 之前的区间长度
+    update(1,p[1].y1,p[1].y2,p[1].flag);
+    for (int i = 2; i <= 2*n; i++)
+    {
+        ans += abs(tree[1].sum - b); // 核心公式
+        b = tree[1].sum;
+        update(1,p[i].y1,p[i].y2,p[i].flag);
+    }
+    ans += abs(tree[1].sum - b); // 最后不要忘记
+
+    // 再从下往上扫描
+    b = 0;
+    for (int i = 1; i <= n; i++) // 注意区别
+    {
+        p[i].x = save[i].y1;
+        p[i].y1 = save[i].x1;
+        p[i].y2 = save[i].x2;
+        p[i].flag = 1;
+        p[i+n].x = save[i].y2;
+        p[i+n].y1 = save[i].x1;
+        p[i+n].y2 = save[i].x2;
+        p[i+n].flag = -1;
+        s[i] = save[i].x1;
+        s[i+n] = save[i].x2;
+    }
+    sort(s+1,s+2*n+1);
+    sort(p+1,p+2*n+1,cmp);
+    Build(1,1,2*n); // 重新建树
+    update(1,p[1].y1,p[1].y2,p[1].flag);
+    for (int i = 2; i <= 2*n; i++)
+    {
+        ans += abs(tree[1].sum - b);
+        b = tree[1].sum;
+        update(1,p[i].y1,p[i].y2,p[i].flag);
+    }
+    ans += abs(tree[1].sum - b); // 最后不要忘记
+    cout << ans << "\n"; // 输出
+    return 0;
+}

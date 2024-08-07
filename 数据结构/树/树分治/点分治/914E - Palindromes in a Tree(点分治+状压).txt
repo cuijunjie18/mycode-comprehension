@@ -1,0 +1,98 @@
+//背景：暑假训练，点分治，计数恶心题，细节真的多
+//原理：状态压缩 + 点分治 + 计数 + 树上差分 + 思维
+//时间复杂度：o(nlogn)
+//参考题解及思路：https://www.cnblogs.com/stoorz/p/13231403.html
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 500005 // 注意数组开大一些，防止RE
+using namespace std;
+vector<int> e[MAXN]; // 边
+int big[MAXN],maxn[MAXN],sum,rt; // 找重心数组
+bool vis[MAXN]; // 标记数组
+int a[MAXN]; // 记录每个点的点权
+ll ans[MAXN]; // 记录每个点的答案
+ll state[MAXN<<2]; // 记录状态
+
+void getrt(int x,int fa) // 找重心
+{
+    big[x] = 1;
+    maxn[x] = 0;
+    for (auto to : e[x])
+    {
+        if (to == fa || vis[to]) continue;
+        getrt(to,x);
+        big[x] += big[to];
+        maxn[x] = max(maxn[x],big[to]);
+    }
+    maxn[x] = max(maxn[x],sum - big[x]);
+    if (maxn[x] < maxn[rt]) rt = x;
+}
+void dfs1(int x,int fa,int s,int val) // 用于改变对应状态出现次数的dfs
+{
+    state[s] += val;
+    for (auto to : e[x])
+    {
+        if (to == fa || vis[to]) continue;
+        dfs1(to,x,s^a[to],val);
+    }
+}
+ll dfs2(int x,int fa,int s) // 用于进行差分计数的dfs
+{
+    ll cnt = state[s]; // 计数
+    for (int i = 0; i < 20; i++) cnt += state[s^(1<<i)]; // 利用异或的性质计数
+    for (auto to : e[x])
+    {
+        if (to == fa || vis[to]) continue;
+        cnt += dfs2(to,x,s^a[to]); // 差分累加儿子的
+    }
+    ans[x] += cnt; // 记录答案
+    return cnt; // 返回
+}
+void calc(int x) // 点分治的重心dfs
+{
+    dfs1(x,0,a[x],1); // 先计数一次
+    ll cnt = state[0] + 1; // +1是为了让自己那一个点可以除以2
+    for (int i = 0; i < 20; i++) cnt += state[1<<i]; // 提前加上不会出现两次的贡献，便于后续除以2
+    for (auto to : e[x])
+    {
+        if (vis[to]) continue;
+        dfs1(to,x,a[x]^a[to],-1); // 删除当前子树的计数贡献
+        cnt += dfs2(to,x,a[to]); // 对当前子树跑dfs，进行差分
+        dfs1(to,x,a[x]^a[to],1); // 加回当前子树的计数贡献
+    }
+    dfs1(x,0,a[x],-1); // 最后全部贡献删除
+    ans[x] += cnt/2; // 累加答案除以2
+}
+void Solve(int x) // 处理函数
+{
+    vis[x] = true;
+    calc(x);
+    for (auto to : e[x])
+    {
+        if (vis[to]) continue;
+        rt = 0;
+        maxn[rt] = sum = big[to];
+        getrt(to,0);
+        Solve(rt);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    string temp;
+    cin >> temp;
+    for (int i = 0; i < n; i++) a[i+1] = 1<<(temp[i] - 'a'); // 状压记录点权
+    maxn[rt] = sum = n; // 初始化
+    getrt(1,0); // 先找整棵树的重心
+    Solve(rt); // 开始点分治
+    for (int i = 1; i <= n; i++) cout << ans[i] << " "; // 输出
+    return 0;
+}

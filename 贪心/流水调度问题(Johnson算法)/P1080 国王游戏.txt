@@ -1,0 +1,34 @@
+//背景：暑假学习，贪心，发现交换邻接项做法找排序依据是真的牛
+//思路：假设前面有序列了，考虑后面两人，是否要交换，找出交换更优的依据即可排序
+//注：本题无高精度过不了
+#include <bits/stdc++.h>
+#define MAXN 10005
+#define ll long long
+using namespace std;
+struct node
+{
+    ll l,r;
+}p[MAXN];
+ll mul[MAXN];
+ll d[MAXN];
+bool cmp(node x,node y) // 核心判断
+{
+    return max(y.r,x.l*x.r) < max(x.r,y.l*y.r);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 0; i <= n; i++) cin >> p[i].l >> p[i].r;
+    sort(p+1,p+n+1,cmp);
+    ll mul = p[0].l;
+    ll ans = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        ans = max(ans,mul/p[i].r);
+        mul *= p[i].l;
+    }
+    cout << ans << "\n";
+    return 0;
+}

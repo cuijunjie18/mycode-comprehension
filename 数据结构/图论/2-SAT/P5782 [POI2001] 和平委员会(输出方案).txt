@@ -1,0 +1,70 @@
+//背景：暑假学习，2-SAT
+//收获：对矛盾真正的理解，不是给出的约束，而是本身的对立事件，本题对立为同一个委员会只能出一人
+#include <bits/stdc++.h>
+#define MAXN 100005
+using namespace std;
+vector<pair<int,int>> clash;
+vector<int> e[MAXN<<1];
+int dfn[MAXN<<1],low[MAXN<<1],dfncnt;
+int scc[MAXN<<1],sc;
+bool vis[MAXN<<1];
+stack<int> s;
+void Tarjan(int x)
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto to : e[x])
+    {
+        if (!dfn[to])
+        {
+            Tarjan(to);
+            low[x] = min(low[x],low[to]);
+        }
+        else if (vis[to]) low[x] = min(low[x],dfn[to]);
+    }
+    if (low[x] == dfn[x])
+    {
+        sc++;
+        while (true)
+        {
+            int temp = s.top();
+            s.pop();
+            vis[temp] = false;
+            scc[temp] = sc;
+            if (temp == x) break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        clash.push_back({x,y}); // 这个clash没有用
+        e[x].push_back(y + ((y%2 == 0)?-1:1)); // 注意括号，不然把左边整个看成条件判断了，一开始就是这样wa了
+        e[y].push_back(x + ((x%2 == 0)?-1:1));
+    }
+    for (int i = 1; i <= 2*n; i++)
+    {
+        if (!scc[i]) Tarjan(i);
+    }
+    // 注意不用判断题目给出的矛盾
+    for (int i = 1; i <= 2*n; i += 2) // 判断是否有对立事件在一个连通分量里
+    {
+        if (scc[i] == scc[i+1])
+        {
+            cout << "NIE" << "\n";
+            return 0;
+        }
+    }
+    for (int i = 1; i <= 2*n; i += 2) // 按拓扑序输出方案
+    {
+        if (scc[i] < scc[i+1]) cout << i << "\n"; // 前面取真
+        else cout << i + 1 << "\n";
+    }
+    return 0;
+}

@@ -1,0 +1,35 @@
+//背景：暑假学习，johnson贪心算法，尽管有错，依旧有价值
+//错误点：全部数据均满足min(a1,b2) < min(a2,b1)才行，如果有等于会出问题
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+struct node
+{
+    ll a,b,pos; // 一，二阶段用时，pos为编号，便于输出方案
+}d[1005];
+bool cmp(node x,node y)
+{
+    return min(x.a,y.b) < min(y.a,x.b); // johnson表达式，由证明可以知道这样排序一定满足所有a < b的先在前面(前提全部满足不等式，不能相等)
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> d[i].a;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> d[i].b;
+        d[i].pos = i; // 记录编号
+    }
+    sort(d+1,d+n+1,cmp);
+    ll ta = 0,tb = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        ta += d[i].a;
+        tb = max(ta,tb) + d[i].b; // 核心计算公式
+    }
+    cout << tb << "\n"; // tb即最短时间
+    for (int i  = 1; i <= n; i++) cout << d[i].pos << " "; // 输出方案
+    return 0;
+}

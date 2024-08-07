@@ -1,0 +1,70 @@
+//背景：暑假训练，2-SAT输出方案模板
+//关键：同一个连通分量的真值一致
+//判断原理：矛盾（真值不能一样的事件）的两个命题不能在同一个连通分量里
+//输出方案原理：如果变量 x 的拓扑序在 x' 之后，那么取 x 值为真；而Tarjan缩点生成的是反拓扑序
+#include <bits/stdc++.h>
+#define MAXN 1000005
+using namespace std;
+int dfn[MAXN<<1],low[MAXN<<1],dfncnt;
+int scc[MAXN<<1],sc;
+bool vis[MAXN<<1];
+stack<int> s;
+vector<int> e[MAXN<<1];
+void Tarjan(int x) // Tarjan模板
+{
+    dfn[x] = low[x] = ++dfncnt;
+    vis[x] = true;
+    s.push(x);
+    for (auto to : e[x])
+    {
+        if (!dfn[to])
+        {
+            Tarjan(to);
+            low[x] = min(low[x],low[to]);
+        }
+        else if (vis[to]) low[x] = min(low[x],dfn[to]);
+    }
+    if (low[x] == dfn[x])
+    {
+        sc++;
+        while (true)
+        {
+            int temp = s.top();
+            s.pop();
+            vis[temp] = false;
+            scc[temp] = sc;
+            if (temp == x) break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x1,t1,x2,t2;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++) // 注意建立边
+    {
+        cin >> x1 >> t1 >> x2 >> t2;
+        e[x1 + n*t1].push_back(x2 + n*(t2^1)); // 如果左边要求不满足，那么一定要满足右边要求
+        e[x2 + n*t2].push_back(x1 + n*(t1^1)); // 反过来
+    }
+    for (int i = 1; i <= 2*n; i++) // Tarjan求强连通，每个点都被求了，即使不出现在矛盾中
+    {
+        if (!scc[i]) Tarjan(i);
+    }
+    for (int i = 1; i <= n; i++) // 判断是否有解
+    {
+        if (scc[i] == scc[i+n]) // 矛盾(指的是对立事件)在同一连通分量
+        {
+            cout << "IMPOSSIBLE" << "\n";
+            return 0;
+        }
+    }
+    cout << "POSSIBLE" << "\n";
+    for (int i = 1; i <= n; i++) // 当x桶拓扑序在(x)' 后时取true，而scc为反拓扑序
+    {
+        if (scc[i] < scc[i + n]) cout << 1 << " "; // 拓扑序在后
+        else cout << 0 << "\n";
+    }
+    return 0;
+}

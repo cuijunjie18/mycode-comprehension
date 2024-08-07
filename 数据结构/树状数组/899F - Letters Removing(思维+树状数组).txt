@@ -1,0 +1,89 @@
+//背景：暑假训练，看了题解才会，树状数组思维题
+/*思路：因为删除后的字符串位置也变了，但是我们知道的是原字符串的位置，所以可以利用树状数组求前缀和;
+        那么对于每次询问l,r,前缀和为l的tree[pos]的pos才是要删除的位置，r同理
+*/
+//原题解出处：https://www.cnblogs.com/widsom/p/8086142.html
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 200005
+using namespace std;
+ll tree[MAXN]; // 前缀和树状数组
+bool vis[MAXN]; // 标记原字符串的删除情况
+set<int> pos[130]; // set记录每个字符的原位置
+int n;
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void add(int x,int k)
+{
+    while (x <= n)
+    {
+        tree[x] += k;
+        x += lowbit(x);
+    }
+}
+int getsum(int x)
+{
+    int ans = 0;
+    while (x)
+    {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+int Find(int x) // 前缀和的单调性，二分找到原位置
+{
+    int l = 1,r = n;
+    int ans = 0;
+    while (l <= r)
+    {
+        int mid = (l+r)>>1;
+        if (getsum(mid) >= x)
+        {
+            ans = mid;
+            r = mid - 1;
+        }
+        else l = mid + 1;
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int q,x,y;
+    char ch;
+    cin >> n >> q;
+    string s;
+    cin >> s;
+    s = " " + s;
+    for (int i = 1; i <= n; i++) pos[int(s[i])].insert(i); // 记录每个字符的原位置
+    for (int i = 1; i <= n; i++) add(i,1); // 树状数组初始化
+    while (q--)
+    {
+        cin >> x >> y >> ch;
+        int nl = Find(x); // 找到前缀和 == x的原位置
+        int nr = Find(y); // 同理
+        //cout << nl << " " << nr << "\n";
+        set<int>::iterator it = pos[int(ch)].begin();
+        while (it != pos[int(ch)].end()) // set的遍历加删除操作，模板
+        {
+            int p = *it;
+            if (p >= nl && p <= nr) // 符合范围
+            {
+                vis[p] = true; // 标记被删除
+                pos[int(ch)].erase(it++); // 删除后移动迭代器
+                add(p,-1); // 更新树状数组
+            }
+            else it++; // 移动迭代器
+        }
+    }
+    for (int i = 1; i <= n; i++) // 输出字符串
+    {
+        if (vis[i]) continue;
+        cout << s[i];
+    }
+    cout << "\n";
+    return 0;
+}

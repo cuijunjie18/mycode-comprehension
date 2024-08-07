@@ -1,0 +1,57 @@
+//背景：暑假训练图论专题，差分约束学习
+//原理：利用了差分约束的不等式，其形式与跑完最短路的三角不等式类似，即任一 dis[x] <= dis[y] + w
+//细节：SPFA + 超级源点 + 负环判断
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 5005
+#define INF 10000000000
+using namespace std;
+vector<pair<int,ll>> e[MAXN];
+ll dis[MAXN]; // 最短路数组
+ll cnt[MAXN]; // 最短路经过的边数
+bool vis[MAXN]; // 标记数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y,c;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) dis[i] = INF; // 初始最短路数组
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y >> c;
+        e[y].push_back({x,c});
+    }
+    for (int i = 1; i <= n; i++) e[0].push_back({i,0}); // 建立超级源点，防止判漏负环
+    dis[0] = 0; // 初始化
+    vis[0] = true; // 标记
+    queue<int> que;
+    que.push(0);
+    while (!que.empty())
+    {
+        x = que.front();
+        que.pop();
+        vis[x] = false; // 清除标记，表示不在队列中
+        for (auto v : e[x])
+        {
+            int to = v.first;
+            ll d = v.second;
+            if (dis[to] > dis[x] + d) // 如果更优
+            {
+                dis[to] = dis[x] + d;
+                cnt[to] = cnt[x] + 1;
+                // 判断负环
+                if (cnt[to] >= n+1) // 因为建立了一个超级源点，所以边数最多为n，而不n-1了
+                {
+                    cout << "NO" << "\n";
+                    return 0;
+                }
+                if (vis[to]) continue;
+                vis[to] = true;
+                que.push(to);
+            }
+        }
+    }
+    // 如果要求某个范围，还可以将答案全部加上同一常数，因为差分后常数抵消，所以没有影响
+    for (int i = 1; i <= n; i++) cout << dis[i] << " ";
+    return 0;
+}

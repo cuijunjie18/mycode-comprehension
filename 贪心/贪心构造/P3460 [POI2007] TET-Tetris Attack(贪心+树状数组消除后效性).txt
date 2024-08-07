@@ -1,0 +1,62 @@
+//背景：暑假训练，贪心真的难想
+//收获：树状数组消除后效性
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 500005
+using namespace std;
+int n;
+ll tree[MAXN<<1];
+ll vis[MAXN<<1];
+vector<int> ans;
+int de;
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void add(int x,int k)
+{
+    while (x <= 2*n)
+    {
+        tree[x] += k;
+        x += lowbit(x);
+    }
+}
+ll getsum(int x)
+{
+    ll ans = 0;
+    while (x)
+    {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x; // 注意不能再定义n了，会错
+    cin >> n;
+    for (int i = 1; i <= 2*n; i++) add(i,1); // 初始化，注意是2*n
+    for (int i = 1; i <= 2*n; i++)
+    {
+        cin >> x;
+        if (!vis[x]) vis[x] = i; // 标记第一次出现位置
+        else
+        {
+            ll dis = getsum(i) - getsum(vis[x]) - 1; // 求距离
+            int t = i;
+            while (dis) // 难点：求方案
+            {
+                ans.push_back(t-de-1); // 利用了消除后效性
+                t--;
+                dis--;
+            }
+            add(i,-1);
+            add(vis[x],-1);
+            de += 2;
+        }
+    }
+    cout << ans.size() << "\n";
+    for (auto to : ans) cout << to << "\n";
+    return 0;
+}

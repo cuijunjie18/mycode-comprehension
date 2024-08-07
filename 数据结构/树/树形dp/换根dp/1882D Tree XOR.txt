@@ -1,0 +1,69 @@
+//背景：暑假训练，树形数据结构
+//原理：贪心构造 + 换根dp
+//时间复杂度：o(n)
+//贪心构造：每次将子树全部操作异或为父节点的值
+#include <bits/stdc++.h>
+#define MAXN 200005
+#define ll long long
+using namespace std;
+vector<int> e[MAXN];
+ll big[MAXN]; // 以1为根的预处理子树大小
+ll sum[MAXN]; // 以1为根的预处理代价和
+ll dp[MAXN]; // 换根dp数组
+ll a[MAXN]; // 节点的初始值
+int n; // 节点数量
+void init() // 初始化
+{
+    for (int i = 1; i <= n; i++)
+    {
+        e[i].clear();
+        big[i] = 0;
+        sum[i] = 0;
+        dp[i] = 0;
+        a[i] = 0;
+    }
+}
+void DFS(int x,int fa) // 以1为根节点进行预处理
+{
+    big[x] = 1;
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x);
+        sum[x] += big[to]*(a[to]^a[x]) + sum[to];
+        big[x] += big[to];
+    }
+}
+void Count(int x,int fa) // 换根dp
+{
+    if (fa) dp[x] = dp[fa] + (n - 2*big[x])*(a[fa]^a[x]); // 自己推导出的公式
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        Count(to,x);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        int x,y;
+        cin >> n;
+        init();
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= n-1; i++)
+        {
+            cin >> x >> y;
+            e[x].push_back(y);
+            e[y].push_back(x);
+        }
+        DFS(1,0);
+        dp[1] = sum[1]; // 初始化1节点
+        Count(1,0);
+        for (int i = 1; i <= n; i++) cout << dp[i] << " "; // 输出即可
+        cout << "\n";
+    }
+}

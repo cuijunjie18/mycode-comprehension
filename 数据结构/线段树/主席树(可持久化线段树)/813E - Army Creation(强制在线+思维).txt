@@ -1,0 +1,81 @@
+//背景：暑假训练，主席树模板理解得不好，直接开做思维题，卡了3个小时；如果可以离线，思路类p1972 hh的项链(区间种类数)
+//重要理解：主席树是权值线段树的升级，而权值线段树是维护桶的，故时刻记住主席树也是维护数量的(当值域过大要离散化)
+/*思路：对于强制在线且维护区间问题的，显然主席树；对于每个位置i上的数，记其相同的前k个位置(不足k的记为0)为pos[i];
+       显然[l,r]区间内的答案为pos[i] < l的个数；故想到维护数量，即权值线段树，即主席树；
+*/
+#include <bits/stdc++.h>
+#define MAXN 100005
+using namespace std;
+int sum[MAXN<<5]; // 维护数量
+int rt[MAXN<<5],ls[MAXN<<5],rs[MAXN<<5];
+int tot; // 动态开点
+int a[MAXN];
+vector<int> s[MAXN]; // 记每个数的位置
+int pos[MAXN]; // 核心思维pos数组
+int n,m,k;
+int ans; // 答案兼强制在线常数
+int Build(int l,int r) // 初始化树
+{
+    int root = ++tot; 
+    if (l == r)
+    {
+        sum[root] = 0;
+        return root;
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid+1,r);
+    sum[root] = sum[ls[root]] + sum[rs[root]];
+    return root;
+}
+int update(int root,int l,int r,int k) // 核心更新
+{
+    int dir = ++tot; // 动态开点
+
+    ls[dir] = ls[root];
+    rs[dir] = rs[root];
+    sum[dir] = sum[root] + 1; // 能到达的区间都要累加，因为多了一个
+
+    if (l == r) return dir; // 到叶子了，返回
+
+    int mid = (l + r) >> 1;
+    if (k <= mid) ls[dir] = update(ls[root],l,mid,k); // 更新左边
+    else rs[dir] = update(rs[root],mid+1,r,k); // 更新右边
+
+    return dir; // 返回
+}
+int query(int u,int v,int l,int r,int k) // 核心询问
+{
+    if (r <= k) return sum[v] - sum[u]; // 如果小于k，直接计数
+    int mid = (l + r) >> 1;
+    int temp = query(ls[u],ls[v],l,mid,k); // 计算左边的
+    if (k > mid) temp += query(rs[u],rs[v],mid + 1,r,k); // 如果右边还有贡献
+    return temp; // 返回
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y;
+    cin >> n >> k;
+    for (int i = 1; i <= n; i++) // 先求出pos函数
+    {
+        cin >> a[i];
+        s[a[i]].push_back(i);
+        int sz = s[a[i]].size();
+        if (sz > k) pos[i] = s[a[i]][sz-k-1]; // s下标从0开始，所以还要减去1
+        else pos[i] = 0;
+    }
+    rt[0] = Build(0,n); // 初始化0版本的线段树
+    for (int i = 1; i <= n; i++) rt[i] = update(rt[i-1],0,n,pos[i]); // 一一更新树的版本，即pos[i]的数量要加1
+    cin >> m;
+    while (m--)
+    {
+        cin >> x >> y;
+        x = (x + ans)%n + 1;
+        y = (y + ans)%n + 1;
+        if (x > y) swap(x,y);
+        ans = query(rt[x-1],rt[y],0,n,x-1); // 回答询问
+        cout << ans << "\n";
+    }
+    return 0;
+}

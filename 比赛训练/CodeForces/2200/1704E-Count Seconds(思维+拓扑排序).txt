@@ -1,0 +1,123 @@
+//背景：暑假训练，拓扑排序思维题，看了题解才有对特殊情况的理解
+//思路：对于全为正数，由单调不减性质，简单拓扑即可；对于有零，则先模拟前n次，由于最长为n，一定能流到
+#include <bits/stdc++.h>
+#define MAXN 1005
+#define ll long long
+using namespace std;
+const int md = 998244353;
+vector<int> e[MAXN];
+ll a[MAXN];
+ll temp[MAXN];
+ll in[MAXN];
+void init(int n) // 初始化
+{
+    for (int i = 1; i <= n; i++)
+    {
+        e[i].clear();
+        a[i] = 0;
+        in[i] = 0;
+    }
+}
+bool check(int n) // 检查全零
+{
+    for (int i = 1; i <= n; i++)
+    {
+        if (a[i]) return false;
+    }
+    return true;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        int n,m,x,y;
+        cin >> n >> m;
+        init(n);
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        for (int i = 1; i <= m; i++)
+        {
+            cin >> x >> y;
+            e[x].push_back(y);
+            in[y]++;
+        }
+        if (check(n))
+        {
+            cout << 0 << "\n";
+            continue;
+        }
+        ll ans = 0;
+        bool flag = true;
+        for (int i = 1; i <= n; i++) // 模拟前n秒
+        {
+            flag = true;
+            for (int j = 1; j <= n; j++)
+            {
+                if (a[j] == 0) continue;
+                a[j]--;
+                for (auto to : e[j]) temp[to]++;
+            }
+            for (int j = 1; j <= n; j++)
+            {
+                a[j] += temp[j];
+                temp[j] = 0;
+                if (a[j]) flag = false;
+            }
+            if (flag)
+            {
+                ans = i;
+                break;
+            }
+        }
+        if (flag)
+        {
+            cout << ans << "\n";
+            continue;
+        }
+        queue<int> que;
+        for (int i = 1; i <= n; i++)
+        {
+            if (in[i] == 0) que.push(i);
+        }
+        while(!que.empty()) // 开始简单拓扑
+        {
+            x = que.front();
+            que.pop();
+            ans = a[x]%md;
+            for (auto to : e[x])
+            {
+                in[to]--;
+                a[to] = (a[to] + a[x])%md;
+                if (in[to] == 0) que.push(to);
+            }
+        }
+        cout << (ans + n)%md << "\n"; // 输出别忘了 + n
+    }
+}
+/*
+3 2
+1 1 1
+1 2
+2 3
+*/
+/*
+5 5
+1 0 0 0 0
+1 2
+2 3
+3 4
+4 5
+1 5
+*/
+/*
+5 6
+1293 1145 9961 9961 1919
+1 2
+2 3
+3 4
+5 4
+1 4
+2 4
+*/

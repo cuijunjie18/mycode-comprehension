@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+int n;
+ll sum; // 记录以1节点为根的子树深度和
+ll dp[1000005]; // dp每个节点为根的深度和
+ll big[1000005]; // 每个子树的大小
+vector<int> e[1000005];
+void DFS(int x,int fa,int d)
+{
+    sum += d;
+    big[x] = 1;
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        DFS(to,x,d+1);
+        big[x] += big[to];
+    }
+}
+void Count(int x,int fa)
+{
+    if (fa) // 如果有父亲
+    {
+        dp[x] = dp[fa] + n - 2*big[x]; // 核心公式
+    }
+    for (auto to : e[x])
+    {
+        if (to == fa) continue;
+        Count(to,x);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y;
+        e[x].push_back(y);
+        e[y].push_back(x);
+    }
+    DFS(1,0,0);
+    dp[1] = sum; // 初始化1号节点
+    Count(1,0);
+    ll ans = 0;
+    int pos = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        if (dp[i] > ans)
+        {
+            ans = dp[i];
+            pos = i;
+        }
+    }
+    cout << pos << "\n";
+    return 0;
+}

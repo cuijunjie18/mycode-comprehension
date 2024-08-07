@@ -1,0 +1,72 @@
+//背景：暑假训练贪心，自己一开始就是反悔贪心，只不过实现上有细节问题
+//理解：一看到贡献一样，但是代价不一样的想到反悔贪心
+/*思路：关键就是按照重量降序排序，然后找到剩余容量最大的容器，如果能放则放；否则找到上一个最大的重量，且
+       还在容器里的，找到其容器，替换掉，而且剩余容量加多了，故保证了最优解
+*/
+//时间复杂度：o(mlogm)
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+struct node1 // 容器堆结构体
+{
+    int pos;
+    ll leave;
+};
+struct cmp1
+{
+    bool operator()(node1 x,node1 y) // 按剩余容量大的为堆顶
+    {
+        return x.leave < y.leave;
+    }
+};
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    priority_queue<node1,vector<node1>,cmp1> que; // 定义堆
+    int n,m;
+    cin >> n >> m;
+    ll lea[n+1]; // 容器的剩余容量
+    ll big[m+1]; // 砝码的重量
+    int in[m+1]; // 排序后砝码所在容器的编号
+    for (int i = 1; i <= n; i++) // 初始化容器
+    {
+        cin >> lea[i];
+        que.push({i,lea[i]});
+    }
+    // 初始化砝码
+    for (int i = 1; i <= m; i++) cin >> big[i];
+    for (int i = 1; i <= m; i++) in[i] = 0;
+
+    // 排序，反转后由大到小
+    sort(big+1,big+m+1);
+    reverse(big+1,big+m+1);
+    ll ans = 0; // 初始化答案
+    int p = 0; // 初始化还在容器的位置指针
+    vector<int> used; // 在容器的砝码
+    for (int i = 1; i <= m; i++)
+    {
+        node1 temp = que.top(); // 获取最大容量
+        if (temp.leave >= big[i]) // 如果可以装下
+        {
+            que.pop(); // 弹出
+            ans++; // 答案+1
+            temp.leave -= big[i]; // 减少容量
+            lea[temp.pos] -= big[i]; // 减少容量
+            que.push(temp); // 入堆
+            in[i] = temp.pos; // 标记第i个砝码所在容器为pos
+            used.push_back(i); // 进入用上数组
+        }
+        else // 如果最大的都装不下了
+        {
+            if (used.size() == 0) continue; // 之前没有可以替换的，跳过
+            int be = used[p]; // 获取还在容器的最大质量的砝码编号
+            p++; // 移动指针，因为被替换砝码没了
+            used.push_back(i); // 当前砝码入数组
+            node1 x = {in[be],lea[in[be]] + big[be] - big[i]}; // 定义新优秀队列元素，保证leave变大，保证比之前相同pos的先取到，所以之前的不用删除
+            in[i] = in[be]; // 标记当前砝码容器编号
+            que.push(x); // 新元素入堆
+        }
+    }
+    cout << ans << "\n"; // 输出
+    return 0;
+}

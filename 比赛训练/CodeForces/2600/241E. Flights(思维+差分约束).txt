@@ -1,0 +1,119 @@
+//背景：暑假训练，差分约束思维题，cf2600
+//思路分析：发现任意两点之间满足两个差分约束，即差 >= 1 , <= 2,想差分约束构造
+//细节：仅1到n的路径上的边才运用SPFA，所以我们要想办法丢弃一些无用边后再进行差分约束
+//难点：确定1->n路径上的所有点，分别从1，n跑一遍DFS即可，只有两遍都被标记的点才是路径上的点
+//时间复杂度：o(nm)
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 5005
+#define INF 1000000000 // 无穷大
+using namespace std;
+struct node
+{
+    int a,b;
+    ll d;
+}e[MAXN<<1]; // 差分约束新图
+int cnt; // 差分约束边的数量
+
+vector<pair<int,int>> po[MAXN<<1]; // 原始正向图
+vector<pair<int,int>> ne[MAXN<<1]; // 原始反向图
+bool vis1[MAXN<<1],vis2[MAXN<<2]; // 表示正反路径标记点
+ll dis[MAXN]; // 最短路数组
+int ans[MAXN<<1]; // 表示边的答案
+void DFS1(int x) // 正向DFS，从1开始
+{
+    vis1[x] = true;
+    for (auto v : po[x])
+    {
+        int to = v.second;
+        if (vis1[to]) continue;
+        DFS1(to);
+    }
+}
+void DFS2(int x) // 反向DFS，从n开始
+{
+    vis2[x] = true;
+    for (auto v : ne[x])
+    {
+        int to = v.second;
+        if (vis2[to]) continue;
+        DFS2(to);
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) dis[i] = INF; // 初速化无穷大
+    for (int i = 1; i <= m; i++) // 建立正反图
+    {
+        cin >> x >> y;
+        po[x].push_back({i,y});
+        ne[y].push_back({i,x});
+        ans[i] = 1; // 初始化全部边的答案
+    }
+    // 两遍DFS找出1 -> n路径上的全部点
+    DFS1(1);
+    DFS2(n);
+    int cnt_p = 0; // 新差分约束图的节点数，即1到n路径上的节点数
+    for (int i = 1; i <= n; i++)
+    {
+        if (vis1[i]&&vis2[i]) cnt_p++; // 同时满足才行
+    }
+    for (int i = 1; i <= n; i++) // 建立新图，用于跑SPFA
+    {
+        if (vis1[i] == false || vis2[i] == false) continue; // 不在路径
+        for (auto v : po[i])
+        {
+            int to = v.second;
+            if (vis1[to] == false || vis2[to] == false) continue; // 不在路径
+
+            // 建立差分约束图
+            e[++cnt].a = to;
+            e[cnt].b = i;
+            e[cnt].d = -1;
+            e[++cnt].a = i;
+            e[cnt].b = to;
+            e[cnt].d = 2;
+        }
+    }
+    dis[1] = 0; // 初始化
+    bool flag = false;
+    for (int i = 1; i <= cnt_p; i++) // 跑BF算法 
+    {
+        flag = false; // 别忘了赋值
+        for (int j = 1; j <= cnt; j++)
+        {
+            x = e[j].a;
+            y = e[j].b;
+            if (dis[x] == INF) continue;
+            if (dis[y] > dis[x] + e[j].d)
+            {
+                flag = true;
+                dis[y] = dis[x] + e[j].d;
+            }
+        }
+        if (!flag) break;
+    }
+    if (flag) // 如果路径存在负环，即无法满足所有差分约束，无解
+    {
+        cout << "No" << "\n";
+        return 0;
+    }
+    // 根据dis数组赋予边权
+     for (int i = 1; i <= n; i++) // 枚举路径上的边
+    {
+        if (vis1[i] == false || vis2[i] == false) continue; // 不在路径
+        for (auto v : po[i])
+        {
+            int pos = v.first;
+            int to = v.second;
+            if (vis1[to] == false || vis2[to] == false) continue; // 不在路径
+            ans[pos] = dis[to] - dis[i]; // 记录答案
+        }
+    }
+    cout << "Yes" << "\n"; // 输出
+    for (int i = 1; i <= m; i++) cout << ans[i] << "\n";
+    return 0;
+}

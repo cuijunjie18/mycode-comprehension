@@ -1,0 +1,87 @@
+//背景：暑假学习，自己学完主席树后做的一题，一开始不会，理解了才能做
+//原理：主席树模拟可持久化数组
+#include <bits/stdc++.h>
+#define MAXN 1000005 // 数组大小
+using namespace std;
+int sum[MAXN<<5];
+int rt[MAXN<<5],ls[MAXN<<5],rs[MAXN<<5];
+int a[MAXN];
+int n,m;
+int tot; // 动态开点
+int Build(int l,int r) // 初始化版本为0的线段树
+{
+    int root = ++tot;
+    if (l == r)
+    {
+        sum[root] = a[l]; // 仅维护叶子节点
+        return root; // 不要忘记返回
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid+1,r);
+    return root; // 不要忘记返回
+}
+int update(int root,int l,int r,int p,int k) // 更新节点并生成新版本
+{
+    int dir = ++tot; // 新建节点
+    int mid = (l + r) >> 1;
+
+    // 先共用节点
+    ls[dir] = ls[root];
+    rs[dir] = rs[root];
+
+    if (l == r) // 如果找到位置了
+    {
+        sum[dir] = k; // 仅维护叶子节点
+        return dir; // 返回节点
+    }
+
+    if (p <= mid) ls[dir] = update(ls[root],l,mid,p,k);
+    else rs[dir] = update(rs[root],mid+1,r,p,k);
+
+    return dir; // 返回节点
+}
+int query(int root,int l,int r,int p) // 询问对应版本的对应位置的值
+{
+    int mid = (l + r) >> 1;
+
+    if (l == r) return sum[root]; // 返回叶子节点的值
+    if (p <= mid) return query(ls[root],l,mid,p);
+    else return query(rs[root],mid+1,r,p);
+}
+void init() // 初始化主席树
+{
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    rt[0] = Build(1,n);
+}
+void Solve()
+{
+    int b,c,x,y;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> b >> c;
+        if (c == 1)
+        {
+            cin >> x >> y;
+            rt[i] = update(rt[b],1,n,x,y); // 修改并生成新版本
+        }
+        else if (c == 2)
+        {
+            cin >> x;
+            cout << query(rt[b],1,n,x) << "\n";
+            
+            // 仅是生成一个新根节点，其他复制
+            rt[i] = ++tot; // 新建节点
+            ls[tot] = ls[rt[b]]; // 直接共用即可
+            rs[tot] = rs[rt[b]];
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    init();
+    Solve();
+    return 0;
+}

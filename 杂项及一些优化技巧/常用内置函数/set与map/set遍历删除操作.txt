@@ -1,0 +1,33 @@
+// 实例：错误删除
+
+std::vector<int> arrayList;
+...
+std::vector<int>::iterator it = arrayList.begin();
+for ( ; it != arrayList.end(); it++)
+{
+    if (...)
+        arrayList.erase(it);
+}
+
+
+// 正确做法：
+std::map<int, struct> mapInfo;
+...
+std::map<int, struct>::iterator it = mapInfo.begin();
+while (it != mapInfo.end())
+{
+    if (...)
+    {
+        // 删除节点的前，对迭代器进行后移的操作，因为其他元素不会失效
+        mapInfo.erase(it++);
+    }
+    else
+    {
+        it++;
+    }
+}
+————————————————
+
+                            版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
+                        
+原文链接：https://blog.csdn.net/zymill/article/details/79836586
