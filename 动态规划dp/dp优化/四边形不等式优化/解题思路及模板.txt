@@ -1,0 +1,32 @@
+该不等式一般用于类似区间dp的状态转移
+证明能用四边形优化步骤：
+(假设a <= b <= c <= d)
+1，代价满足区间包含单调性，即w(a,d) >= w(b,c)
+2，代价满足四边形不等式，即w(a,c) + w(b,d) <= w(a,d) + w(b,c)，即交叉 <= 包含，（利用石子合并前缀和易证）
+
+模板：时间复杂度为o(n^2)，其中p为区间最优决策点
+for(int len = 2; len <= N; len++)
+	for(int i = 1; i <= N - len + 1; i++) {
+		int j = i + len - 1;
+		f[i][j] = INF;
+		for(int k = pos[i][j - 1]; k <= pos[i + 1][j]; k++) {
+			int val = f[i][k] + f[k + 1][j] + calc_cost(i, j);
+			if(val < f[i][j]) f[i][j] = val, pos[i][j] = k;
+		}
+	}
+
+
+
+
+
+for(int i = 0; i <= N; i++)
+	pos[0][i] = 1, pos[i][N + 1] = N;
+//注意这里的神奇初值
+memset(f, 0x3f, sizeof f);
+f[0][0] = 0;
+for(int i = 1; i <= K; i++)
+	for(int j = N; j >= 1; j--) // 倒着枚举
+		for(int k = pos[i - 1][j]; k <= pos[i][j + 1]; k++) {
+			ll val = f[i - 1][k - 1] + c[k][j];
+			if(f[i][j] > val) f[i][j] = val, pos[i][j] = k;
+		}

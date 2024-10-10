@@ -1,0 +1,48 @@
+//背景：暑假训练，记忆化搜索
+#include <bits/stdc++.h>
+#define INF 1e9 + 7
+using namespace std;
+int walk[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+int dp[2][71][21][21][21][21]; // 时间复杂度取决于状态数
+int n;
+int DFS(int who,int step,int x1,int y1,int x2,int y2) // 记忆化搜索
+{
+    if (dp[who][step][x1][y1][x2][y2]) return dp[who][step][x1][y1][x2][y2];
+    // 两个终止条件
+    if (step > 3*n) return  dp[who][step][x1][y1][x2][y2] = INF;
+    if (x1 == x2 && y1 == y2) return dp[who][step][x1][y1][x2][y2] = (who?0:INF); // 其实对于黑棋，INF就是输了
+    int ans = 0;
+    if (who == 1) // 白棋
+    {
+        ans = 0;
+        for (int i = 0; i <= 3; i++)
+        {
+            int wx = x1 + walk[i][0];
+            int wy = y1 + walk[i][1];
+            if (wx >= 1 && wx <= n && wy >= 1 && wy <= n) ans = max(ans,DFS(who^1,step + 1,wx,wy,x2,y2));
+        }
+    }
+    else
+    {
+        ans = INF;
+        for (int i = 0; i <= 3; i++)
+        {
+            int wx = x2 + walk[i][0];
+            int wy = y2 + walk[i][1];
+            if (wx >= 1 && wx <= n && wy >= 1 && wy <= n) ans = min(ans,DFS(who^1,step + 1,x1,y1,wx,wy));
+            wx = x2 + 2*walk[i][0]; // 注意还可以走两步
+            wy = y2 + 2*walk[i][1];
+            if (wx >= 1 && wx <= n && wy >= 1 && wy <= n) ans = min(ans,DFS(who^1,step + 1,x1,y1,wx,wy));
+        }
+    }
+    return dp[who][step][x1][y1][x2][y2] = ans + 1; // 加1
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x1,y1,x2,y2;
+    cin >> n >> x1 >> y1 >> x2 >> y2;
+    if (abs(x1-x2) + abs(y1-y2) == 1) cout << "WHITE" << " " << 1 << "\n"; // 特判白棋赢
+    else cout << "BLACK" << " " << DFS(1,0,x1,y1,x2,y2) << "\n";
+    return 0;
+}

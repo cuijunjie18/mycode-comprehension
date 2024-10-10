@@ -1,0 +1,39 @@
+//背景：暑假学习，Nim游戏
+//思路：如果指定一开始选第i堆，由公式知道，如果要使得Nim和为0，必须满足取后数量减少，即a[i] > 其他异或和；故a[i] <= 其他异或和则不满足，则必败
+//原理：Nim游戏 + dp
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 1e9 + 7;
+ll dp[205][256]; // 处理到i个物品，异或和为j的方案数
+int a[205];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    ll ans = 0;
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= n; i++) // 枚举指定一开始拿的，即之后不能拿
+    {
+        memset(dp,0,sizeof(dp));
+        dp[0][0] = 1;
+        for (int j = 1; j <= n; j++) // 二维dp，枚举处理到哪个了
+        {
+            for (int k = 0; k <= 255; k++) // 枚举异或和
+            {
+                if (j == i) // 如果是不能选的
+                {
+                    dp[j][k] = dp[j-1][k]; // 直接继承
+                }
+                else
+                {
+                    dp[j][k] = (dp[j-1][k] + dp[j-1][k^a[j]])%md; // dp转移
+                }
+            }
+        }
+        for (int j = a[i]; j <= 255; j++) ans = (ans + dp[n][j])%md; // 累加答案
+    }
+    cout << ans << "\n";
+    return 0;
+}

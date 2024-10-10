@@ -1,0 +1,4 @@
+for (long long k = N; k >= 1; k--) {
+  f[k] = (N / k) * (N / k);
+  for (long long i = k + k; i <= N; i += k) f[k] -= f[i];
+}

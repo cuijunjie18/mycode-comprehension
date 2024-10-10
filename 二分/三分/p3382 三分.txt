@@ -1,0 +1,39 @@
+//背景：暑假训练，三分，仅对于峰函数和谷函数
+//思路：对于单峰或单谷函数，求导后即为介零函数，即一边大于0，一边小于0，找0可以二分
+#include <bits/stdc++.h>
+#define ld long double
+using namespace std;
+int n;
+ld l,r;
+ld a[20];
+ld f(ld x)
+{
+    ld ans = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        ld temp = i*a[i];
+        for (int j = 1; j <= i-1; j++) temp *= x;
+        ans += temp;
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ld ans = 0;
+    cin >> n >> l >> r;
+    for (int i = n; i >= 0; i--) cin >> a[i];
+    while (l <= r)
+    {
+        ld mid = (l + r)/2;
+        //cout << mid << " " << f(mid) << "\n";
+        if (f(mid) >= 0)
+        {
+            ans = mid;
+            l = mid + 1e-6;
+        }
+        else r = mid - 1e-6;
+    }
+    cout << ans << "\n";
+    return 0;
+}

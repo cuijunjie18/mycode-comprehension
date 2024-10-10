@@ -1,0 +1,30 @@
+//背景：选拔赛补题，思维题
+//思路：相互匹配问题，贪心思路同1914F树形dp
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int md = 998244353;
+int dp[5005]; // 表示颜色数量和为i的方案数，可以确保遍历了全部子集
+int ans;
+signed main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    int a[n + 1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    sort(a + 1,a + n + 1); // 排序，确保dp时新遍历的颜色是最多的，dp才有效
+    dp[0] = 1; // 初始化
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 0;j <= 5000; j++) // 枚举和
+        {
+            // 匹配问题
+            if (a[i] <= j) ans = (ans + dp[j] * ((j + a[i] + 1) >> 1) % md) % md; // 答案为和向上取整
+            else ans = (ans + dp[j] * a[i]) % md;
+        }
+        for (int j = 5000; j >= a[i]; j--) dp[j] = (dp[j] + dp[j - a[i]]) % md; // 方案数转移
+    }
+    cout << ans << "\n"; // 输出
+    return 0;
+}

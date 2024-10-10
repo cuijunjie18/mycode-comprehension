@@ -1,0 +1,93 @@
+//背景：暑假立志学好线段树，本题类线段树染色，通过根节点定答案
+//特征：发现这种通过根节点存记录答案的，大概率是单点修改，因为这样才能保证时间复杂度
+//收获：pushup的设计思路
+#include <bits/stdc++.h>
+#define MAXN 200005
+using namespace std;
+
+//由于我是动态开点，线段树大小只用两倍，动态开点类似图的链式前向星
+struct node // 线段树结构体，存储维护的信息
+{
+    int len; // 长度
+    int lp,rp; // 左右端点
+    int pre,suf; // 满足条件的最长前后缀
+    int ans; // 满足条件的答案长度
+}tree[MAXN<<1];
+int ls[MAXN<<1],rs[MAXN<<1]; // 左右儿子编号
+int rt,tot; // 根节点编号及开点编号
+
+void change(int root,int k) // 找到叶子节点修改，即题目的单点修改
+{
+    tree[root].lp = tree[root].rp = k; // 修改端点
+    tree[root].ans = tree[root].pre = tree[root].suf = 1; // 初始化前后缀及答案
+}
+
+void pushup(int root) // 核心，向上更新
+{
+    int l = ls[root]; // 获取左右儿子编号，便于编程
+    int r = rs[root];
+
+    // 维护左右端点
+    tree[root].lp = tree[l].lp;
+    tree[root].rp = tree[r].rp;
+
+    // 维护区间满足条件的答案
+    if (tree[l].rp ^ tree[r].lp) // 如果左右区间交接处不同
+    {
+        // dp取答案，三种情况
+        tree[root].ans = tree[l].suf + tree[r].pre;
+        tree[root].ans = max(tree[root].ans,tree[l].ans);
+        tree[root].ans = max(tree[root].ans,tree[r].ans);
+    }
+    else tree[root].ans = max(tree[l].ans,tree[r].ans); // 否则直接继承左右的最大值
+
+    // 维护区间前缀，特殊情况是满足条件的为整个区间
+    if (tree[l].pre == tree[l].len && (tree[l].rp^tree[r].lp)) tree[root].pre = tree[l].pre + tree[r].pre;
+    else tree[root].pre = tree[l].pre;
+
+    // 维护区间后缀，同理
+    if (tree[r].suf == tree[r].len && (tree[l].rp^tree[r].lp)) tree[root].suf = tree[r].suf + tree[l].suf;
+    else tree[root].suf = tree[r].suf;
+
+}
+int Build(int l,int r) // 建树
+{
+    int root = ++tot;
+    tree[root].len = r - l + 1; // 记录长度
+    if (l == r) // 找到叶子
+    {
+        change(root,0);
+        return root;
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid + 1,r);
+    pushup(root); // 更新
+    return root; // 返回节点编号
+}
+void update(int root,int l,int r,int k) // 更新
+{
+    if (l == r) // 找到要更新的位置了
+    {
+        change(root,tree[root].lp^1); // 取反更新
+        return;
+    }
+    int mid = (l + r) >> 1;
+    if (k <= mid) update(ls[root],l,mid,k);
+    else update(rs[root],mid + 1,r,k);
+    pushup(root); // 向上更新不要忘记
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,x;
+    cin >> n >> q;
+    rt = Build(1,n); // 建树
+    while (q--)
+    {
+        cin >> x;
+        update(rt,1,n,x); // 更新
+        cout << tree[rt].ans << "\n"; // 输出根节点的答案
+    }
+    return 0;
+}

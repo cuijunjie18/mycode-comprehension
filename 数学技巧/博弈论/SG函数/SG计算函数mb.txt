@@ -1,0 +1,12 @@
+void GetSG()
+{
+	for(int i=1;i<=N;i++)//枚举DAG中所有点 
+	{
+		memset(S,0,sizeof(S));//初始化
+		for(int j=1;j<=limit&&F[j]<=i;j++)//limit表示转移的集合的大小
+			S[SG[i-F[j]]]=1; 
+		for(int j=1;;j++)
+			if(!S[j])
+				{SG[i]=i;break;}//根据定义计算SG函数 
+	}
+}

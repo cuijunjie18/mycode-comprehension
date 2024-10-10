@@ -1,0 +1,38 @@
+//背景：暑假学习，dp优化
+//原理：单调队列优化dp
+//dp[i] = max(dp[x] + a[i])，其中  min <= x <= max;  
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,l,r;
+    cin >> n >> l >> r;
+    int a[n+1],dp[n+1];
+    for (int i = 0; i <= n; i++) cin >> a[i]; // 从0开始输入
+    for (int i = 0; i <= n ; i++) dp[i] = -2e9; // 初始化为负无穷
+    deque<int> que; // 单调队列
+    int p = 0; // 队列的头
+    dp[0] = 0; // 初始化
+    for (int i = 1; i <= n; i++)
+    {
+        if (i < l) continue; // 不能到达的前面区域，跳过
+        // 计算能来自的区间
+        int minn = max(0,i - r);
+        int maxn = max(0,i - l);
+        while (!que.empty() && que.front() < minn) que.pop_front(); // 越界的退出
+        for (int j = p; j <= maxn; j++) // 维护队列
+        {
+            while (!que.empty() && dp[que.back()] < dp[j]) que.pop_back();
+            que.push_back(j);
+        }
+        p = maxn + 1; // 移动头指针
+        dp[i] = dp[que.front()] + a[i]; // dp转移
+    }
+    int ans = -2e9;
+    for (int i = 0; i <= r-1; i++) ans = max(ans,dp[n-i]); // dp
+    cout << ans << "\n"; // 输出
+    return 0;
+}
+// 5 3 4
+// 0 1 2 3 4 5

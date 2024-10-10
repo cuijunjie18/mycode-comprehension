@@ -1,0 +1,64 @@
+//背景：看了题解才知道如何处理这种情况
+//收获：递推跨越了多少项，构造矩阵就多大
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int md = 1e9 + 7;
+int temp[4][4];
+void Mul(int a[][4],int b[][4],int n)
+{
+    memset(temp,0,sizeof(temp));
+    for (int i = 1; i <= n; i++){
+        for (int j = 1; j <= n; j++){
+            for (int k = 1; k <= n; k++){
+                temp[i][j] = (temp[i][j] + a[i][k] * b[k][j]%md) % md;
+            }
+        }
+    }
+    for (int i = 1; i <= n; i++){
+        for (int j = 1; j <= n; j++){
+            a[i][j] = temp[i][j];
+        }
+    }
+}
+void Matrix_qpow(int a[][4],int n,int k)
+{
+    int ans[4][4];
+    memset(ans,0,sizeof(ans));
+    for (int i = 1; i <= n; i++) ans[i][i] = 1;
+    while (k)
+    {
+        if (k & 1) Mul(ans,a,n);
+        Mul(a,a,n);
+        k >>= 1;
+    }
+
+    // 注意细节，最后答案这里一定要是一列，不能认为构建矩阵某个位置是0而不算，因为可能幂乘后就不是0了
+    cout << (ans[1][1] + ans[2][1] + ans[3][1]) % md << "\n"; 
+}
+void Solve()
+{
+    int n;
+    cin >> n;
+    if (n == 1 || n == 2 || n == 3)
+    {
+        cout << 1 << "\n";
+        return;
+    }
+    int a[4][4];
+    memset(a,0,sizeof(a));
+    a[1][1] = a[1][2] = a[2][3] = a[3][1] = 1;
+    Matrix_qpow(a,3,n - 3); // 注意幂次是n - 3
+    return;
+}
+signed main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}

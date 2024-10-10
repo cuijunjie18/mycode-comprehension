@@ -1,0 +1,100 @@
+//背景：暑假训练，虽然MLE，但是思路清晰
+//原理：状压dp + 最短路
+#include <bits/stdc++.h>
+#define INF 1000000000
+using namespace std;
+struct node
+{
+    int u,d;
+};
+bool vis[20005];
+int dis[22][20005];
+int rt[22]; // 记录限制集合，即在该点停留之前的集合
+int dp[1<<20][22];
+vector<pair<int,int>> e[20005];
+int n,m,k;
+struct cmp // 小根堆
+{
+    bool operator()(node x,node y)
+    {
+        return x.d > y.d;
+    }
+};
+void Dijkstra(int b) // 以b为源点跑最短路
+{
+    for (int i = 1; i <= n; i++) dis[b][i] = INF,vis[i] = false; // 初始化
+    priority_queue<node,vector<node>,cmp> que;
+    // 初始化
+    // vis[b] = true; //不用写这个
+    dis[b][b] = 0;
+    que.push({b,0});
+    while (!que.empty())
+    {
+        int x = que.top().u;
+        que.pop();
+        if (vis[x]) continue;
+        vis[x] = true;
+        for (auto v : e[x])
+        {
+            int to = v.first;
+            int d = v.second;
+            if (dis[b][to] > dis[b][x] + d)
+            {
+                dis[b][to] = dis[b][x] + d;
+                que.push({to,dis[b][to]});
+            }
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int g,x,y,z;
+    cin >> n >> m >> k;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y >> z;
+        e[x].push_back({y,z});
+        e[y].push_back({x,z});
+    }
+    for (int i = 1; i <= k + 1; i++) Dijkstra(i); // 跑Dij
+    if (k == 0) // 特判，否则wa
+    {
+        cout << dis[1][n] << "\n";
+        return 0;
+    }
+    cin >> g;
+    for (int i = 1; i <= g; i++) // 题解的神来之笔
+    {
+        cin >> x >> y;
+        rt[y] |= (1 << (x-2));
+    }
+    for (int i = 0 ; i <= (1<<k) - 1; i++) // 初始化dp数组
+    {
+        for (int j = 1; j <= k + 1; j++) dp[i][j] = INF;
+    }
+    for (int i = 2; i <= k + 1; i++) // 初始化
+    {
+        if (!rt[i]) dp[1<<(i-2)][i] = dis[1][i];
+    }
+    for (int t = 1; t <= (1<<k)-1; t++) // 状压模板
+    {
+        for (int i = 2; i <= k + 1; i++)
+        {
+            int check = (1 << (i-2));
+            if ((check&t) == 0) continue;
+            for (int j = 2; j <= k + 1; j++)
+            {
+                check = (1 << (j-2));
+                if (check&t) continue;
+                if ((rt[j]|t) != t) continue; // 判断之前状态合法
+                dp[t + (1<<(j-2))][j] = min(dp[t + (1<<(j-2))][j],dp[t][i] + dis[i][j]);
+            }
+        }
+    }
+    int ans = INF;
+    // 计算最优值
+    for (int i = 2; i <= k + 1; i++) ans = min(ans,dp[(1<<k)-1][i] + dis[i][n]);
+    cout << ans << "\n";
+    return 0;
+}

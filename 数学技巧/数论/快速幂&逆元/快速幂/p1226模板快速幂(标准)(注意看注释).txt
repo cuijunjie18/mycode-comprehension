@@ -2,6 +2,7 @@
 using namespace std;
 long long quickpow(long long a,int b,int p)
 {
+    if (a == 0) return 0; // 防止底数为0，0取模错误
     long long ans = 1;
     while(b)
     {

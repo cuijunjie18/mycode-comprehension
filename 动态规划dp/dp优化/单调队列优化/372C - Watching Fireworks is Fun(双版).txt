@@ -1,0 +1,75 @@
+//法一：朴素o(n*m*a)，TLE，MLE
+//背景：学习dp优化
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll dp[305][150005];
+ll a[305],b[305],t[305];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n,m,d;
+    cin >> n >> m >> d;
+    for (int i = 1; i <= m; i++) cin >> a[i] >> b[i] >> t[i];
+    t[0] = 1; // 初始时间为1
+    memset(dp,-0x3f,sizeof(dp));
+    ll ans = dp[0][0];
+    for (int i = 1; i <= n; i++) dp[0][i] = 0; // 初始时可以在任意位置
+    for (int i = 1; i <= m; i++) // 枚举烟花
+    {
+        for (int j = 1; j <= n; j++) // 枚举位置
+        {
+            for (int k = max(1ll,j - d*(t[i] - t[i-1])); k <= min(n,j + d*(t[i]-t[i-1])); k++) // 枚举之前的位置
+            {
+                dp[i][j] = max(dp[i][j],dp[i-1][k] + b[i] - abs(a[i]-j));
+            }
+        }
+    }
+    for (int i = 1; i <= n; i++) ans = max(ans,dp[m][i]);
+    cout << ans << "\n";
+    return 0;
+}
+
+
+
+//法二：单调队列优化
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll dp[2][150005]; // 单调队列优化形式,第一维0表示上一次烟花
+ll a[305],b[305],t[305];
+deque<ll> que;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n,m,d;
+    cin >> n >> m >> d;
+    for (int i = 1; i <= m; i++) cin >> a[i] >> b[i] >> t[i];
+    t[0] = 1; // 初始时间为1
+    memset(dp,-0x3f,sizeof(dp));
+    ll ans = dp[0][0];
+    for (int i = 1; i <= n; i++) dp[0][i] = 0; // 初始时可以在任意位置
+    for (int i = 1; i <= m; i++) // 枚举烟花
+    {
+        int p = 1; // 每次队列队头重新开始
+        for (int j = 1; j <= n; j++) // 枚举位置
+        {
+            int l = max(1ll, j - d * (t[i] - t[i-1])); // 计算区间左端
+            int r = min(n, j + d * (t[i] - t[i-1])); // 计算区间右端
+            while (!que.empty() && que.front() < l) que.pop_front(); // 删除不在区间的元素
+            for (int k = p; k <= r; k++) // 维护单调队列，即新增元素
+            {
+                while (!que.empty() && dp[0][que.back()] < dp[0][k]) que.pop_back(); // 维护单调下降队列
+                que.push_back(k);
+            }
+            dp[1][j] = dp[0][que.front()] + b[i] - abs(a[i]-j); // 队头元素即区间最大值
+            p = r + 1;
+        }
+        while (!que.empty()) que.pop_front(); // 每次用完要清空队列
+        for (int j = 1; j <= n; j++) dp[0][j] = dp[1][j]; // 复制当前的dp数组，为下一轮烟花做准备
+    }
+    for (int i = 1; i <= n; i++) ans = max(ans,dp[1][i]);
+    cout << ans << "\n";
+    return 0;
+}
+

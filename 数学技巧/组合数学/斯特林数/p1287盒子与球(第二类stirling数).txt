@@ -1,0 +1,20 @@
+//背景：第二类stirling数，应用与球不同且盒子不同，故最后要乘上盒子的阶层
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll dp[15][15];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n,r;
+    cin >> n >> r;
+    dp[0][0] = 1;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= i; j++) dp[i][j] = dp[i-1][j-1] + j*dp[i-1][j];
+    }
+    ll temp = 1;
+    for (int i = 2; i <= r; i++) temp *= i;
+    cout << dp[n][r]*temp << "\n";
+    return 0;
+}

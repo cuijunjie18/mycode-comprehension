@@ -1,0 +1,101 @@
+//背景：暑假学习，线段树经典题目
+//收获：线段树时间复杂度的核心，极大无关组直接返回的话确保单次查询为logn
+//难点：查询操作怎么处理，每次查询重新维护一个区间合并
+#include <bits/stdc++.h>
+#define ll long long
+#define MAXN 500005
+using namespace std;
+struct node // 线段树结构体
+{
+    ll sum;
+    ll maxnl,maxnr;
+    ll ans;
+}tree[MAXN<<1];
+int ls[MAXN<<1],rs[MAXN<<1];
+int rt,tot;
+ll a[MAXN];
+void pushup(int root) // 向上更新
+{
+    int l = ls[root];
+    int r = rs[root];
+
+    tree[root].sum = tree[l].sum + tree[r].sum;
+
+    tree[root].maxnl = max(tree[l].maxnl,tree[l].sum + tree[r].maxnl);
+    tree[root].maxnr = max(tree[r].maxnr,tree[r].sum + tree[l].maxnr);
+
+    tree[root].ans = max(max(tree[l].ans,tree[r].ans),tree[l].maxnr + tree[r].maxnl); // 核心，dp答案
+}
+int Build(int l,int r) // 初始化线段树
+{
+    int root = ++tot;
+    if (l == r)
+    {
+        tree[root].sum = a[l];
+        tree[root].ans = a[l];
+        tree[root].maxnl = tree[root].maxnr = a[l];
+        return root;
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid + 1,r);
+    pushup(root);
+    return root;
+}
+void update(int root,int l,int r,int pos,int k) // 更新
+{
+    if (l == r)
+    {
+        tree[root].sum = k;
+        tree[root].maxnl = tree[root].maxnr = k;
+        tree[root].ans = k;
+        return;
+    }
+    int mid = (l + r) >> 1;
+    if (pos <= mid) update(ls[root],l,mid,pos,k);
+    else update(rs[root],mid + 1,r,pos,k);
+    pushup(root); // 不要忘记更新
+}
+node query(int root,int l,int r,int s,int t) // 难点，查询操作
+{
+    if (l <= s && r >= t) return tree[root]; // 极大组直接返回
+    int mid = (s + t) >> 1;
+    if (r <= mid) return query(ls[root],l,r,s,mid); // 仅在左边
+    else if (l >= mid + 1) return query(rs[root],l,r,mid + 1,t); // 仅在右边
+    else // 两边都有
+    {
+        node temp,a,b;
+        a = query(ls[root],l,r,s,mid); // 获取左边
+        b = query(rs[root],l,r,mid + 1,t); // 获取右边
+
+        // 进行一次特殊的区间合并
+        temp.sum = a.sum + b.sum;
+        temp.maxnl = max(a.maxnl,a.sum + b.maxnl);
+        temp.maxnr = max(b.maxnr,b.sum + a.maxnr);
+        temp.ans = max(max(a.ans,b.ans),a.maxnr + b.maxnl);
+
+        return temp; // 返回
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,c,x,y;
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    rt = Build(1,n);
+    while (q--)
+    {
+        cin >> c >> x >> y;
+        if (c == 1)
+        {
+            if (x > y) swap(x,y);
+            cout << query(rt,x,y,1,n).ans << "\n";
+        }
+        else if (c == 2)
+        {
+            update(rt,1,n,x,y);
+        }
+    }
+    return 0;
+}

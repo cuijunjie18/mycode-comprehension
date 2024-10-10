@@ -1,0 +1,129 @@
+//背景：暑假学习，思维题
+//思路：看到仅使用一次把全部单词串在一起想到欧拉路径；而欧拉路径是仅经过一次边，那么思维在于把单词当成边；
+//收获：欧拉路径一定要用栈记录答案
+#include <bits/stdc++.h>
+using namespace std;
+struct node // 边结构体
+{
+    int to;
+    string word; // 相当于边权
+};
+bool cmp(node x,node y) // 自定义排序
+{
+    if (x.word == y.word) return x.to < y.to;
+    return x.word < y.word;
+}
+
+// 欧拉数组
+vector<node> e[30];
+int pos[30];
+int in[30],out[30];
+stack<string> ans;
+
+// 并查集判断连通
+set<int> check;
+int f[30];
+
+int n;
+
+int Find(int x) // 并查集查找
+{
+    if (x == f[x]) return x;
+    else return f[x] = Find(f[x]);
+}
+
+void DFS(int x) //DFS获取欧拉路径
+{
+    for (int i = pos[x]; i < e[x].size(); i = pos[x])
+    {
+        int to = e[x][i].to;
+        string str = e[x][i].word;
+        pos[x]++; // 注意累加
+        DFS(to);
+        ans.push(str); // 最后记录边权
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    for (int i = 1; i <= 26; i++) f[i] = i; // 并查集初始化
+    string str;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> str;
+        int big = str.size();
+
+        // 获取首尾字符
+        int b = str[0] - 'a' + 1;
+        int ed = str[big-1] - 'a' + 1;
+        check.insert(b);
+        check.insert(ed);
+
+        // 建图
+        e[b].push_back({ed,str});
+        in[ed]++;
+        out[b]++;
+        
+        // 处理并查集
+        int x = Find(b);
+        int y = Find(ed);
+        if (x == y) continue;
+        f[x] = y;
+    }
+    // 判断图是否连通，判断欧拉路径存在一
+    int temp = Find(*check.begin());
+    for (auto to : check)
+    {
+        if (Find(to) != temp)
+        {
+            cout << "***" << "\n";
+            return 0;
+        }
+    }
+
+    // 对边进行排序
+    for (int i = 1; i <= 26; i++)
+    {
+        sort(e[i].begin(),e[i].end(),cmp);
+    }
+
+    int s = (*check.begin());
+    bool flag = true; // 判断存在欧拉回路
+    bool have[2] = {0,0}; // 判断欧拉路径的起点与终点，用于判断欧拉路径
+    for (int i = 1; i <= 26; i++)
+    {
+        if (in[i] == out[i]) continue; // 欧拉回路判断条件
+        flag = false; // 不存在欧拉回路
+
+        if (out[i] - in[i] == 1) // 出度比入度大1，为起点
+        {
+            s = i;
+            have[0] = true;
+        }
+        else if (in[i] - out[i] == 1) // 终点
+        {
+            have[1] = true;
+        }
+        else // 不存在欧拉路径二
+        {
+            cout << "***" << "\n";
+            return 0;
+        }
+    }
+    if (!flag && (have[0] == false || have[1] == false)) // 无解三
+    {
+        cout << "***" << "\n";
+        return 0;
+    }
+    DFS(s);
+    while (!ans.empty())
+    {
+        cout << ans.top();
+        ans.pop();
+        if (!ans.empty()) cout << ".";
+    }
+    return 0;
+}
+// hack : 3 ab ba baa
+// hack : 3 cc ca ad

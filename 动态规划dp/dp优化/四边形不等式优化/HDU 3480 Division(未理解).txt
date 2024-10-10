@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+int dp[10005][5005];
+int pos[10005][5005]; // 对应状态的前一个最优分割点
+int a[10005];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    int d = 0;
+    cin >> t;
+    while (t--)
+    {
+        d++;
+        int n,m;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) cin >> a[i];
+        sort(a+1,a+n+1); // 排序便于计算
+        for (int i = 1; i <= n; i++)
+        {
+            for (int j = 1; j <= min(i,m); j++) dp[i][j] = 2e9;
+        }
+        for (int i = 1; i <= n; i++) // 初始化分成一个集合的dp值
+        {
+            dp[i][1] = (a[i] - a[1])*(a[i] - a[1]);
+            pos[i][1] = 0; // 当前状态仅一个集合，所以没有分割点
+        }
+        for (int i = 2; i <= m; i++) // 枚举分成的集合数
+        {
+            pos[n+1][i] = n; // 特殊处理分割点
+            for (int j = n; j >= i; j--) // 枚举处理区间的终点，倒着枚举
+            {
+                for (int k = pos[j][i-1]; k <= pos[j+1][i]; k++) // pos[j+1][i]这就是倒着枚举的原因
+                {
+                    if (dp[j][i] > dp[k-1][i-1] + (a[j] - a[k])*(a[j] - a[k]))
+                    {
+                        dp[j][i] = dp[k-1][i-1] + (a[j] - a[k])*(a[j] - a[k]);
+                        pos[j][i] = k;
+                    }
+                }
+            }
+        }
+        cout << "Case " << d << ": ";
+        cout << dp[n][m] << "\n";
+    }
+    return 0;
+}

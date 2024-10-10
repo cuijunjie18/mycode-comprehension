@@ -1,0 +1,58 @@
+//背景：暑假学习，数论专题，容斥原理
+//难点：dp的不合法的理解
+/*思路：发现完全背包为o(4nS)，而多重背包为o(4nS*d)，故想把问题化到完全背包上；
+       而完全背包包括了不合法的情况，我们利用容斥减去即可
+*/
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll c[5];
+void Solve()
+{
+    ll d[5],s;
+    for (int i = 1; i <= 4; i++) cin >> d[i];
+    cin >> s;
+    ll dp[s+1];
+    memset(dp,0,sizeof(dp));
+    dp[0] = 1; // 初始化为1
+
+    // 跑一轮完全背包
+    for (int i = 1; i <= 4; i++)
+    {
+        for (int j = c[i]; j <= s; j++) dp[j] += dp[j-c[i]];
+    }
+
+    // 跑容斥
+    ll ans = dp[s]; // 初始化答案
+    for (int t = 1; t <= (1<<4)-1; t++) // 枚举状态，即集合数，用于奇偶容斥，判断加减
+    {
+        int num = 0;
+        ll k = 0;
+        for (int i = 1; i <= 4; i++)
+        {
+            if ((t>>(i-1))&1) // 如果存在该位
+            {
+                num++;
+                k += c[i]*(d[i]+1); // 如果要包括该位不合法，至少要用掉的背包容量
+            }
+        }
+        if (k <= s) // 容量合法
+        {
+            if (num%2) ans -= dp[s-k]; // 奇偶判断加减，具体情况具体分析
+            else ans += dp[s-k];
+        }
+    }
+    cout << ans << "\n"; // 输出答案
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n;
+    cin >> c[1] >> c[2] >> c[3] >> c[4] >> n;
+    while (n--)
+    {
+        Solve();
+    }
+    return 0;
+}

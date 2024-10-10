@@ -1,0 +1,78 @@
+//背景：暑假训练，难在观察结构，证明，及dp初始化
+/*重要推论：最多有一个数组选了部分；证明：如果有两个数组，其中一个当前位大于另一个，那么后面的可以全部将之前小数组的前面替换，直到拿完
+           或者空；所有除拿部分的那个，其他数组要么拿完，要么不拿；
+*/
+//思路：普通01背包TLE，考虑优化，如果枚举那个数组拿部分，那么还是o(n*n*k)，考虑减少次数，题解分治o(n*k*logn)，即不用每次都计算一些重复的dp数组
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+vector<ll> a[3005];
+int t[3005];
+ll sum[3005];
+ll dp[3005];
+int n,k,x;
+ll ans; // 一定要记录答案
+void DFS(int l,int r) // DFS进行分治，最多logn层，保证时间复杂度
+{
+    if (l == r) // 到了仅选部分的
+    {
+        ll now = 0;
+        for (int i = 1; i <= min(k,t[l]); i++) //枚举选的个数
+        {
+            now += a[l][i-1];
+            dp[k] = max(dp[k],dp[k-i] + now);
+        }
+        ans = max(dp[k],ans);
+        return;
+    }
+    int mid = (l+r)>>1;
+    ll temp[3005]; // 保存数组
+    for (int i = 0; i <= k; i++) temp[i] = dp[i]; // 先将dp保存
+
+    // 计算右区间的背包dp
+    for (int i = mid + 1; i <= r; i++) // 枚举物品
+    {
+        for (int j = k; j >= t[i]; j--) // 枚举容量
+        {
+            dp[j] = max(dp[j],dp[j-t[i]] + sum[i]);
+        }
+    }
+
+    //往左边找一个只选了部分的
+    DFS(l,mid);
+
+    for (int i = 0; i <= k; i++) dp[i] = temp[i]; // 复原上一层的dp数组
+
+    // 计算左边的了
+    for (int i = l; i <= mid; i++)
+    {
+        for (int j = k; j >= t[i]; j--)
+        {
+            dp[j] = max(dp[j],dp[j-t[i]] + sum[i]);
+        }
+    }
+
+    //往左边找
+    DFS(mid+1,r);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> k;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> t[i];
+        for (int j = 1; j <= t[i]; j++)
+        {
+            cin >> x;
+            sum[i] += x;
+            a[i].push_back(x);
+        }
+    }
+    // 拿满的初始化
+    memset(dp,-0x3f,sizeof(dp)); // 初始化位负无穷
+    dp[0] = 0; // 初始化0
+    DFS(1,n);
+    cout << ans << "\n";
+    return 0;
+}

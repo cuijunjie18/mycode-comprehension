@@ -1,0 +1,26 @@
+//背景：暑假学习，一般卡特兰
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 20100403;
+ll inv[2000005];
+ll f[2000005];
+void prework()
+{
+    f[0] = f[1] = inv[0] = inv[1] = 1;
+    for (int i = 2; i <= 2000000; i++) f[i] = f[i-1]*i%md; // 求阶层
+    for (int i = 2; i <= 2000000; i++) // 求单个数的逆元
+    {
+        inv[i] = (md - md/i)*inv[md%i]%md;
+    }
+    for (int i = 2; i <= 2000000; i++) inv[i] = inv[i]*inv[i-1]%md; // 求阶层的逆元
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    ll n,m;
+    cin >> n >> m;
+    cout << (f[n+m]*inv[n]%md*inv[m]%md - f[n+m]*inv[n+1]%md*inv[m-1]%md + md)%md << "\n"; // 组合数相减公式
+    return 0;
+}

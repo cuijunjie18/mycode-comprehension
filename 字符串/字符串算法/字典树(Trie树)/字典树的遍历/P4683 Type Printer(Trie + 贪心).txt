@@ -1,0 +1,87 @@
+//背景：暑假复习，Trie树的遍历的思维题
+//思路：要求次数最少，即最长的边仅走一次，其他的都要走两次（像树的直径），那么对Trie树中的最长边打上标记，最后遍历即可
+//时间复杂度：o(n)
+#include <bits/stdc++.h>
+#define MAXN 500005
+using namespace std;
+int n;
+int id;
+int en[MAXN]; // 是否为某单词的结尾
+int trie[MAXN]['z' - 'a' + 1]; // Trie树
+int tick[MAXN]; // 标记最长字符串
+char letter[MAXN]; // 记录每个节点的字母
+vector<char> ans; // 记录输出答案
+int finish; // 记录完成了多少个字符串
+
+void Insert(string s) // 插入
+{
+    int p = 0;
+    for (int i = 0; s[i] != '\0'; i++)
+    {
+        int temp = s[i] - 'a';
+        if (trie[p][temp] == 0) trie[p][temp] = ++id;
+        p = trie[p][temp]; // 先移动指针
+        letter[p] = s[i]; // 再记录
+    }
+    en[p] = 1; // 结尾标记
+}
+
+void Put_tick(string s) // 最长字符串打上标记
+{
+    int p = 0;
+    for (int i = 0; s[i] != '\0'; i++)
+    {
+        int temp = s[i] - 'a';
+        p = trie[p][temp]; // 先移动
+        tick[p] = 1; // 标记
+    }
+}
+
+void DFS(int x) // 核心DFS
+{
+    if (en[x] == 1 && x != 0) // 结尾
+    {
+        finish++; // 累加
+        ans.push_back('P'); // 打印
+    }
+    if (finish == n) // 全部完成
+    {
+      // 输出
+        cout << ans.size() << "\n";
+        for (auto v : ans) cout << v << "\n";
+        return;
+    }
+    for (int i = 0; i <= 'z' - 'a'; i++) // 字典树的遍历
+    {
+        if (trie[x][i] && tick[trie[x][i]] == 0) // 无标记且有儿子
+        {
+            ans.push_back(letter[trie[x][i]]); // 记录
+            DFS(trie[x][i]);
+            ans.push_back('-'); // 回溯即删除
+        }
+    }
+    for (int i = 0; i <= 'z' - 'a'; i++) // 最后记录最长字符串
+    {
+        if (trie[x][i] && tick[trie[x][i]])
+        {
+            ans.push_back(letter[trie[x][i]]);
+            DFS(trie[x][i]);
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    string long_str = "";
+    string s;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> s;
+        Insert(s);
+        if (s.size() > long_str.size()) long_str = s; // 更新最长字符串
+    }
+    Put_tick(long_str);
+    DFS(0);
+    return 0;
+}

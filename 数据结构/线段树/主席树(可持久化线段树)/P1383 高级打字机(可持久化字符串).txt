@@ -1,0 +1,84 @@
+//背景：暑假学习，复习一下主席树
+//原理：主席树模拟可持久化字符串
+#include <bits/stdc++.h>
+#define MAXN 1000005
+using namespace std;
+char tree[MAXN<<5];
+int rt,ls[MAXN<<5],rs[MAXN<<5];
+int tot;
+int Build(int l,int r) // 建树
+{
+    int root = ++tot;
+    if (l == r)
+    {
+        tree[tot] = 0;
+        return root;
+    }
+    int mid = (l+r)>>1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid+1,r);
+    return root;
+}
+int update(int root,int l,int r,int k,char ch) // 更新
+{
+    int dir = ++tot;
+    ls[dir] = ls[root];
+    rs[dir] = rs[root];
+
+    if (l == r)
+    {
+        tree[dir] = ch;
+        return dir;
+    }
+
+    int mid = (l+r)>>1;
+    if (k <= mid) ls[dir] = update(ls[root],l,mid,k,ch);
+    else rs[dir] = update(rs[root],mid+1,r,k,ch);
+    return dir;
+}
+char query(int root,int l,int r,int k) // 回答询问
+{
+    int mid = (l+r)>>1;
+    if (l == r) return tree[root];
+    if (k <= mid) return query(ls[root],l,mid,k);
+    else return query(rs[root],mid+1,r,k);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x;
+    char ch,u;
+    cin >> n;
+    rt = Build(1,n); // 初始化
+    vector<pair<int,int>> p(n+1,{0,0}); // p记录版本的根及字符串长度
+    p[0] = {0,rt}; // 初始化
+    int now_version = 0; //版本初始编号
+    int q = n;
+    while (q--)
+    {
+        cin >> ch;
+        if (ch == 'T')
+        {
+            cin >> u;
+            int ble = p[now_version].first; // 获取前一个版本的根节点
+            int brt = p[now_version].second; // 获取前一个版本的长度
+            now_version++; // 新增版本
+            int nrt = update(brt,1,n,ble+1,u); // 记录新根
+            p[now_version] = {ble+1,nrt}; // 记录
+        }
+        else if (ch == 'U') // 核心撤销操作
+        {
+            cin >> x;
+            int temp = max(now_version - x,0); // 注意取max
+            now_version++; // 撤销也算一个版本
+            p[now_version] = {p[temp].first,p[temp].second}; // 记录
+        }
+        else if (ch == 'Q')
+        {
+            cin >> x;
+            int rt = p[now_version].second;
+            cout << query(rt,1,n,x) << "\n"; // 回答询问
+        }
+    }
+    return 0;
+}

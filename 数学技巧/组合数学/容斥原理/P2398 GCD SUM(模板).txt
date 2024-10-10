@@ -1,0 +1,28 @@
+//背景：暑假学习，容斥模板题
+//原理：gcd + 容斥
+//时间复杂度：o(nlogn)，调和级数
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll dp[100005]; // 前期表示以i为倍数的有序对数，后期通过容斥变为了以i为gcd的有序对数
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; i++) // 枚举i位约数
+    {
+        // 计算i的倍数的上下个数
+        ll templ = (1 + i - 1)/i;
+        ll tempr = n/i;
+        dp[i] = (tempr - templ + 1)*(tempr - templ + 1); // 计算有序对数
+    }
+    ll ans = 0; // 初始化答案
+    for (int i = n; i >= 1; i--) // 倒着进行容斥dp
+    {
+        for (int j = 2*i; j <= n; j += i) dp[i] -= dp[j]; // 枚举i的倍数减去
+        ans += dp[i]*i; // 累加答案
+    }
+    cout << ans << "\n"; // 输出
+    return 0;
+}

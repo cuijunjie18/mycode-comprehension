@@ -1,0 +1,75 @@
+//背景：暑假学习，1700，思路是自己推出的，就差最后一步，即裴蜀定理
+//思路：对于每个k x k 的操作正方形，其实只是改变差距，且能改变的仅是(s1 - s2)的倍数；s1 - s2为正方形内的山峰数量差距
+//原理：多维前缀和 + 裴蜀定理：x[1]a[1] + x[2]a[2] + ... x[n]a[n] = d(a已知)有解当且仅当d % gcd(a1,a2...an) == 0
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+void Solve()
+{
+    int n,m,k;
+    cin >> n >> m >> k;
+    ll a[n+1][m+1];
+    ll sum_0[n+1][m+1],sum_1[n+1][m+1]; // 1类山峰与2类山峰的前缀和
+    memset(sum_0,0,sizeof(sum_0));
+    memset(sum_1,0,sizeof(sum_1));
+    char mp[n+1][m+1];
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= m; j++) cin >> a[i][j];
+    }
+    ll s1 = 0,s2 = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= m; j++)
+        {
+            cin >> mp[i][j];
+            if (mp[i][j] == '0') s1 += a[i][j];
+            else s2 += a[i][j];
+            sum_0[i][j] = sum_0[i-1][j] + sum_0[i][j-1] - sum_0[i-1][j-1] + (mp[i][j] == '0'); // 前缀和记录
+            sum_1[i][j] = sum_1[i-1][j] + sum_1[i][j-1] - sum_1[i-1][j-1] + (mp[i][j] == '1');
+        }
+    }
+    ll d = abs(s1 - s2);
+    if (d == 0) // 特判
+    {
+        cout << "YES" << "\n";
+        return;
+    }
+    set<ll> in;
+    for (int i = k; i <= n; i++) // 枚举卷积核的移动
+    {
+        for (int j = k; j <= m; j++)
+        {
+            s1 = sum_0[i][j] - sum_0[i - k][j] - sum_0[i][j - k] + sum_0[i - k][j - k];
+            s2 = sum_1[i][j] - sum_1[i - k][j] - sum_1[i][j - k] + sum_1[i - k][j - k];
+            //cout << s1 << " " << s2 << "\n";
+            if (s1 == s2) continue; // 防止除零错误
+            in.insert(s1 - s2); // 每个差值记录
+        }
+    }
+    ll temp = (*in.begin());
+    for (auto x : in) temp = __gcd(temp,x); // 求gcd
+    if (d%temp == 0) cout << "YES" << "\n"; // 判断
+    else cout << "NO" << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+3 4 3
+46 49 50 1
+19 30 23 12
+30 25 1 46
+1000
+0100
+0010
+*/

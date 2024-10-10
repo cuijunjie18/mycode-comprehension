@@ -1,0 +1,18 @@
+//背景：威佐夫博弈模板
+//细节：sqrtl，返回long double
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll a,b;
+    cin >> a >> b;
+    if (a > b) swap(a,b);
+    // (sqrt(5) - 1)/2  == 0.618 是黄金分割率
+    long double r = (sqrtl(5) + 1)/2; // 1.618
+    long double c = (b - a);
+    if ((ll)(c * r) == a) cout << 0 << "\n";
+    else cout << 1 << "\n";
+    return 0;
+}

@@ -1,0 +1,77 @@
+//背景：复习01-Trie树
+//思路：由异或的性质，树上任意两点的路径异或等价于它们到根节点的路径异或；那么仅有n条根节点路径，枚举每一天，找到最匹配的即可
+//时间复杂度：o(n)
+#include <bits/stdc++.h>
+#define int long long
+#define MAXN 100005
+using namespace std;
+vector<pair<int,int>> e[MAXN];
+int val[MAXN]; // 节点到根节点路径异或和
+int trie[MAXN*32][2]; // Trie
+int id;
+void Insert(int x) // 插入Trie树
+{
+    int p = 0;
+    for (int i = 31; i >= 0; i--) // 高位到低位开始存二进制状态
+    {
+        int temp = (x >> i)&1;
+        if (trie[p][temp] == 0) trie[p][temp] = ++id;
+        p = trie[p][temp];
+    }
+}
+void DFS(int x,int fa,int value) // 预处理
+{
+    val[x] = value;
+    Insert(val[x]);
+    for (auto v : e[x])
+    {
+        int to = v.first;
+        int w = v.second;
+        if (to == fa) continue;
+        DFS(to,x,value^w);
+    }
+}
+signed main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x,y,w;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++)
+    {
+        cin >> x >> y >> w;
+        e[x].push_back({y,w});
+        e[y].push_back({x,w});
+    }
+    DFS(1,0,0);
+    int ans = 0;
+    for (int i = 1; i <= n; i++) // 枚举每条路径，为该路径找最大匹配的异或路径
+    {
+        int p = 0;
+        int ans_temp = 0;
+        for (int j = 31; j >= 0; j--)
+        {
+            int temp = (val[i] >> j)&1;
+            if (temp == 1) // 如果当前位是1
+            {
+                if (trie[p][0])
+                {
+                    p = trie[p][0];
+                    ans_temp += (1 << j);
+                }
+                else p = trie[p][1];
+            }
+            else // 如果当前位是0
+            {
+                if (trie[p][1])
+                {
+                    p = trie[p][1];
+                    ans_temp += (1 << j);
+                }
+                else p = trie[p][0];
+            }
+        }
+        ans = max(ans,ans_temp);
+    }
+    cout << ans << "\n";
+    return 0;
+}

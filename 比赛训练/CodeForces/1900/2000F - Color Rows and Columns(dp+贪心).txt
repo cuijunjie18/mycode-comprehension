@@ -1,0 +1,67 @@
+//背景：考前临时抱佛脚，dp题
+//时间复杂度：o(nkw)
+#include <bits/stdc++.h>
+using namespace std;
+void Solve()
+{
+    int n,k;
+    cin >> n >> k;
+    int val[n+1][k+1]; // 预处理对应的矩形贡献j分的最小代价
+    int w[n+1],h[n+1];
+    memset(val,0x3f,sizeof(val)); // 初始化
+    for (int i = 1; i <= n; i++) cin >> w[i] >> h[i];
+    for (int i = 1; i <= n; i++) val[i][0] = 0; // 初始化
+    for (int i = 1; i <= n; i++) // 枚举矩形
+    {
+        for (int j = 1; j <= min(k,w[i] + h[i]); j++) // 枚举完成数，即贡献
+        {
+            for (int d = 0; d <= min(w[i],j); d++) // 枚举列完成数，注意是w[i]
+            {
+                if (j - d > h[i]) continue; // 注意是h[i]
+                val[i][j] = min(val[i][j],d*h[i] + (j - d)*w[i] - d*(j - d)); // 核心贪心，取最小值
+            }
+        }
+    }
+    int dp[n+1][k+1]; // dp表示处理到i个矩形，获得j分的最小代价
+    memset(dp,0x3f,sizeof(dp)); // 初始化
+    int INF = dp[0][0]; // 无解值
+    dp[0][0] = 0; // 初始化
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 0; j <= k; j++) // 枚举要完成的数量
+        {
+            for (int d = 0; d <= j; d++) // 枚举当前矩形的贡献
+            {
+                dp[i][j] = min(dp[i][j],dp[i-1][j-d] + val[i][d]); // dp
+            }
+        }
+    }
+    if (dp[n][k] >= INF) cout << -1 << "\n"; // 无解
+    else cout << dp[n][k] << "\n";
+    return;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        Solve();
+    }
+    return 0;
+}
+/*
+3 25
+9 2
+4 3
+8 10
+*/
+
+/*
+4 15
+6 10
+5 10
+3 4
+9 6
+*/

@@ -1,0 +1,2 @@
+vector<int> s;
+reverse(s.begin(),s.end());

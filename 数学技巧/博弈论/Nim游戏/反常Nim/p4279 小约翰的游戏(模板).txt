@@ -1,0 +1,33 @@
+//背景：暑假学习，anti-Nim模板
+//题意：反常Nim，谁取最后一个输
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        int n,x,ans = 0;
+        bool flag = true; // 标记全1
+        cin >> n;
+        for (int i = 1; i <= n; i++)
+        {
+            cin >> x;
+            if (x != 1) flag = false;
+            ans ^= x;
+        }
+        if (flag) // 全为1
+        {
+            if (n % 2) cout << "Brother" << "\n";
+            else cout << "John" << "\n";
+        }
+        else // 正常Nim判断
+        {
+            if (ans) cout << "John" << "\n";
+            else cout << "Brother" << "\n";
+        }
+    }
+    return 0;
+}

@@ -1,0 +1,68 @@
+//背景：暑假学习，无向图的欧拉路径模板
+#include <bits/stdc++.h>
+#define MAXN 505
+using namespace std;
+int e[MAXN][MAXN]; // 邻接矩阵存图，便于字典序输出
+int pos[MAXN]; // 用于非邻接矩阵存图的字典序输出（本模板中无用）
+int cnt[MAXN]; // 记录每个点的度数
+int oddp[MAXN]; // 记录奇数度数的点
+int tot; // 记录奇数度数的点的数量
+stack<int> ans; // 记录答案
+
+void DFS(int x) // 核心DFS
+{
+    for (int i = 1; i <= 500; i++)
+    {
+        if (e[x][i]) // 有边没走
+        {
+            e[x][i]--; // 双向都要减
+            e[i][x]--;
+            DFS(i);
+        }
+    }
+    ans.push(x); // 记录
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int m,s = 99999999,x,y;
+    cin >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        s = min(s,x); // 找最小起点
+        s = min(s,y);
+        e[x][y]++;
+        e[y][x]++;
+        cnt[x]++; // 累加度数
+        cnt[y]++;
+    }
+    for (int i = 1; i <= 500; i++)
+    {
+        if (cnt[i]%2) // 奇数入度
+        {
+            oddp[++tot] = i;
+        }
+    }
+    if (tot != 2 && tot) // 如果存在奇数入度的点，且不为2个，则无欧拉路径
+    {
+        //虽然题目保证了有，但是作为模板还是很有必要的
+        cout << "No solution!" << "\n";
+    }
+    int b;
+    if (tot) // 存在奇数度数，则要找起点
+    {
+        b = min(oddp[1],oddp[2]);
+    }
+    else // 否则存在欧拉回路，随便
+    {
+        b = s; // 取字典序最小的
+    }
+    DFS(b);
+    while (!ans.empty())
+    {
+        cout << ans.top() << "\n";
+        ans.pop();
+    }
+    return 0;
+}

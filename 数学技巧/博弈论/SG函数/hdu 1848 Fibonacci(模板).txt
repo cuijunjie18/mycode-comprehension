@@ -1,0 +1,39 @@
+//背景：暑假学习，sg函数裸题，Nim游戏
+//区别：取的石头数只能来自斐波那契数列
+#include <bits/stdc++.h>
+#define MAXN 1005
+using namespace std;
+int sg[MAXN];
+void prework()
+{
+    bool vis[MAXN];
+    int Fb[31];
+    Fb[1] = Fb[2] = 1;
+    for (int i = 3; i <= 30; i++) Fb[i] = Fb[i-1] + Fb[i-2];
+    for (int i = 1; i <= 1000; i++)
+    {
+        memset(vis,0,sizeof(vis));
+        for (int j = 1; j <= 30 && Fb[j] <= i; j++) vis[sg[i-Fb[j]]] = true;
+        for (int j = 0; ; j++)
+        {
+            if (vis[j]) continue;
+            sg[i] = j;
+            break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int n,m,p;
+    while (true)
+    {
+        cin >> n >> m >> p;
+        if (n == 0 && m == 0 && p == 0) break;
+        int ans = sg[n]^sg[m]^sg[p];
+        if (ans) cout << "Fibo" << "\n";
+        else cout << "Nacci" << "\n";
+    }
+    return 0;
+}

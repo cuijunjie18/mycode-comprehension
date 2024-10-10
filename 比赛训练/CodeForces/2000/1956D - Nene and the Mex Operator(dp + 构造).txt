@@ -1,0 +1,98 @@
+//背景：暑假补题，区间dp + 构造思维
+//不理解：时间复杂度的分析
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll a[20],sum[20],dp[20][20]; // 前缀和与区间dp数组
+int g[20][20]; // 记录区间最优决策点
+vector<pair<int,int>> ans;
+int n;
+ll mex(int l,int r) // 求[l,r]中的mex
+{
+    for (int i = 0; i <= 18; i++)
+    {
+        bool flag = false;
+        for (int j = l; j <= r; j++)
+        {
+            if (a[j] == i)
+            {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) return i;
+    }
+}
+void add(int l,int r) // 增加操作
+{
+    ans.push_back({l,r});
+    ll temp = mex(l,r);
+    for (int i = l; i <= r; i++) a[i] = temp; // 区间改变
+}
+void get(int l,int r) // 让[l,r] -> [1....len]
+{
+    if (l > r) return;
+    if (l == r) // 起点
+    {
+        //要求变1
+        while (a[l] != 1) add(l,l);
+        return;
+    }
+    get(l,r - 1); // 否则先处理左边
+    add(l,r); // 区间全部元素变为区间长度
+    add(l,r - 1); // 区间全变为0
+    get(l,r - 1); // 再次让左边有序
+}
+void Solve(int l,int r)
+{
+    if (g[l][r] == 0) // 没有决策点，说明此区间可能是要操作区间
+    {
+        if (sum[r] - sum[l-1] < 1ll*(r - l + 1)*(r - l + 1)) // 如果区间需要操作
+        {
+            ll temp = 0;
+            for (int i = l; i <= r; i++) temp += a[i];
+            while (temp) // 区间操作，直到整个区间为0
+            {
+                add(l,r);
+                temp = 0;
+                for (int i = l; i <= r; i++) temp += a[i];
+            }
+            get(l,r - 1); // 让左边有序
+            add(l,r); // 最后还要操作一次
+        }
+        return;
+    }
+    Solve(l,g[l][r]); // 左右递归
+    Solve(g[l][r] + 1,r);
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> a[i];
+        sum[i] = sum[i-1] + a[i]; // 维护前缀和
+        dp[i][i] = a[i]; // dp初始化
+    }
+    for (int len = 1; len <= n; len++) // 注意要从1开始，n = 1是hack数据
+    {
+        for (int i = 1; i + len - 1 <= n; i++)
+        {
+            int e = i + len - 1;
+            dp[i][e] = max(sum[e] - sum[i-1],1ll*len*len); // 取最大值
+            for (int k = i; k < e; k++) // 枚举断点
+            {
+                if (dp[i][k] + dp[k + 1][e] > dp[i][e])
+                {
+                    dp[i][e] = dp[i][k] + dp[k + 1][e];
+                    g[i][e] = k; // 更新
+                }
+            }
+        }
+    }
+    Solve(1,n); // 构造
+    cout << dp[1][n] << " " << ans.size() << "\n";
+    for (auto v : ans) cout << v.first << " "  << v.second << "\n";
+    return 0;
+}

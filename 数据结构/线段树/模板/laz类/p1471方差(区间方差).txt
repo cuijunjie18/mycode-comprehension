@@ -1,0 +1,121 @@
+//背景：暑假学习，线段树真的爽
+//思路：维护区间和与区间平方和即可
+#include <bits/stdc++.h>
+#define MAXN 100005
+using namespace std;
+struct node
+{
+    double sum,psum;
+}tree[MAXN<<1];
+int ls[MAXN<<1],rs[MAXN<<1];
+int tot,rt;
+double a[MAXN];
+double laz[MAXN<<1];
+void pushup(int root)
+{
+    tree[root].sum = tree[ls[root]].sum + tree[rs[root]].sum;
+    tree[root].psum = tree[ls[root]].psum + tree[rs[root]].psum;
+}
+void pushdown(int root,int s,int t) // 核心pushdown
+{
+    int l = ls[root];
+    int r = rs[root];
+    int mid = (s + t) >> 1;
+    if (laz[root])
+    {
+        laz[l] += laz[root]; // 记得是累加，不是赋值
+        laz[r] += laz[root];
+        // 难点
+        tree[l].psum += (mid - s + 1)*laz[root]*laz[root] + 2*tree[l].sum*laz[root];
+        tree[l].sum += (mid - s + 1)*laz[root];
+        tree[r].psum += (t - mid)*laz[root]*laz[root] + 2*tree[r].sum*laz[root];
+        tree[r].sum += (t - mid)*laz[root];
+        laz[root] = 0;
+    }
+}
+int Build(int l,int r)
+{
+    int root = ++tot;
+    if (l == r)
+    {
+        tree[root].sum = a[l];
+        tree[root].psum = a[l]*a[l];
+        return root;
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid + 1,r);
+    pushup(root);
+    return root;
+}
+void update(int root,int l,int r,int s,int t,double k) // 更新
+{
+    if (l <= s && r >= t)
+    {
+        laz[root] += k; // 这个不要忘记
+        tree[root].psum += (t - s + 1)*k*k + 2*tree[root].sum*k;
+        tree[root].sum += (t - s + 1)*k;
+        return;
+    }
+    pushdown(root,s,t); // 不要忘记
+    int mid = (s + t) >> 1;
+    if (l <= mid) update(ls[root],l,r,s,mid,k);
+    if (r >= mid + 1) update(rs[root],l,r,mid + 1,t,k);
+    pushup(root); // 不要忘记
+}
+node query(int root,int l,int r,int s,int t) // 受启发于之前的一道维护区间最长串的题，返回结构体
+{
+    if (l <= s && r >= t) return tree[root];
+    pushdown(root,s,t); // 不要忘记
+    int mid = (s + t) >> 1;
+
+    // 初始化结构体
+    node temp;
+    temp.sum = temp.psum = 0;
+    if (l <= mid)
+    {
+        node lt = query(ls[root],l,r,s,mid); // 获取左边
+        temp.sum += lt.sum;
+        temp.psum += lt.psum;
+    }
+    if (r >= mid + 1)
+    {
+        node rt = query(rs[root],l,r,mid + 1,t); // 获取右边
+        temp.sum += rt.sum;
+        temp.psum += rt.psum;
+    }
+    return temp;
+}
+int main()
+{
+    //ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,c,x,y;
+    double k;
+    scanf("%d%d",&n,&q);
+    for (int i = 1; i <= n; i++) scanf("%lf",&a[i]);
+    rt = Build(1,n);
+    while (q--)
+    {
+        scanf("%d",&c);
+        if (c == 1)
+        {
+            scanf("%d%d%lf",&x,&y,&k);
+            update(rt,x,y,1,n,k);
+        }
+        else if (c == 2)
+        {
+            scanf("%d%d",&x,&y);
+            node temp = query(rt,x,y,1,n);
+            printf("%.4f\n",temp.sum/(y - x + 1)); // 输出平均数
+        }
+        else if (c == 3)
+        {
+            scanf("%d%d",&x,&y);
+            node temp = query(rt,x,y,1,n);
+            double aver = temp.sum/(y - x + 1);
+            //cout << aver << " " << temp.sum << " " <<temp.psum << "\n";
+            printf("%.4f\n",(temp.psum + aver*aver*(y - x + 1) - 2*aver*temp.sum)/(y - x + 1)); // 输出方差
+        }
+    }
+    return 0;
+}

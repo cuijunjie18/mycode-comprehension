@@ -1,0 +1,59 @@
+//背景：暑假学习，之前做这题是离线+树状数组，现在用主席树做
+//时间复杂度：理论o(qlogn)，但是超时，应该是常数大
+#include <bits/stdc++.h>
+#define MAXN 1000005
+using namespace std;
+int rt[MAXN];
+int sum[MAXN<<5],ls[MAXN<<5],rs[MAXN<<5];
+int vis[MAXN];
+int tot;
+int update(int root,int l,int r,int pos,int k)
+{
+    int dir = ++tot;
+
+    ls[dir] = ls[root];
+    rs[dir] = rs[root];
+    sum[dir] = sum[root];
+
+    if (l == r)
+    {
+        sum[dir] += k;
+        return dir;
+    }
+
+    int mid = (l + r) >> 1;
+    if (pos <= mid) ls[dir] = update(ls[root],l,mid,pos,k);
+    else rs[dir] = update(rs[root],mid + 1,r,pos,k);
+    sum[dir] = sum[ls[dir]] + sum[rs[dir]];
+
+    return dir;
+}
+int query(int root,int l,int r,int s,int t)
+{
+    if (l <= s && r >= t) return sum[root];
+    int mid = (s + t) >> 1;
+    int ans = 0;
+    if (l <= mid) ans += query(ls[root],l,r,s,mid);
+    if (r >= mid + 1) ans += query(rs[root],l,r,mid + 1,t);
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,x,y;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> x;
+        rt[i] = update(rt[i-1],1,n,i,1);
+        if (vis[x]) rt[i] = update(rt[i],1,n,vis[x],-1);
+        vis[x] = i;
+    }
+    cin >> q;
+    while (q--)
+    {
+        cin >> x >> y;
+        cout << query(rt[y],x,y,1,n) << "\n";
+    }
+    return 0;
+}

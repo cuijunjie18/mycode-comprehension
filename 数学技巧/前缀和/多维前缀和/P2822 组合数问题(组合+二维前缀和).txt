@@ -1,0 +1,44 @@
+//背景：暑假学习，预处理的强大
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll ans[2005][2005];
+ll c[2005][2005];
+void prework(int k) // 预处理，以便o(1)回答询问
+{
+    // 初始化组合数及前缀和
+    for (int i = 0; i <= 2000; i++) c[i][0] = c[i][i] = 1;
+    ans[0][0] = ans[0][1] = ans[1][0] = 0;
+
+    // 求组合数
+    for (int i = 1; i <= 2000; i++)
+    {
+        for (int j = 1; j <= i; j++)
+        {
+            c[i][j] = (c[i-1][j] + c[i-1][j-1])%k;
+        }
+    }
+
+    //求二维前缀和
+    for (int i = 1; i <= 2000; i++)
+    {
+        for (int j = 1; j <= i; j++)
+        {
+            ans[i][j] = (c[i][j] == 0) + ans[i-1][j] + ans[i][j-1] - ans[i-1][j-1];
+        }
+        ans[i][i+1] = ans[i][i]; // 设置边界！重中之重，防止上面的j = i时ans[i-1][j]出问题
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll t,k,n,m;
+    cin >> t >> k;
+    prework(k);
+    while (t--)
+    {
+        cin >> n >> m;
+        cout << ans[n][min(n,m)] << "\n"; // 回答询问
+    }
+    return 0;
+}

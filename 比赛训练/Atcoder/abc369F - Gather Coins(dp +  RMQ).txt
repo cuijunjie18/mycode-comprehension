@@ -1,0 +1,145 @@
+//背景：abc369补题，用线段树维护RMQ，(听说树状数组求前缀RMQ很方便)
+//原理：dp + 线段树维护区间最值 + 单向链表维护输出方案
+/*思路：发现h,w <= 2e5,h*w过大，不能对地图dp，发现金币n <= 2e5,故想到对金币dp；
+        则有dp[i] = max(dp[j]) + 1,其中x[i] >= x[j] && y[i] >= y[j];
+        故x排序后维护 <= y[i]的区间最值即可
+*/
+#include <bits/stdc++.h>
+#define MAXN 200005
+using namespace std;
+int dp[MAXN];
+struct node1 // 坐标结构体
+{
+    int x,y;
+};
+struct node2 // 线段树结构体
+{
+    int big,pos; // pos为区间是那个节点
+};
+bool cmp(node1 a,node1 b) // 自定义排序
+{
+    if (a.x == b.x) return a.y < b.y;
+    return a.x < b.x;
+}
+node1 p[MAXN];
+
+node2 tree[MAXN<<1];
+int ls[MAXN<<1],rs[MAXN<<1];
+int rt,tot;
+
+int last[MAXN]; // 单向链表存输出的金币顺序
+int h,w,n;
+
+void up(int root) // 向上更新
+{
+    int l = ls[root];
+    int r = rs[root];
+    if (tree[l].big >= tree[r].big)
+    {
+        tree[root].big = tree[l].big;
+        tree[root].pos = tree[l].pos;
+    }
+    else
+    {
+        tree[root].big = tree[r].big;
+        tree[root].pos = tree[r].pos;
+    }
+}
+int Build(int l,int r) // 建树
+{
+    int root = ++tot;
+    if (l == r)
+    {
+        tree[root].big = 0;
+        tree[root].pos = 0; // 初始化为0
+        return root;
+    }
+    int mid = (l + r) >> 1;
+    ls[root] = Build(l,mid);
+    rs[root] = Build(mid + 1,r);
+    up(root);
+    return root;
+}
+void revise(int root,int l,int r,int x,int k,int now) // 单点修改
+{
+    if (l == x && r == x)
+    {
+        if (k > tree[root].big) // 核心判断
+        {
+            tree[root].big = k;
+            tree[root].pos = now;
+        }
+        return;
+    }
+    int mid = (l + r) >> 1;
+    if (x <= mid) revise(ls[root],l,mid,x,k,now);
+    else revise(rs[root],mid + 1,r,x,k,now);
+    up(root); // 更新
+}
+node2 query(int root,int l,int r,int s,int t) // 回到询问
+{
+    if (l <= s && r >= t) return tree[root];
+    int mid = (s + t) >> 1;
+    node2 ans;
+    ans.big = 0;
+    ans.pos = 0; // 注意初始化，否则后面获取单向链表时会死循环
+    if (l <= mid)
+    {
+        node2 temp = query(ls[root],l,r,s,mid);
+        if (temp.big > ans.big) ans = temp;
+    }
+    if (r >= mid + 1)
+    {
+        node2 temp = query(rs[root],l,r,mid + 1,t);
+        if (temp.big > ans.big) ans = temp;
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> h >> w >> n;
+    for (int i = 1; i <= n; i++) cin >> p[i].x >> p[i].y;
+    sort(p + 1, p + n + 1,cmp); // 排序
+    rt = Build(1,w);
+    int ans = 0; // 初始化答案
+    int f = 0; // 初始化链表的尾端
+    for (int i = 1; i <= n; i++)
+    {
+        node2 temp = query(rt,1,p[i].y,1,w); // 区间查询
+        dp[i] = temp.big + 1; // 记录答案
+        last[i] = temp.pos; // 链表连接
+        revise(rt,1,w,p[i].y,dp[i],i); // 单点修改
+        if (dp[i] > ans) // dp答案
+        {
+            ans = dp[i];
+            f = i;
+        }
+    }
+    cout << ans << "\n"; // 输出
+    int s[MAXN];
+    int cnt = 0;
+    while (f) // 获取逆序的单向链表
+    {
+        s[++cnt] = f;
+        f = last[f];
+    }
+    // 特殊处理起点
+    int v = p[s[cnt]].x - 1;
+    int t = p[s[cnt]].y - 1;
+    for (int i = 1; i <= v; i++) cout << "D";
+    for (int i = 1; i <= t; i++) cout << "R";
+    for (int i = cnt - 1; i >= 1; i--) // 依次吃金币
+    {
+        v = p[s[i]].x - p[s[i+1]].x;
+        t = p[s[i]].y - p[s[i+1]].y;
+        for (int j = 1; j <= v; j++) cout << "D";
+        for (int j = 1; j <= t; j++) cout << "R";
+    }
+    //处理结尾
+    v = h - p[s[1]].x;
+    t = w - p[s[1]].y;
+    for (int i = 1; i <= v; i++) cout << "D";
+    for (int i = 1; i <= t; i++) cout << "R";
+    return 0;
+}

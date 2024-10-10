@@ -1,0 +1,102 @@
+//背景：暑假学习，省选思维，图论建模题，我感觉良好！收获巨大
+//收获及细节：对于有重边的情况的邻接表DFS遍历是会被卡成o(m^2)，故还是要用pos数组表示遍历到哪个边了
+//思路：发现给定的b与c建立起了a[i] 与 a[i+1]的桥梁，可以认为是边，若存在某种路径使得全部条件，即边都遍历仅一次，那么就有解，这不就是欧拉图吗
+//原理：图论建模 + 数学 + 离散化 + 无向图的欧拉路径
+#include <bits/stdc++.h>
+#define MAXN 200005
+using namespace std;
+
+// 原始及离散化相关
+int b[MAXN],c[MAXN];
+set<int> lisan; // 排序去重离散化
+map<int,int> recover; // 表示某个数离散化后的位置
+int num[MAXN]; // 表示对应排位的数是哪个
+
+int pos[MAXN]; // 记录每个点当前的边的位置，防止重复遍历
+bool vis[MAXN]; //标记边是否用过
+vector<pair<int,int>> e[MAXN]; // 邻接表存边
+stack<int> ans; // 答案
+int degree[MAXN]; // 记录度数
+int oddp[MAXN]; // 记录奇数度数的点
+int tot; // 记录奇数度数点的个数
+
+
+void DFS(int x) // 核心DFS
+{
+    for (int i = pos[x]; i < e[x].size(); i = pos[x])
+    {
+        int id = e[x][i].first;
+        int to = e[x][i].second;
+        pos[x]++; // 对于重边多的情况，只能这样遍历
+        if (vis[id]) continue;
+        vis[id] = true;
+        DFS(to);
+    }
+    ans.push(x); // 记录
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n-1; i++) cin >> b[i];
+    for (int i = 1; i <= n-1; i++) cin >> c[i];
+    for (int i = 1; i <= n-1; i++)
+    {
+        lisan.insert(b[i]);
+        lisan.insert(c[i]);
+        if (b[i] > c[i]) // 判断无解1
+        {
+            cout << -1 << "\n";
+            return 0;
+        }
+    }
+    int cnt = 0;
+    for (auto v : lisan) // 离散化
+    {
+        recover[v] = ++cnt;
+        num[cnt] = v;
+    }
+    for (int i = 1; i <= n-1; i++) // 建图
+    {
+        int x = recover[b[i]];
+        int y = recover[c[i]];
+        e[x].push_back({i,y});
+        e[y].push_back({i,x});
+        degree[x]++;
+        degree[y]++;
+    }
+    // 判断欧拉路径
+    for (int i = 1; i <= cnt; i++)
+    {
+        if (degree[i]%2)
+        {
+            oddp[++tot] = i;
+        }
+    }
+    if (tot != 2 && tot)
+    {
+        cout << -1 << "\n";
+        return 0;
+    }
+    int s = 1;
+    if (tot) s = min(oddp[1],oddp[2]);
+    DFS(s);
+    if (ans.size() != n) // 等价于判断图是否连通
+    {
+        cout << -1 << "\n";
+        return 0;
+    }
+    while (!ans.empty()) // 输出答案
+    {
+        cout << num[ans.top()] << " ";
+        ans.pop();
+    }
+    return 0;
+}
+
+/*
+5
+4 5 3 5
+6 7 4 6
+*/

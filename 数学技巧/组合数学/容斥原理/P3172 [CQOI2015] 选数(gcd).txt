@@ -1,0 +1,48 @@
+//背景：暑假学习，容斥原理求最小公约数的对数问题
+//难点：理解容斥原理求gcd是基于找至少两个不同的数
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int md = 1e9 + 7;
+ll quick_pow(ll a,ll b) // 快速幂
+{
+    ll ans = 1;
+    while (b)
+    {
+        if (b&1) ans = ans * a % md;
+        a = a * a % md;
+        b >>= 1;
+    }
+    return ans;
+}
+ll dp[100005];
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    ll n,k,l,h;
+    cin >> n >> k >> l >> h;
+    if (k > h) // 特判无解
+    {
+        cout << 0 << "\n";
+        return 0;
+    }
+    l = (l + k - 1)/k; // 缩小下界
+    h = h/k; // 缩小上界
+    for (int i = 1; i <= h - l; i++) // 枚举i的倍数的对数
+    {
+        // h - l处理是保证区间内能找到两个数的gcd是i，所以不能包含全部是某个数的情况
+
+        // 计算个数的上下界
+        ll templ = (l + i - 1)/i; 
+        ll tempr = h/i;
+        dp[i] = quick_pow(tempr - templ + 1,n) - (tempr - templ + 1); // 减去全是某个数的情况
+    }
+    for (int i = h - l; i >= 1; i--) // 倒着进行容斥
+    {
+        // i的倍数对数包括了i的倍数，而求gcd要减去这些非法情况
+        for (int j = 2*i; j <= h - l; j += i) dp[i] = (dp[i] - dp[j] + md)%md;
+    }
+    if (l == 1) dp[1] = (dp[1] + 1)%md; // 特殊处理，全部选自己
+    cout << dp[1] << "\n"; // 输出
+    return 0;
+}

@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+#define ll long long
+using namespace std;
+ll dp[305][305]; // dp代价最小值
+int p[305][305]; // 记录区间最优决策点
+ll sum[305]; // 前缀和数组
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    memset(dp,0x3f,sizeof(dp)); // 初始化无穷大
+    int n,x;
+    cin >> n;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> x;
+        sum[i] = sum[i-1] + x;
+        dp[i][i] = 0;
+        p[i][i] = i;
+    }
+    for (int i = 2; i <= n; i++) // 枚举区间长度
+    {
+        for (int j = 1; j + i - 1 <= n; j++) // 枚举起点
+        {
+            int l = j;
+            int r = j + i - 1;
+            for (int k = p[l][r-1]; k <= p[l+1][r]; k++)
+            {
+                if (dp[l][k] + dp[k+1][r] + sum[r] - sum[l-1] < dp[l][r]) // 如果更优
+                {
+                    dp[l][r] = dp[l][k] + dp[k+1][r] + sum[r] - sum[l-1];
+                    p[l][r] = k; // 记录最优决策点
+                }
+            }
+        }
+    }
+    cout << dp[1][n] << "\n";
+    return 0;
+}

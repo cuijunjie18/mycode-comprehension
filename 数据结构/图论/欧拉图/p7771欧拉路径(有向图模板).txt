@@ -1,0 +1,68 @@
+//背景：暑假学习，欧拉图，本题是求有向图的欧拉路径（字典序）
+//必要条件：变成无向图后图连通，本题保证了，故不用判断
+#include <bits/stdc++.h>
+#define MAXN 200005
+using namespace std;
+vector<int> e[MAXN];
+int pos[MAXN]; // 记录遍历到当前节点的哪条出边了
+stack<int> ans;
+int in[MAXN],out[MAXN]; // 记录入度与出度
+void DFS(int x) // 核心DFS
+{
+    for (int i = pos[x]; i < e[x].size(); i = pos[x]) // 注意这里不能i++，只能i = pos[x],因为pos[x]可能会在递归过程中变化
+    {
+        pos[x]++;
+        DFS(e[x][i]);
+    }
+    ans.push(x); // 最后才入栈
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,m,x,y;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        cin >> x >> y;
+        e[x].push_back(y);
+        in[y]++;
+        out[x]++;
+    }
+    for (int i = 1; i <= n; i++) sort(e[i].begin(),e[i].end()); // 题目要求输出路径字典序，故排序
+
+    int s = 1; // 记录起点，初始化为1，因为如果存在欧拉回路，每个点都可以是起点，字典序最小出发
+    bool flag = true; // 判断存在欧拉回路
+    bool have[2] = {0,0}; // 判断欧拉路径的起点与终点，用于判断欧拉路径
+    for (int i = 1; i <= n; i++)
+    {
+        if (in[i] == out[i]) continue; // 欧拉回路判断条件
+        flag = false; // 不存在欧拉回路
+
+        if (out[i] - in[i] == 1) // 出度比入度大1，为起点
+        {
+            s = i;
+            have[0] = true;
+        }
+        else if (in[i] - out[i] == 1) // 终点
+        {
+            have[1] = true;
+        }
+        else // 不存在欧拉路径
+        {
+            cout << "No" << "\n";
+            return 0;
+        }
+    }
+    if (!flag && (have[0] == false || have[1] == false)) // 如果即无欧拉回路也无欧拉路径
+    {
+        cout << "No" << "\n";
+        return 0;
+    }
+    DFS(s);
+    while (!ans.empty()) // 倒序输出即为答案
+    {
+        cout << ans.top() << " ";
+        ans.pop();
+    }
+    return 0;
+}

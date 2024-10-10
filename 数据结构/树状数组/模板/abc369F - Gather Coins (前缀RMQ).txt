@@ -1,0 +1,58 @@
+//背景：前缀RMQ问题还是树状数组方便
+#include <bits/stdc++.h>
+#define MAXN 200005
+using namespace std;
+int dp[MAXN];
+struct node1
+{
+    int x,y;
+};
+bool cmp(node1 a,node1 b)
+{
+    if (a.x == b.x) return a.y < b.y;
+    return a.x < b.x;
+}
+node1 p[MAXN];
+
+int maxn[MAXN<<1];
+int last[MAXN];
+int h,w,n;
+int lowbit(int x)
+{
+    return x&(-x);
+}
+void revise(int x,int k)
+{
+    while (x <= w)
+    {
+        maxn[x] = max(maxn[x],k);
+        x += lowbit(x);
+    }
+}
+int query(int x)
+{
+    int ans = 0;
+    while (x)
+    {
+        ans = max(ans,maxn[x]);
+        x -= lowbit(x);
+    }
+    return ans;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> h >> w >> n;
+    for (int i = 1; i <= n; i++) cin >> p[i].x >> p[i].y;
+    sort(p + 1, p + n + 1,cmp);
+    int ans = 0;
+    int f = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        dp[i] = query(p[i].y) + 1;
+        revise(p[i].y,dp[i]);
+        ans = max(ans,dp[i]);
+    }
+    cout << ans << "\n";
+    return 0;
+}

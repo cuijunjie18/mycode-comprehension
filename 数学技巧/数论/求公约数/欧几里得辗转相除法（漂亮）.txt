@@ -1,26 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-int gcd (int a,int b)
+#include <bits/stdc++.h>
+using namespace std;
+int gcd(int a,int b)
 {
-    if(b>a)
+    if (a > b) swap(a,b);
+    int r = b%a;
+    while (r)
     {
-        int temp = a;
-        a = b;
-        b = temp;
+        b = a;
+        a = r;
+        r = b%a;
     }
-    int r = a%b;
-    while(r!=0)
-    {
-        a = b;
-        b = r;
-        r = a%b;
-    }
-    return b;
+    return a;
 }
 int main()
 {
-    int a,b;
-    scanf("%d%d",&a,&b);
-    printf("%d\n",gcd(a,b));
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y,z;
+    cin >> x >> y >> z;
+    cout << gcd(gcd(x,y),z) << "\n";
     return 0;
 }

@@ -1,0 +1,40 @@
+//背景：暑假学习，sg函数求解Nim游戏
+#include <bits/stdc++.h>
+#define MAXN 10005
+#define ll long long
+using namespace std;
+ll sg[MAXN];
+bool vis[MAXN];
+void getsg() // 先计算sg函数
+{
+    for (int i = 1; i <= 10000; i++)
+    {
+        memset(vis,0,sizeof(vis));
+        for (int j = 1; j <= i; j++) vis[sg[i-j]] = true; // 枚举
+        for (int j = 0; ; j++) // 求Mex
+        {
+            if (vis[j]) continue;
+            sg[i] = j;
+            break;
+        }
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    getsg();
+    int t = 1;
+    cin >> t;
+    while (t--)
+    {
+        int n,x,ans = 0;
+        cin >> n;
+        for (int i = 1; i <= n; i++)
+        {
+            cin >> x;
+            ans ^= sg[x]; // 异或sg值
+        }
+        cout << (ans?"Yes":"No") << "\n";
+    }
+    return 0;
+}
