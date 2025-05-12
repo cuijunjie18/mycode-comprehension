@@ -1,0 +1,99 @@
+// 背景：学习网络流
+// 细节：cnt从1开始，确保反向边id ^ 1 != 0
+// 时间复杂度：o(NE^2)，N为点数，E为边数，其中BFS为E，增广上界为NE
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+struct edge{
+    int to,next;
+    int capacity;
+};
+int n,m,s,t;
+edge e[5005 << 1];
+int head[205];
+int cnt = 1; // 确保cnt从2开始为第一条边，否则1 ^ 1 = 0会出错
+int e_id[205][205]; // 处理重边
+
+int flow[205];
+int pre[205];
+
+void add(int x,int y,int val){
+    e[++cnt].to = y;
+    e[cnt].capacity = val;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+
+void EK(){
+    int ans = 0;
+    bool flag = false;
+    queue<int> que;
+    do{
+        flag = false;
+        memset(pre,0,sizeof(pre));
+        memset(flow,0x3f,sizeof(flow));
+        pre[s] = -1;
+        que.push(s);
+        // for (int i = 1; i <= n; i++){
+        //     for (int j = head[i]; j; j = e[j].next) cout << e[j].capacity << " ";
+        //     cout << "\n";
+        // }
+        while (!que.empty()){
+            int x = que.front();
+            // cout << x << " ";
+            que.pop();
+            if (x == t){
+                flag = true;
+                while (x != s){
+                    e[pre[x]].capacity -= flow[t];
+                    e[pre[x] ^ 1].capacity += flow[t];
+                    x = e[pre[x] ^ 1].to; // 反边的点
+                }
+                ans += flow[t];
+                break;
+            }
+            for (int i = head[x]; i; i = e[i].next){
+                if (e[i].capacity <= 0 || pre[e[i].to]) continue;
+                pre[e[i].to] = i;
+                flow[e[i].to] = min(flow[x],e[i].capacity);
+                que.push(e[i].to);
+            }
+        }
+        while (!que.empty()) que.pop();
+        // cout << "Add Flow : " << flow[t] << "\n";
+        // cout << "==========================" << "\n";
+    } while (flag);
+    cout << ans << "\n";
+    return;
+}
+
+signed main()
+{
+    // ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x,y,v;
+    cin >> n >> m >> s >> t;
+    for (int i = 1; i <= m; i++){
+        cin >> x >> y >> v;
+        if (e_id[x][y] == 0){
+            add(x,y,v);
+            e_id[x][y] = cnt;
+            add(y,x,0);
+            e_id[y][x] = cnt;
+            continue;
+        }
+        e[e_id[x][y]].capacity += v;
+    }
+    EK();
+    return 0;
+}
+
+/*
+4 5 4 3
+4 2 30
+4 3 20
+2 3 20
+2 1 30
+1 3 30
+*/

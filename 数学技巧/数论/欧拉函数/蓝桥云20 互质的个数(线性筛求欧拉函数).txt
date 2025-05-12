@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+bool nums[10000005];
+int phi[10000005];
+int prime[5000005];
+int sum[10000005];
+int cnt;
+
+void prework(){
+    nums[1] = 1;
+    phi[1] = 1;
+    for (int i = 2; i <= 10000000; i++){
+        if (!nums[i]){
+            phi[i] = i - 1;
+            prime[++cnt] = i;
+        }
+        for (int j = 1; j <= cnt && i * prime[j] <= 10000000; j++){
+            nums[prime[j] *  i] = 1;
+            if (i % prime[j] == 0){
+                phi[prime[j] * i] = phi[i] * prime[j];
+                break;
+            }
+            phi[i * prime[j]] = phi[i] * phi[prime[j]];
+        }
+    }
+    for (int i = 1; i <= 10000000; i++) sum[i] = sum[i - 1] + phi[i];
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    prework();
+    int q,n;
+    cin >> q;
+    while (q--){
+        cin >> n;
+        cout << sum[n] << "\n";
+    }
+    return 0;
+}
+
+/*
+vector<int> pri;
+bool not_prime[N];
+int phi[N];
+
+void pre(int n) {
+  phi[1] = 1;
+  for (int i = 2; i <= n; i++) {
+    if (!not_prime[i]) {
+      pri.push_back(i);
+      phi[i] = i - 1;
+    }
+    for (int pri_j : pri) {
+      if (i * pri_j > n) break;
+      not_prime[i * pri_j] = true;
+      if (i % pri_j == 0) {
+        phi[i * pri_j] = phi[i] * pri_j;
+        break;
+      }
+      phi[i * pri_j] = phi[i] * phi[pri_j];
+    }
+  }
+}
+*/

@@ -1,0 +1,51 @@
+// 超时写法
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    freopen("input.txt","r",stdin);
+    freopen("output.txt","w",stdout);
+    int n;
+    cin >> n;
+    int a[n + 1];
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    sort(a + 1,a + n + 1);
+    bitset<20> f0;
+    bitset<20> f1;
+    f1[0] = f0[0] = 1;
+    for (int i = 1; i <= n; i++){
+        int d = f0.size() - a[i];
+        f0 = f0 << d >> d; // 左移再右移可以实现截取
+        f1 = f1 | (f0 << a[i]);
+        f0 = f1;
+        cout << f0 << "\n";
+    }
+    return 0;
+}
+
+// 1 6 4 3 2
+// 1 1 3 3
+
+// 去重过了
+class Solution {
+public:
+    int maxTotalReward(vector<int>& rewardValues) {
+        bitset<100000> f;
+        sort(rewardValues.begin(),rewardValues.end());
+        int n = rewardValues.size();
+        int maxn = rewardValues[n - 1];
+        f = 1;
+        int b = -1;
+        for (int i = 0; i < n; i++){
+            if (b == rewardValues[i]) continue;
+            b = rewardValues[i];
+            int d = f.size() - rewardValues[i];
+            f = f | (f << d >> d << rewardValues[i]); // 只留下0~rewardValues[i]-1的结果
+        }
+        for (int i = 2 * maxn - 1; i >= 0; i--){
+            if (f[i] == 1) return i;
+        }
+        return 0;
+    }
+};

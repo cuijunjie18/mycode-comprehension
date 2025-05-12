@@ -1,0 +1,74 @@
+// https://www.acwing.com/problem/content/description/3534/
+#include <bits/stdc++.h>
+
+using namespace std;
+
+struct node{
+    int id;
+    int val;
+};
+struct cmp{
+    bool operator()(node x,node y){
+        return x.val >= y.val;
+    }
+};
+priority_queue<node,vector<node>,cmp> que;
+
+struct edge{
+    int to;
+    int next;
+};
+edge e[2005];
+int head[2005];
+int val[2005];
+int cnt;
+
+void add(int x,int y){
+    e[++cnt].to = y;
+    e[cnt].next = head[x];
+    head[x] = cnt;
+}
+
+int ans;
+void DFS(int x,int d){
+    bool leaf = true;
+    for (int i = head[x]; i; i = e[i].next){
+        leaf = false;
+        DFS(e[i].to,d + 1);
+    }
+    if (leaf) ans += val[x] * d;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;
+    cin >> n;
+    node temp;
+    for (int i = 1; i <= n; i++){
+        temp.id = i;
+        cin >> temp.val;
+        val[i] = temp.val;
+        que.push(temp);
+    }
+    // while (!que.empty()){
+    //     temp = que.top();
+    //     que.pop();
+    //     cout << temp.val << "\n";
+    // }
+    while (que.size() > 1){
+        node x = que.top();
+        que.pop();
+        node y = que.top();
+        que.pop();
+        temp.id = ++n;
+        temp.val = x.val + y.val;
+        // cout << temp.val << "\n";
+        add(temp.id,x.id);
+        add(temp.id,y.id);
+        que.push(temp);
+    }
+    DFS(n,0);
+    cout << ans << "\n";
+    return 0;
+}

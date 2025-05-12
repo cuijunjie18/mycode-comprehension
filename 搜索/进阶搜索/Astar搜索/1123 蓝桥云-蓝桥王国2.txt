@@ -1,0 +1,118 @@
+/*
+author:cjj
+date:2025.2.7
+*/
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int n,m,s,t,k;
+
+// 记录初始边
+struct edge{
+    int u,v,w;
+}e[100005];
+
+// 反图相关结构体及变量
+struct node1{
+    int p,d;
+};
+struct cmp1
+{
+    bool operator()(node1 x,node1 y){
+        return x.d > y.d;
+    }
+};
+vector<pair<int,int>> e1[100005];
+int dis[100005];
+bool vis[100005];
+priority_queue<node1,vector<node1>,cmp1> reque;
+
+// Astar相关结构体及变量
+struct node2
+{
+    int f,g;
+    // int h; // k短路问题中不需要定义h，因为h用dis[x]表示即目标点到当前点的最短路
+    int id;
+};
+struct cmp2
+{
+    bool operator()(node2 x,node2 y){
+        return x.f > y.f;
+    }
+};
+int cnt;
+vector<pair<int,int>> e2[100005];
+priority_queue<node2,vector<node2>,cmp2> que;
+
+// 反图预处理出终点到每个点的最短路
+void Dij(){
+    memset(dis,0x3f,sizeof(dis));
+    memset(vis,0,sizeof(vis));
+    dis[t] = 0;
+    reque.push({t,dis[t]});
+    while (!reque.empty()){
+        node1 temp = reque.top();
+        reque.pop();
+        if (vis[temp.p]) continue;
+        vis[temp.p] = true;
+        for (auto to : e1[temp.p]){
+            if (vis[to.first] || dis[to.first] <= temp.d + to.second) continue;
+            dis[to.first] = temp.d + to.second;
+            reque.push({to.first,dis[to.first]});
+        }
+    }
+    return;
+}
+
+// Astar算法求k短路
+void Astar(){
+    // 初始化起点数据
+    node2 b;
+    b.id = s;
+    b.g = 0;
+    b.f = dis[s];
+    que.push(b);
+    while (!que.empty()){
+        node2 temp = que.top();
+        que.pop();
+        if (temp.id == t) cnt++;
+        if (cnt == k){
+            cout << temp.g << "\n";
+            return;
+        }
+        for (auto to : e2[temp.id]){
+            node2 x;
+            x.id = to.first;
+            x.g = to.second + temp.g;
+            x.f = x.g + dis[x.id];
+            que.push(x);
+        }
+    }
+    if (cnt < k) cout << -1 << "\n"; // 无k短路，输出-1
+    return;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int u,v,w;
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++){
+        cin >> e[i].u >> e[i].v >> e[i].w;
+    }
+    cin >> s >> t >> k;
+
+    // 建反图
+    for (int i = 1; i <= m; i++){
+        e1[e[i].v].push_back({e[i].u,e[i].w});
+    }
+    Dij();// 预处理反图最短路
+
+    // 建正图
+    for (int i = 1; i <= m; i++){
+        e2[e[i].u].push_back({e[i].v,e[i].w});
+    }
+    Astar();
+    return 0;
+}

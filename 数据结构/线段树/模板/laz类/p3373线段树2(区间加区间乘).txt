@@ -121,7 +121,5 @@ int main()
             cout<<getsum(x,y,1,n,1)<<"\n";//输出
         }
     }
-    getchar();
-    getchar();
     return 0;
 }

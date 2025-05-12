@@ -1,0 +1,51 @@
+// 朴素保留o(n^2)
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode * temp = NULL;
+        while (headA != NULL){
+            temp = headB;
+            while (temp != NULL){
+                if (temp == headA) return temp;
+                temp = temp->next;
+            }
+            headA = headA->next;
+        }
+        return NULL;
+    }
+};
+
+//我的o(n)
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode * pA = headA;
+        ListNode * pB = headB;
+        while (pA->next != NULL) pA = pA->next;
+        while (pB->next != NULL) pB = pB->next;
+        if (pA != pB) return NULL; // 判断无解
+        pA = headA;
+        pB = headB;
+        while (pA != pB){
+            if (pA->next != NULL) pA = pA->next;
+            else pA = headB;
+            if (pB->next != NULL) pB = pB->next;
+            else pB = headA;
+        }
+        return pA;
+    }
+};
+
+//简洁o(n)
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode * pA = headA;
+        ListNode * pB = headB;
+        while (pA != pB){
+            pA = pA == NULL ? headB:pA->next; // 取得到NULL,可以不要判无解
+            pB = pB == NULL ? headA:pB->next;
+        }
+        return pA;
+    }
+};

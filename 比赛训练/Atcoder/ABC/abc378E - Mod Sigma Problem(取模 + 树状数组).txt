@@ -1,0 +1,50 @@
+// 背景：比赛没出，不过思路都是树状数组
+// 收获：对于公式题，想数据结构，含取模的，将取模转换成加减表达
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+int sum[200005];
+int tree[200005];
+int n,md;
+int lowbit(int x)
+{
+    return x & (-x);
+}
+void add(int x)
+{
+    while (x <= md - 1)
+    {
+        tree[x]++;
+        x += lowbit(x);
+    }
+}
+int getans(int x)
+{
+    int ans = 0;
+    while (x){
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+signed main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int x;
+    int ans = 0;
+    cin >> n >> md;
+    for (int i = 1; i <= n; i++){
+        cin >> x;
+        x %= md;
+        sum[i] = (sum[i - 1] + x) % md;
+    }
+    int temp = 0;
+    for (int i = 1; i <= n; i++){
+        x = getans(md - 1) - getans(sum[i]);
+        ans += i * sum[i] - temp + x * md;
+        temp += sum[i];
+        if (sum[i]) add(sum[i]);
+    }
+    cout << ans << "\n";
+    return 0;
+}

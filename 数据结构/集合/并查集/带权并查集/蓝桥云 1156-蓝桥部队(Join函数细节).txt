@@ -1,0 +1,49 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int f[100005];
+int big[100005];
+int dp[100005];
+
+int Find(int x){
+    if (x == f[x]) return x;
+    int y = Find(f[x]);
+    dp[x] += dp[f[x]];
+    f[x] = y;
+    return y;
+}
+
+void Join(int x,int y){
+    int f1 = Find(x);
+    int f2 = Find(y);
+	if (f1 == f2) return; // 一定要判断，否则big无限变大了
+    f[f1] = f2;
+    dp[f1] = big[f2];
+    big[f2] += big[f1];
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,q,c,x,y;
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++){
+        f[i] = i;
+        dp[i] = 0;
+        big[i] = 1;
+    }
+    while (q--){
+        cin >> c >> x >> y;
+        if (c == 1){
+            Join(x,y);
+        }
+        else if (c == 2){
+            int f1 = Find(x);
+            int f2 = Find(y);
+            if (f1 == f2) cout << abs(dp[x] - dp[y]) - 1 << "\n";
+            else cout << -1 << "\n";
+        }
+    }
+    return 0;
+}

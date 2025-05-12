@@ -1,0 +1,30 @@
+// 背景：刷leetcode没想到还有收获，复习了数位dp
+class Solution {
+public:
+    int dp[35][2]; // 表示当前处理到i位，之前为j，且后面无限制的满足题意的数量
+    int num[35];
+    int DFS(int pos,int b,bool limit)
+    {
+        if (pos == 0) return 1;
+        if (limit == false && dp[pos][b] != -1) return dp[pos][b];
+        int up = limit ? num[pos] : 1;
+        int res = 0;
+        for (int i = 0; i <= up; i++){
+            if (i == 1 && b == 1) continue; // 不满足情况的不用计算
+            res += DFS(pos - 1,i,(limit && (i == up)));
+        }
+        if (!limit) dp[pos][b] = res;
+        return res;
+    }
+    int findIntegers(int n) {
+        int len = 0;
+        while (n){
+            num[++len] = n % 2;
+            n /= 2;
+        }
+        for (int i = 0; i <= len; i++){
+            dp[i][0] = dp[i][1] = -1;
+        }
+        return DFS(len,0,true);
+    }
+};

@@ -1,0 +1,15 @@
+ListNode* p = nullptr;
+        ListNode* post = nullptr;
+        for (auto x : nums){
+            if (p == nullptr){
+                p = new ListNode(x,nullptr);
+                post = p;
+            }
+            else{
+                post->next = new ListNode(x,nullptr);
+                post = post->next;
+                post->val = x;
+                post->next = nullptr;
+            }
+        }
+        return p;

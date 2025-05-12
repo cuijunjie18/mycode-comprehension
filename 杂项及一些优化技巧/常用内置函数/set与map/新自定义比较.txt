@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct node {
+    int val;
+    string name;
+};
+
+struct cmp {
+    bool operator()(const node& x, const node& y) const { // 注意这里的区别
+        return x.val > y.val; // 按 val 从大到小排序
+    }
+};
+
+set<node, cmp> s;
+
+int main() {
+    node temp1 = {100, "666"};
+    node temp2 = {1000, "5566"};
+    s.insert(temp1);
+    s.insert(temp2);
+
+    node ans = (*s.begin());
+    cout << ans.name << " " << ans.val << "\n";
+
+    return 0;
+}

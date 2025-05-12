@@ -1,0 +1,17 @@
+#include <bits/stdc++.h>
+using namespace std;
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int a = 8;
+    int b = 16;
+    bitset<10> x(a);//以二进制低位到高位存储
+    bitset<10> y(b);
+    for (int i = 0;i<=9;i++) cout<<x[i]<<" ";
+    cout<<"\n";
+    for (int i = 0;i<=9;i++) cout<<y[i]<<" ";
+    cout<<"\n";
+    x = x|y;//取并操作
+    for (int i = 0;i<=9;i++) cout<<x[i]<<" ";
+    return 0;
+}

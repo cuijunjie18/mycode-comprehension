@@ -1,3 +1,4 @@
+/*理解：最多n - 1轮结束，如左到右遍历，每次小的左移动，第一次最大的到最后，第二次第二大的到倒数第二，以此类推*/
 #include <stdio.h>
 #include <stdlib.h>
 void Sortdata(int a[],int n)

@@ -1,0 +1,132 @@
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+
+
+/*
+法一：我的迭代，新建链表
+时间复杂度：o（n + m）
+空间复杂度：o（n + m）
+*/
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        if (list1 == nullptr && list2 == nullptr) return nullptr;
+        ListNode* p = nullptr; // 返回指针
+        ListNode* t = new(ListNode); // 移动指针
+        while (true){
+            if (list1 == nullptr){
+                t->val = list2->val;
+                list2 = list2->next;
+            }
+            else if (list2 == nullptr){
+                t->val = list1->val;
+                list1 = list1->next;
+            }
+            else{
+                if (list1->val < list2->val){
+                    t->val = list1->val;
+                    list1 = list1->next;
+                }
+                else{
+                    t->val = list2->val;
+                    list2 = list2->next;
+                }
+            }
+            if (p == nullptr){ // 判断是否初始化
+                p = t;
+            }
+            if (list1 == nullptr && list2 == nullptr) break; // 终止条件
+            t->next = new(ListNode);
+            t = t->next;
+        }
+        return p;
+    }
+};
+
+/*
+法二：题解的原地迭代
+时间复杂度：o(n + m)
+空间复杂度：o(1)
+*/
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        ListNode* head = new ListNode(-1);
+        ListNode* prev = head;
+        while (list1 != nullptr && list2 != nullptr){
+            if (list1->val < list2->val){
+                prev->next = list1;
+                list1 = list1->next;
+            }
+            else{
+                prev->next = list2;
+                list2 = list2->next;
+            }
+            prev = prev->next;
+        }
+        prev->next = list1 == nullptr?list2:list1; // 直接连上未空的
+        return head->next; // 返回的是next
+    }
+};
+
+/*
+法三：我的递归
+时间复杂度：o（n + m）
+空间复杂度：o（2*（n + m）），函数传参的栈空间，及新建节点的空间
+*/
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        if (list1 == nullptr && list2 == nullptr) return nullptr;
+        ListNode* head = new ListNode;
+        if (list1 == nullptr){
+            head->val = list2->val;
+            head->next = mergeTwoLists(nullptr,list2->next);
+        }
+        else if (list2 == nullptr){
+            head->val = list1->val;
+            head->next = mergeTwoLists(list1->next,nullptr);
+        }
+        else{
+            if (list1->val < list2->val){
+                head->val = list1->val;
+                head->next = mergeTwoLists(list1->next,list2);
+            }
+            else{
+                head->val = list2->val;
+                head->next = mergeTwoLists(list1,list2->next);
+            }
+        }
+        return head;
+    }
+};
+
+/*
+法四：题解递归
+时间复杂度：o（n + m）
+空间复杂度：o（n + m），仅函数传参的栈空间
+*/
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if (l1 == nullptr) {
+            return l2;
+        } else if (l2 == nullptr) {
+            return l1;
+        } else if (l1->val < l2->val) {
+            l1->next = mergeTwoLists(l1->next, l2);
+            return l1;
+        } else {
+            l2->next = mergeTwoLists(l1, l2->next);
+            return l2;
+        }
+    }
+};

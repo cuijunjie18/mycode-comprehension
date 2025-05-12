@@ -9,38 +9,41 @@ void Swap(int *a,int *b)
 }
 void Sortdata(int a[],int begin,int end)
 {
-    if(begin>end) return;
+    if(begin > end) return;
     int point = a[begin];
     int i = begin;
     int j = end;
     while(i!=j)
     {
-        while(a[j]>=point&&j>i)//注意这里一定要有等于,否则会出现一种情况即起点就满足情况,可以证明i或j总有一个值对标temp,故交换次数多了,且最后a[i] = temp
+        // 1,注意这里一定要有等于,否则会出现一种情况即起点就满足情况,可以证明i或j总有一个值对标temp,故交换次数多了,且最后a[i] = temp
+        // 2,如果两个都无等号，那么起始a[begin] = a[end]时会一直死循环
+        while(a[j] >= point && j > i)
         {
             j--;
         }
-        while(a[i]<=point&&i<j)
+        while(a[i] <= point && i < j)
         {
             i++;
         }
-        if(j>i)
+        if(j > i)
         {
            Swap(&a[i],&a[j]);
         }
     }
-    //则在这里互换时导致temp 与 a[i] 重复了
+    // 则在这里互换时导致temp 与 a[i] 重复了
     a[begin] = a[i];
     a[i] = point;
-    Sortdata(a,begin,i-1);
-    Sortdata(a,i+1,end);
+    Sortdata(a,begin,i - 1);
+    Sortdata(a,i + 1,end);
 }
 
 void Print(int a[],int n)
 {
-    for (int i = 0;i<=n-1;i++)
+    for (int i = 0; i <= n - 1; i++)
     {
-        printf("%d\n",a[i]);
+        printf("%d ",a[i]);
     }
+    printf("\n");
     return;
 }
 
@@ -50,7 +53,7 @@ int main()
     printf("Please input how many number you want to save:");
     scanf("%d",&n);
     int number[n];
-    for (int i = 0;i<=n-1;i++)
+    for (int i = 0; i <= n-1; i++)
     {
         scanf("%d",&number[i]);
     }
@@ -58,3 +61,8 @@ int main()
     Print(number,n);
     return 0;
 }
+
+/*
+Hack: 3 2 1(hack相等)
+Hack: 4 4(hack相等)
+*/

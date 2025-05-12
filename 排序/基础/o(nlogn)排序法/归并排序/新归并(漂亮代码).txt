@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int a[100005];
+int temp[100005];
+int n;
+
+void my_merge(int a[],int s1,int b[],int s2)
+{
+    int i = 0,j = 0,p = 0;
+    while (i < s1 && j < s2){
+        if (a[i] < b[j]) temp[p] = a[i++];
+        else temp[p] = b[j++];
+        p++;
+    }
+    for (; i < s1; i++) temp[p++] = a[i];
+    for (; j < s2; j++) temp[p++] = b[j];
+}
+
+void merge_sort(int a[],int l,int r)
+{
+    if (r == l) return; // 主要修改处
+    int mid = (l + r) >> 1;
+    merge_sort(a,l,mid);
+    merge_sort(a,mid + 1,r);
+    my_merge(&a[l],mid - l + 1,&a[mid + 1],r - mid);
+    for (int i = 0; i < r - l + 1; i++) a[i + l] = temp[i];
+    return;
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    merge_sort(a,1,n);
+    for (int i = 1; i <= n; i++) cout << a[i] << " ";
+    return 0;
+}

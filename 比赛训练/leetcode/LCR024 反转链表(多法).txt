@@ -1,0 +1,35 @@
+// 新建链表法
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if (head == NULL) return NULL;
+        ListNode * newhead = NULL;
+        ListNode * pre = NULL; // 保存head的下一个位置
+        while (head != NULL){
+            pre = head->next;// 保存
+            ListNode * temp = newhead; // 记录当前头
+            newhead = head; // 更新
+            newhead->next = temp; // 连接
+            head = pre; // 移动
+        }
+        return newhead;
+    }
+};
+
+// 原地反转法
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if (head == NULL) return NULL;
+        ListNode * pre = head;
+        ListNode * cur = head->next;
+        head->next = NULL;
+        while (cur){
+            pre = cur->next;
+            cur->next = head;
+            head = cur;
+            cur = pre;
+        }
+        return head;
+    }
+};

@@ -17,8 +17,9 @@ void Eulerprime(int n)
         }
         for (int j = 1;j<=pos&&i*prime[j]<=n;j++)//关键步骤，数论知识，最小质因数原理
         {
-            number[i*prime[j]] = 1;//筛掉以prime[j]为最小质因数的合数
-            if(i%prime[j] == 0) break;//如果i是由prime[j]得来的，则后面i的乘全都可以通过它来筛，减少重复(后面必然会筛掉)
+	    /*注意代码顺序*/
+            number[i*prime[j]] = 1;// 筛掉以prime[j]为最小质因数的合数
+            if(i%prime[j] == 0) break;// 如果i是由prime[j]得来的，则后面i的乘全都可以通过它来筛，减少重复(后面必然会筛掉)
         }
     }
 }

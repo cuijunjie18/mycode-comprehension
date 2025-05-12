@@ -1,0 +1,40 @@
+// 法一：递归，变化上下界
+class Solution {
+public:
+    bool flag = true;
+    void DFS(TreeNode *root,long long lower,long long upper){
+        if (!flag) return;
+        if (root->val <= lower || root->val >= upper){ // 要求严格比较
+            // cout << root->val << "\n";
+            flag = false;
+            return;
+        }
+        if (root->left) DFS(root->left,lower,root->val);
+        if (root->right) DFS(root->right,root->val,upper);
+    }
+    bool isValidBST(TreeNode* root) {
+        DFS(root,-1e10,1e10); // 注意上下界初始化为无穷大
+        return flag;
+    }
+};
+
+// 法二：搜索二叉树的性质：中序遍历是升序的
+class Solution {
+public:
+    bool flag = true;
+    long long lower = -1e10;
+    void DFS(TreeNode *root){
+        if (!flag) return;
+        if (root->left) DFS(root->left);
+        if (root->val <= lower){
+            flag = false;
+            return;
+        }
+        lower = root->val;
+        if (root->right) DFS(root->right);
+    }
+    bool isValidBST(TreeNode* root) {
+        DFS(root);
+        return flag;
+    }
+};

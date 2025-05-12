@@ -1,0 +1,72 @@
+// 背景：学习网路流
+// 时间复杂度:n^3 * E，n为节点数量，BFS为n^2，增广上界为nE
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+int n,m,s,t;
+int e[205][205]; // 邻接表存图，权值为边容量
+int pre[205]; // 记录前驱点
+int dis[205]; // 记录路径上的最小容量
+
+void EK(){
+    bool flag = false;
+    int ans = 0;
+    do{
+        flag = false;
+        memset(pre,0,sizeof(pre));
+        memset(dis,0x3f,sizeof(dis));
+        queue<int> que;
+        que.push(s);
+        pre[s] = -1;
+        while (!que.empty()){
+            int x = que.front();
+            // cout << x << "\n";
+            if (x == t){
+                flag = true;
+                while (pre[x] != -1){
+                    e[x][pre[x]] += dis[t];
+                    e[pre[x]][x] -= dis[t];
+                    x = pre[x];
+                    // cout << x << " ";
+                }
+                // cout << "\n";
+                ans += dis[t];
+                break;
+            }
+            que.pop();
+            for (int i = 1; i <= n; i++){
+                if (e[x][i] > 0 && pre[i] == 0) { // 还有容量并且to没有到达过
+                    pre[i] = x;
+                    dis[i] = min(dis[x],e[x][i]); // 取路径上的最小值
+                    que.push(i);
+                }
+            }
+        }
+        while (!que.empty()) que.pop();
+        // for (int i = 1; i <= n; i++){
+        //     for (int j = 1; j <= n; j++) cout << e[i][j] << " ";
+        //     cout << "\n";
+        // }
+        // cout << "Add Flow : " << dis[t] << "\n";
+        // cout << "==========================" << "\n";
+    }while (flag);
+    cout << ans << "\n";
+    return;
+}
+
+signed main()
+{
+    // ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int u,v,c;
+    cin >> n >> m >> s >> t;
+    for (int i = 1; i <= m; i++){
+        cin >> u >> v >> c;
+        // 可能有重边，容量要用加
+        e[u][v] += c;
+        e[v][u] += 0;
+    }
+    EK();
+    return 0;
+}

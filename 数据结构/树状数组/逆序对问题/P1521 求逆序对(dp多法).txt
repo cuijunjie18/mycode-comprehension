@@ -1,0 +1,60 @@
+// 背景：leetcode的题让我找相关逆序对问题
+// 题目描述：求特定逆序对数量的全排列方案数
+// 思路：按数大小dp，由小到大，那么大的插入会产生多少个新的逆序对是固定的
+// 坑点：注意取模
+
+// 一：刷表法，将当前状态刷掉
+#include <bits/stdc++.h>
+using namespace std;
+const int md = 1e4;
+int dp[105][10005]; // 包含i个数的全排列，逆序对数量为j的方案数
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,k;
+    cin >> n >> k;
+    dp[0][0] = 1; // 初始化
+
+    // 枚举数
+    for (int i = 1; i <= n; i++){
+        // 枚举逆序对
+        for (int j = 0; j <= i * (i - 1)/2; j++){
+            // 枚举i放的位置，注意边界
+            for (int k = max(i - j,1); k <= i; k++) dp[i][j] = (dp[i][j] + dp[i - 1][j - (i - k)]) % md; 
+        }
+    }
+    cout << dp[n][k] << "\n";
+    return 0;
+}
+
+// 法二：填表，用当前状态去更新其他状态
+ dp[0][0] = 1; // 初始化 
+    for (int i = 1; i <= n; i++){
+        for (int j = 0; j <= (i - 2) * (i - 1) / 2; j++){ //注意之前的最大j
+            for (int k = 0; k <= i - 1; k++) dp[i][j + k] = (dp[i][j + k] + dp[i - 1][j]) % md;
+        }
+    }
+
+// 法三：前缀和优化刷表
+// 思路：观察到刷表法最后一层是连续的求和，可以用前缀和优化掉一重循环
+// 缺点：越界但是能过
+ dp[0][0] = 1; // 初始化 
+    for (int i = 1; i <= n; i++){
+        sum[i - 1][0] = dp[i - 1][0];
+        for (int j = 1; j <= i * (i - 1)/2; j++) sum[i - 1][j] = (sum[i - 1][j - 1] + dp[i - 1][j]) % md;
+        for (int j = 0; j <= i * (i - 1)/2; j++){
+            int k = max(i - j,1);
+            dp[i][j] = (sum[i - 1][j] - sum[i - 1][j - (i - k)] + dp[i - 1][j - (i - k)] + md) % md; // 注意涉及到减法的取模，要加一个md
+        }
+    }
+
+// 注意越界法
+ dp[0][0] = 1; // 初始化 
+    for (int i = 1; i <= n; i++){
+        sum[i - 1][0] = dp[i - 1][0];
+        for (int j = 1; j <= i * (i - 1)/2; j++) sum[i - 1][j] = (sum[i - 1][j - 1] + dp[i - 1][j]) % md;
+        for (int j = 0; j <= i * (i - 1)/2; j++){
+            if (j - (i - 1) - 1 < 0 ) dp[i][j] = (sum[i - 1][j]) % md;
+            else dp[i][j] = (sum[i - 1][j] - sum[i - 1][j - (i - 1) - 1] + md) % md;
+        }
+    }
