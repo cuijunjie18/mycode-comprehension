@@ -1,0 +1,104 @@
+//背景:手打真的累,调了1个小时,以后还是用STL里的优先队列吧!priority_queue<>
+//时间复杂度:o(nlogn)
+#include <bits/stdc++.h>
+using namespace std;
+int big[1000001];//大根堆维护较小的最大值
+int small[1000001];//小根堆维护较大的最小值
+int cnt1;//大根堆节点数
+int cnt2;//小根堆节点数
+void upbig(int x)//大根堆的向上调整
+{
+    while(x>1&&big[x]>big[x/2])
+    {
+        swap(big[x],big[x/2]);
+        x /= 2;
+    }
+}
+void upsmall(int x)//小根堆的向上调整
+{
+    while(x>1&&small[x]<small[x/2])
+    {
+        swap(small[x],small[x/2]);
+        x /= 2;
+    }
+}
+void downbig(int x)//大根堆的向下调整
+{
+    while(x*2<=cnt1)
+    {
+        int t = x*2;
+        if(t+1<=cnt1&&big[t+1]>big[t]) t++;
+        if(big[t]>big[x])
+        {
+            swap(big[t],big[x]);
+            x = t;
+        }
+        else break;
+    }
+}
+void downsmall(int x)//小根堆的向下调整
+{
+    while(x*2<=cnt2)
+    {
+        int t = x*2;
+        if(t+1<=cnt2&&small[t+1]<small[t]) t++;
+        if(small[t]<small[x])
+        {
+            swap(small[t],small[x]);
+            x = t;
+        }
+        else break;
+    }
+}
+int getsmall()//获取小根堆堆顶并删除(前提是堆中有元素)
+{
+    int x = small[1];
+    small[1] = small[cnt2--];
+    downsmall(1);
+    return x;
+}
+int getbig()//获取大根堆堆顶并删除(前提是堆中有元素)
+{
+    int x = big[1];
+    big[1] = big[cnt1--];
+    downbig(1);
+    return x;
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)//依次输入n个数
+    {
+        cin>>x;
+        //以下是判断当前位置轮到哪个堆新增节点了,由于求奇数序列的中位数,不妨将中位数放在大根堆(也可以反过来),故大根堆节点要多1
+        if(cnt1<=cnt2)//轮到大根堆新增节点
+        {
+            if(x>small[1]&&cnt2>=1)//先判断当前新数应去的位置,如果大于小根堆堆顶且小根堆不空
+            {
+                small[++cnt2] = x;//新数放入小根堆
+                upsmall(cnt2);//更新小根堆
+                x = getsmall();//获取小根堆堆顶并删除
+            }
+            big[++cnt1] = x;//放入大根堆
+            upbig(cnt1);//更新大根堆
+        }
+        else//轮到小根堆新增节点
+        {
+            if(x<big[1]&&cnt1>=1)//同上道理
+            {
+                big[++cnt1] = x;
+                upbig(cnt1);
+                x = getbig();
+            }
+            small[++cnt2] = x;
+            upsmall(cnt2);
+        }
+        if(i%2)//如果当前是奇数项
+        {
+            cout<<big[1]<<"\n";//输出大根堆堆顶即中位数
+        }
+    }
+    return 0;
+}

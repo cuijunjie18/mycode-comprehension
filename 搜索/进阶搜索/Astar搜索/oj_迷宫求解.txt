@@ -1,0 +1,176 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+int n,m;
+char mp[205][205];
+int walk[4][2] = {{0,1},{1,0},{0,-1},{-1,0}};
+char fward[4] = {'R','D','L','U'};
+char back[4] = {'L','U','R','D'};
+
+int bx,by;
+int kx,ky;
+int ex,ey;
+int flag = 0;
+int vis[205][205];
+
+struct node{
+    int x,y;
+    int g;
+	int f;
+}que[200005];
+int pre[200005]; // 路径前缀id
+int cnt;
+
+
+// 优先队列(小根堆)
+void swap(struct node* a,struct node* b){
+	struct node temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+int cmp(struct node a,struct node b){
+	if (a.f == b.f){
+		if (a.x == b.x) return a.y > b.y;
+		return a.x > b.x;
+	}
+	return a.f < b.f;
+}
+
+void up(int x){
+	while (x > 1 && cmp(que[x],que[x / 2])){
+		swap(&que[x],&que[x / 2]);
+		x /= 2;
+	}
+}
+
+void down(int x){
+	while (x * 2 <= cnt){
+		int t = x * 2;
+		if (t + 1 <= cnt && cmp(que[t + 1],que[t])) t++;
+		if (cmp(que[x],que[t])) break;
+		swap(&que[x],&que[t]);
+		x = t;
+	}
+}
+
+void push(struct node x){
+	que[++cnt] = x;
+	up(cnt);
+}
+
+struct node front(){
+	return que[1];
+}
+
+void pop(){
+	que[1] = que[cnt--];
+	down(1);
+}
+
+// 深搜找钥匙
+void DFS(int x,int y,int step){
+    if (flag) return;
+    if (mp[x][y] == '$'){
+        printf("\n%d\n",step);
+        flag = 1;
+        return;
+    }
+    for (int i = 0; i < 4; i++){
+        int wx = x + walk[i][0];
+        int wy = y + walk[i][1];
+        if (wx < 0 || wx >= n || wy < 0 || wy >= m || vis[wx][wy]
+             || mp[wx][wy] == '1') continue;
+        vis[wx][wy] = 1;
+        printf("->%c",fward[i]);
+        DFS(wx,wy,step + 1);
+        if (flag) return;
+        vis[wx][wy] = 0;
+        printf("->%c",back[i]);
+    }
+}
+
+// A*算法
+void Astar(){
+    memset(vis,0,sizeof(vis));
+	struct node p = {kx,ky,0,0};
+    pre[kx * m + ky] = -1;
+	p.f = abs(ex - p.x) + abs(ey - p.y);
+	push(p);
+
+    // 核心A*，优先队列实现
+	while (cnt){
+        p = front();
+        pop();
+        if (vis[p.x][p.y]) continue; // 这个必须写，虽然最优路径没影响，但是影响A*输出过程
+        vis[p.x][p.y] = 1;
+        printf("->(%d,%d)",p.x,p.y);
+        if (p.x == ex && p.y == ey) break;
+        for (int i = 0; i < 4; i++){
+            int wx = p.x + walk[i][0];
+            int wy = p.y + walk[i][1];
+            if (wx < 0 || wx >= n || wy < 0 || wy >= m || mp[wx][wy] == 
+                '1' || vis[wx][wy]) continue;
+            struct node temp;
+            temp.x = wx;
+            temp.y = wy;
+            temp.g = p.g + 1;
+            temp.f = temp.g + abs(ex - wx) + abs(ey - wy);
+            push(temp);
+            pre[wx * m + wy] = p.x * m + p.y; 
+        }
+    }
+    int tot = 0;
+    int ans[205];
+    int x = ex,y = ey;
+
+    // 反向找路径
+    while (1){
+        ans[++tot] = x * m + y;
+        if (pre[x * m + y] == -1) break;
+        int temp_x = x,temp_y = y;
+        x = pre[temp_x * m + temp_y] / m;
+        y = pre[temp_x * m + temp_y] % m;
+    }
+    printf("\n");
+    for (int i = tot; i >= 1; i--){
+        printf("->(%d,%d)",ans[i] / m,ans[i] % m);
+    }
+    return;
+}
+
+int main()
+{
+    scanf("%d %d",&n,&m);
+    char str[205];
+    for (int i = 0; i < n; i++){
+        scanf("%s",str);
+        for (int j = 0; j < m; j++) mp[i][j] = str[j];
+        for (int j = 0; j < m; j++){
+            if (mp[i][j] == '*'){
+                bx = i;
+                by = j;
+            }else if(mp[i][j] == '#'){
+                ex = i;
+                ey = j;
+            }else if (mp[i][j] == '$'){
+                kx = i;
+                ky = j;
+            }
+        }
+    }
+    // for (int i = 0; i < n; i++){
+    //     for (int j = 0; j < m; j++) printf("%c",mp[i][j]);
+    //     printf("\n");
+    // }
+    // printf("%d %d\n",bx,by);
+    // printf("%d %d\n",kx,ky);
+    // printf("%d %d\n",ex,ey);
+    // return 0;
+    vis[bx][by] = 1; // 注意初始化
+    DFS(bx,by,0);
+    Astar();
+    return 0;
+}

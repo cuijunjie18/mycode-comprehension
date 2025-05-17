@@ -1,0 +1,102 @@
+//背景:呜呜呜呜数学不好构建代码半天
+/*做法:构建小根堆,将每个函数视为一个序列(可单调取值),预处理好每个函数的最小值入堆,然后每次取堆顶,删除,将堆顶的来自函数再生成一个
+      接上之前的最小值(未用过的)(该过程用双指针处理),入堆,每次操作时间复杂度为logn,操作m次*/
+//时间复杂度:o(mlogn)
+#include <bits/stdc++.h>
+using namespace std;
+typedef struct p//核心结构体定义
+{
+    int number,value;//number为对应函数编号,value为此函数生成的值
+}P;
+struct cmp//自定义结构体排序(适用于容器)
+{
+    bool operator()(P x,P y)
+    {
+        return x.value>y.value;
+    }
+};
+priority_queue<P,vector<P>,cmp>heap;//自定义小根堆
+P temp;//临时变量
+int ans1,ans2;//双指针取出的两个值(以二次函数对称轴为界,一个向左移动,一个向右移动)
+int l[10001],r[10001];//对应i函数的左右偏离对称轴指针
+int m[10001];//i函数的整型对称轴(!!!注意对称轴可能为浮点数)
+int a[10001],b[10001],c[10001];//函数的参数
+int Fact(int number,int x)//计算函数值,number为函数编号,x为自变量
+{
+    return a[number]*x*x + b[number]*x + c[number];
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);//加快输入输出
+    int n,t;
+    cin>>n>>t;
+    for (int i = 1;i<=n;i++)//依次输入n个函数的数据及预处理每个函数
+    {
+        cin>>a[i]>>b[i]>>c[i];//输入函数参数
+        double x = (double)(-b[i])/(2*a[i]);//计算对称轴!!!注意细节
+        m[i] = x;//对称轴取整,记录
+        l[i] = 0;//初始化左指针
+        r[i] = 1;//初始化右指针(经验证,无论如何右指针都要先偏离一个单位)
+      */if(fabs(m[i]-x) != fabs(m[i]+1-x))//判断只要对称轴不是两个整数的中点!!!!细节
+        {
+            r[i] = 1;//右指针先偏离一个单位
+        }*/ //无效部分请忽略
+        while(r[i]+m[i]<1) r[i]++;//右指针先移动到正整数
+        if(m[i]-l[i]>0&&m[i]+r[i]>0)//如果左右都还满足正整数
+        {
+            ans1 = Fact(i,m[i]-l[i]);//计算还函数值
+            ans2 = Fact(i,m[i]+r[i]);
+            if(ans1<=ans2)//左小
+            {
+                l[i]++;//偏移
+                temp = {i,ans1};
+                heap.push(temp);//入堆
+            }
+            else//右小
+            {
+                r[i]++;//偏移
+                temp = {i,ans2};
+                heap.push(temp);//入堆
+            }
+        }
+        else if(m[i]-l[i]<1)//左指针已经不满足正整数了
+        {
+            ans1 = Fact(i,m[i]+r[i]);//计算函数值
+            r[i]++;//偏移
+            temp = {i,ans1};
+            heap.push(temp);//入堆
+        }
+    }
+    for (int i = 1;i<=t;i++)//处理t个最小值
+    {
+        temp = heap.top();//获取小根堆堆顶(最小值)
+        cout<<temp.value<<" ";//输出
+        heap.pop();//删除
+        int pos = temp.number;//获取函数编号
+        if(m[pos]-l[pos]>0&&m[pos]+r[pos]>0)//同上
+        {
+            ans1 = Fact(pos,m[pos]-l[pos]);
+            ans2 = Fact(pos,m[pos]+r[pos]);
+            if(ans1<=ans2)
+            {
+                l[pos]++;
+                temp = {pos,ans1};
+                heap.push(temp);
+            }
+            else
+            {
+                r[pos]++;
+                temp = {pos,ans2};
+                heap.push(temp);
+            }
+        }
+        else if(m[pos]-l[pos]<1)
+        {
+            ans1 = Fact(pos,m[pos]+r[pos]);
+            r[pos]++;
+            temp = {pos,ans1};
+            heap.push(temp);
+        }
+    }
+    return 0;
+}

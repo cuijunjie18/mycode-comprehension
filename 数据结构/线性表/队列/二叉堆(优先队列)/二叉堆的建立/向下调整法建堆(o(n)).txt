@@ -1,0 +1,39 @@
+//时间复杂度:o(n-logn) = o(n)
+#include <bits/stdc++.h>
+using namespace std;
+int heap[1000001];//二叉堆数组
+int cnt;//堆中节点个数
+void down(int x)//向下调整
+{
+    while(x*2<=cnt)//一直往下
+    {
+        int t = x*2;
+        if(t+1<=cnt&&heap[t+1]>heap[t]) t++;//取更大的值往上比较以符合大根堆的性质
+        if(heap[t]>heap[x])//如果要换位
+        {
+            swap(heap[t],heap[x]);//换
+            x = t;//往下
+        }
+        else break;//否则位置正确,退出循环
+    }
+}
+int main()
+{
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,x;
+    cin>>n;
+    for (int i = 1;i<=n;i++)
+    {
+        cin>>x;
+        heap[++cnt] = x;
+    }
+    for (int i = n;i>=1;i--)//这里一定要逆序(例子:大根堆,2->3->4,如果顺序向下则不对了)
+    {
+        down(i);
+    }
+    for (int i = 1;i<=n;i++)
+    {
+        cout<<heap[i]<<" ";
+    }
+    return 0;
+}
